@@ -6,10 +6,26 @@ using System.Threading.Tasks;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
-    internal class Player
+    internal class Player : Component
     {
-        // WASD input movement
-        // check collision with non-walkable tiles (override method from collision component
-        // Die() method
+        /// <summary>
+        /// Responsible for handling player input, and updating the player's position with Draw()
+        /// </summary>
+       
+        // REFERENCES
+        // HealthSystem
+        // Collision
+
+        // VARIABLES
+        // Get health properties from 
+        // WASD input movement (Update?)
+        // override Update() from component
+        protected override void Draw() // overriding from Component
+        {
+            // draw player sprite from Sprite Texture2D - use InitializeSprite() ?
+        }
+        // METHODS TO USE - centralize these to Game1?
+        // CheckCollisions() (method from collision component)
+        // Die() (from HealthSystem)
     }
 }

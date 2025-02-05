@@ -4,18 +4,45 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Components
+internal class Component // Abstract
 {
-    internal class Component// Abstract
+    // Reference to owner (gameobject)
+    private GameObject _gameObject;
+
+    // OnStart() - branch off GameObject AddComponent()
+    protected virtual void AddComponent()
     {
-        // Reference to owner (gameobject)
-        // OnStart() - branch off GameObject AddComponent()
-        // OnEnable()
-        // OnDisable()
-        // Enabled bool
-        // Update()
-        // Draw() - branch of GameObject Draw()
-        // OnDestroy()
-        // Initialize()
+        // add this to the list of Components (GObj has the list)
+    }
+    // OnEnable()
+    private void OnEnable()
+    {
+
+    }
+    // OnDisable()
+    private void OnDisable()
+    {
+
+    }
+    // Enabled bool
+    // Update()
+    public void Update()
+    {
+
+    }
+    // Draw() - branch of GameObject Draw()
+    protected virtual void Draw()
+    {
+
+    }
+    // OnDestroy()
+    public void OnDestroy()
+    {
+
+    }
+    // Initialize()
+    public void Initialize()
+    {
+
     }
 }

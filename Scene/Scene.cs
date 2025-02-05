@@ -4,14 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Scene
+internal class Scene
 {
-    internal class Scene
+    // List of GameObjects
+    List<GameObject> _gameObjects = new List<GameObject>();
+
+    // AddGameObject()
+    public void AddGameObject()
     {
-        // List of GameObjects
-        //List<GameObject> _gameObjects = new List<>(GameObject);
-        // AddGameObject()
-        // Draw()
-        // Update()
+        // logic addds GameObjects to list _gameObjects
+    }
+    // Draw()
+    protected virtual void Draw()
+    {
+        // reference/call corresponding GameObject method
+    }
+    // Update()
+    protected virtual void Update()
+    {
+        // reference/call corresponding GameObject method
     }
 }

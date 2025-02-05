@@ -8,6 +8,8 @@ namespace GameProgII_2DGAME_JuliaC02032025
 {
     public class Game1 : Game
     {
+        // make a while loop while player's health is above 0?
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
@@ -63,6 +65,9 @@ Basic gameplay features:
     Player movement using WASD/ arrow keys
     Collision detection with non-walkable tiles
     Level transition when player reaches exit tile
+
+!!! NOTE
+    inheriting classes dont need to override unless ther are part of that 'group' of the class
+    so getting Update(), sometimes would only need to call update of the branch class (like scene - component)
 */
 
-// what classes to make abstract ??

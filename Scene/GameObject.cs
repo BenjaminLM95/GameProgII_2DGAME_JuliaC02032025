@@ -1,23 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Components
+internal class GameObject 
 {
-    internal class GameObject //: Scene
+    // Reference to scene
+    Scene _scene;
+
+    // ----- VARIABLES -----
+    // Position / Rotation
+    Vector2 position = new Vector2(100, 100);
+    private float rotation = 50f;
+    // bool isActive
+    public bool IsActive { get; private set; }
+    // List of components
+    List<Component> _components = new List<Component>();
+
+    // ----- METHODS -----
+    // AddComponent()
+    protected virtual void AddComponent()
     {
-        // Position / Rotation
-        // bool isActive
-        // List of components
-        // AddComponent()
-        // RemoveComponent()
-        // HasComponent()
-        // GetComponent(of type)
-        // bool isActive
-        // Destroy()
-        // Update() - branch of Scene Update()
-        // Draw() - branch of Scene Draw()
+        // reference/call corresponding Component method
+        IsActive = true;
+    }
+    // RemoveComponent()
+    protected virtual void RemoveComponent()
+    {
+
+    }
+    // HasComponent()
+    protected virtual void HasComponent()
+    {
+
+    }
+    // GetComponent(of type)
+    protected virtual void GetComponent(Component componentType)
+    {
+
+    }
+    // bool isActive !!!
+    // Destroy()
+    protected virtual void Destroy()
+    {
+
+    }
+    // Update() - branch of Scene Update()
+    protected virtual void Update()
+    {
+
+    }
+    // Draw() - branch of Scene Draw()
+    protected virtual void Draw()
+    {
+        // reference/call corresponding Component method
     }
 }
