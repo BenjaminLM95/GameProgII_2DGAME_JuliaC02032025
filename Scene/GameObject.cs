@@ -6,20 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 
 internal class GameObject 
-{
-    // Reference to scene
-    Scene _scene;
+{    
+    Scene _scene; // Reference to scene
 
-    // ----- VARIABLES -----
+    // ---------- VARIABLES ---------- //
     // Position / Rotation
     Vector2 position = new Vector2(100, 100);
     private float rotation = 50f;
     // bool isActive
-    public bool IsActive { get; private set; }
+    public bool IsActive { get; set; }
     // List of components
     List<Component> _components = new List<Component>();
 
-    // ----- METHODS -----
+    // ---------- METHODS ---------- //
     // AddComponent()
     protected virtual void AddComponent()
     {
@@ -41,7 +40,6 @@ internal class GameObject
     {
 
     }
-    // bool isActive !!!
     // Destroy()
     protected virtual void Destroy()
     {

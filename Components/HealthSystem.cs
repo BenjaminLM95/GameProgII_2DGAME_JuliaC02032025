@@ -8,20 +8,18 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
     internal class HealthSystem : Component
     {
-        // reference Player AND Enemy (as gameobjects?)
-        GameObject _gameObject;
+        // ---------- REFERENCES ---------- //        
+        GameObject _gameObject; // reference Player AND Enemy (as gameobjects?)
 
+        // ---------- VARIABLES ---------- //
         // property Health
-        public int Health { get; private set; } // reference past assignments from more detailed property
-        // variable maxHealth
-        int maxHealth = 100;
-        // property Damage
-        public int Damage { get; private set; }
-        // bool isAlive
+        public int Health { get; private set; } // reference past assignments from more detailed property        
+        int maxHealth = 100; // variable maxHealth
+
+        public int Damage { get; private set; } // property Damage       
         bool isAlive = true;
 
-        // METHODS
-        // TakeDamage()
+        // ---------- METHODS ---------- //
         private void TakeDamage(int damage)
         {
             if (Health <= 0)
@@ -30,7 +28,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             }
             Health -= damage;
         }
-        // Die()
+
         private void Die()
         {
             // set gamaobject inactive (reference bool isActive from GameObject)

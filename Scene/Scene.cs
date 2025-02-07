@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 internal class Scene
 {
+    // ---------- VARIABLES ---------- //
     // List of GameObjects
     List<GameObject> _gameObjects = new List<GameObject>();
 
+    // ---------- METHODS ---------- //
     // AddGameObject()
     public void AddGameObject()
     {

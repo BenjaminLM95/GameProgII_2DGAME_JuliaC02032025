@@ -8,6 +8,9 @@ namespace GameProgII_2DGAME_JuliaC02032025
 {
     public class Game1 : Game
     {
+        // ---------- REFERENCES ---------- //
+        Scene _scene;
+        GameObject _gameObject;
         // make a while loop while player's health is above 0?
 
         private GraphicsDeviceManager _graphics;
@@ -40,6 +43,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
                 Exit();
 
             // TODO: Add your update logic here
+            
 
             base.Update(gameTime);
         }
