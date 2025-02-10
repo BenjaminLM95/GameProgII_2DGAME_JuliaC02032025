@@ -47,17 +47,17 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             //sprites.Add("Start", mapStart);
             //sprites.Add("End", mapEnd);
         }
-       
+
         public Texture2D InitializeSprite(string name)
         {
-
-            // get all sprites from file names
-            return sprites.TryGetValue(name, out Texture2D texture) ? texture : null;
+            currentTexture = Game1.instance.Content.Load<Texture2D>(name);
+            return currentTexture;
         }
 
-        protected override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
-
+            //spriteBatch.Draw(currentTexture,)
         }
+    }
 }

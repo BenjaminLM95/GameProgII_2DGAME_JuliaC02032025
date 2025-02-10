@@ -45,18 +45,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 position.X += 1 * speed;
             }
         }
-
-        // override Update() from component
-        protected void Draw(SpriteBatch spriteBatch) // overriding from Component
-        {
-            _sprite.InitializeSprite("player");
-
-            //Texture2D player = _sprite.LoadSprites(player); // need to draw player AT Vector2 position
-            //spriteBatch.Draw(player, position, Color.White);
-
-            //_sprite.LoadSprites(player); // way to load sprites by name, add another param to LoadSprites?
-            // draw player sprite from Sprite Texture2D - use InitializeSprite() ?
-        }
+        
         // METHODS TO USE - centralize these to Game1?, use in Update()
         // CheckCollisions() (method from collision component)
         // Die() (from HealthSystem)

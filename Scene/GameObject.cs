@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,5 +62,13 @@ internal class GameObject
     protected virtual void Draw(GameTime gameTime)
     {
         // reference/call corresponding Component method
+    }
+
+    internal void Draw(SpriteBatch spriteBatch)
+    {
+        for (int i = 0; i < _components.Count; i++)
+        {
+            _components[i].Draw(spriteBatch);
+        }
     }
 }

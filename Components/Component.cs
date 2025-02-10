@@ -32,7 +32,7 @@ internal class Component // Abstract
 
     }
     // Draw() - branch of GameObject Draw()
-    protected virtual void Draw(SpriteBatch spriteBatch)
+    public virtual void Draw(SpriteBatch spriteBatch)
     {
         //Sprite.LoadSprites(content);
         //Texture2D player = content.Load<Texture2D>("component");

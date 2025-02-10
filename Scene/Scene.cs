@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,9 +18,14 @@ internal class Scene
         // logic addds GameObjects to list _gameObjects
     }
     // Draw()
-    protected virtual void Draw()
+    public virtual void Draw(SpriteBatch spriteBatch)
     {
+        for (int i = 0; i < _gameObjects.Count; i++)
+        {
+            _gameObjects[i].Draw(spriteBatch);
+        }
         // reference/call corresponding GameObject method
+
     }
     // Update()
     protected virtual void Update()

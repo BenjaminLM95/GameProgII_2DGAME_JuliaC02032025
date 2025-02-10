@@ -56,7 +56,11 @@ namespace GameProgII_2DGAME_JuliaC02032025
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            _spriteBatch.Begin();
 
+            _scene.Draw(_spriteBatch); // !!! throws null reference exception
+
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }
