@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 internal class GameObject 
 {    
@@ -15,30 +17,35 @@ internal class GameObject
     private float rotation = 50f;
     // bool isActive
     public bool IsActive { get; set; }
+    private bool hasComponent { get; set; }
     // List of components
-    List<Component> _components = new List<Component>();
+    public List<Component> _components = new List<Component>();
 
     // ---------- METHODS ---------- //
     // AddComponent()
     protected virtual void AddComponent()
     {
         // reference/call corresponding Component method
+        _components.Add(new Component()); // TEST if works
         IsActive = true;
     }
     // RemoveComponent()
     protected virtual void RemoveComponent()
     {
-
+        if (_components != null)
+            _components.RemoveAt(1); // may need to change to remove differently
     }
     // HasComponent()
-    protected virtual void HasComponent()
+    protected virtual void HasComponent() // check if the gameobject has a component
     {
-
+        if (_components != null)
+            hasComponent = true;
     }
     // GetComponent(of type)
-    protected virtual void GetComponent(Component componentType)
+    protected virtual Component GetComponent(Component componentType)
     {
-
+        // get current component
+        return componentType;
     }
     // Destroy()
     protected virtual void Destroy()
@@ -46,12 +53,12 @@ internal class GameObject
 
     }
     // Update() - branch of Scene Update()
-    protected virtual void Update()
+    protected virtual void Update(GameTime gameTime)
     {
 
     }
     // Draw() - branch of Scene Draw()
-    protected virtual void Draw()
+    protected virtual void Draw(GameTime gameTime)
     {
         // reference/call corresponding Component method
     }

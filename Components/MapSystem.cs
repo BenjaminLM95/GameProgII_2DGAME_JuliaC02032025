@@ -1,11 +1,8 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
@@ -30,6 +27,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // needs to be able to randomize on load AND Load predefined maps from files
 
         // ---------- METHODS ---------- //
+        /// <summary>
+        /// Create a 10x15 area and fill it with floor tiles, 
+        /// then find random positions to place start, end, and obstacle tiles
+        /// </summary>
         private void RandomizeMap()
         {
             // double nested for loop using map Height/Width
@@ -63,9 +64,15 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 tileMap[obsY, obsX] = "Obstacle";
             }
         }
+        /// <summary>
+        /// Draw the tiles at their random positions
+        /// </summary>
+        /// <param name="spriteBatch"></param>
         private void DrawRandomMap(SpriteBatch spriteBatch)
         {
             // assign each tile a random pos using rnd variable
+            // get sprite positions from RandomizeMap()
+
             if (_sprite == null) {
                 return; }
 
@@ -76,10 +83,9 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                     string tileType = tileMap[x, y];
                     Texture2D texture = _sprite.InitializeSprite(tileType);
 
-                    if(texture != null)
-                    {
+                    if(texture != null) {
                         Vector2 position = new Vector2(x * texture.Width, y * texture.Height);
-                        //spriteBatch.Draw(texture, position, Color.White);
+                        spriteBatch.Draw(texture, position, Color.White);
                     }
                 }
             }
@@ -87,6 +93,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         private void LoadMapFromFile()
         {
             // reference 2D map project from last term
+            // find something like a base directory from this computer, make file in this project for maps
+            // like 2D RPG, chars = tiles
         }
     }
 }

@@ -1,10 +1,8 @@
-﻿using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
@@ -19,6 +17,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         HealthSystem _healthSystem;
         // Collision
         Collision _collision;
+        // sprite
+        Sprite _sprite;
 
         // ---------- VARIABLES ---------- //
         // Get/Use health properties from HealthSystem      
@@ -47,8 +47,14 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
 
         // override Update() from component
-        protected override void Draw() // overriding from Component
+        protected void Draw(SpriteBatch spriteBatch) // overriding from Component
         {
+            _sprite.InitializeSprite("player");
+
+            //Texture2D player = _sprite.LoadSprites(player); // need to draw player AT Vector2 position
+            //spriteBatch.Draw(player, position, Color.White);
+
+            //_sprite.LoadSprites(player); // way to load sprites by name, add another param to LoadSprites?
             // draw player sprite from Sprite Texture2D - use InitializeSprite() ?
         }
         // METHODS TO USE - centralize these to Game1?, use in Update()

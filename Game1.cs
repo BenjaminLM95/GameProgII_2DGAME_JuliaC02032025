@@ -16,11 +16,14 @@ namespace GameProgII_2DGAME_JuliaC02032025
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        public static Game1 instance;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            instance = this;
         }
 
         protected override void Initialize()

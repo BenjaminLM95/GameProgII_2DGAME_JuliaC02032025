@@ -11,44 +11,53 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     internal class Sprite : Component
     {
         // ---------- VARIABLES ---------- //
-        // need spritebatch?
         public bool isCollider { get; private set; }
-
-        // make dictionary equating each sprite to a character(OR string NAME) like in 2D map project
-        private Dictionary<string, Texture2D> sprites;
+        public string spriteName = "";
+        protected Texture2D currentTexture;
 
         // ---------- METHODS ---------- //
-
         // Initialize dictionary
         public Sprite()
         {
-            sprites = new Dictionary<string, Texture2D>();
+
         }
+
+        /// <summary>
+        /// Load Sprites from imported 2D textures, then add them to the sprites dictionary that takes
+        /// a string name and a Texture2D
+        /// </summary>
+        /// <param name="content"></param>
         // Populate dictionary
         public void LoadSprites(ContentManager content)
         {
             // Loading textures
-            Texture2D player = content.Load<Texture2D>("player");
-            Texture2D enemy = content.Load<Texture2D>("enemy");
+            //Texture2D player = content.Load<Texture2D>("1");
+            //Texture2D enemy = content.Load<Texture2D>("enemy");
             // Loading map textures
-            Texture2D mapFloor = content.Load<Texture2D>("mapFloor"); // walkable
-            Texture2D mapObstacle = content.Load<Texture2D>("mapObstacle"); // non-walkable
-            Texture2D mapStart = content.Load<Texture2D>("mapStart"); // spawnpoint
-            Texture2D mapEnd = content.Load<Texture2D>("mapEnd"); // exit/next level
+            //Texture2D mapFloor = content.Load<Texture2D>("floor"); // walkable
+            //Texture2D mapObstacle = content.Load<Texture2D>("obstacle"); // non-walkable
+            //Texture2D mapStart = content.Load<Texture2D>("start"); // spawnpoint
+            //Texture2D mapEnd = content.Load<Texture2D>("end"); // exit/next level
 
-            // Add textures to dictionary
-            sprites.Add("Player", player);
-            sprites.Add("Enemy", enemy);
-            sprites.Add("Floor", mapFloor);
-            sprites.Add("Obstacle", mapObstacle);
-            sprites.Add("Start", mapStart);
-            sprites.Add("End", mapEnd);
+            // Add textures to dictionary (can simplify by taking this out?)
+            //sprites.Add("Player", player);
+            //sprites.Add("Enemy", enemy);
+            //sprites.Add("Floor", mapFloor);
+            //sprites.Add("Obstacle", mapObstacle);
+            //sprites.Add("Start", mapStart);
+            //sprites.Add("End", mapEnd);
         }
        
         public Texture2D InitializeSprite(string name)
         {
+
             // get all sprites from file names
             return sprites.TryGetValue(name, out Texture2D texture) ? texture : null;
         }
-    }
+
+        protected override void Draw(SpriteBatch spriteBatch)
+        {
+            base.Draw(spriteBatch);
+
+        }
 }
