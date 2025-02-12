@@ -22,9 +22,9 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             InitializeSprite(textureName, content);
             Position = position;
         }
-      
+
         /// <summary>
-        /// Loads texture by name
+        /// Loads texture by name, content for Game1 Content.RootDirectory?
         /// </summary>
         /// <param name="name"></param>
         /// <param name="content"></param>

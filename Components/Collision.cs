@@ -15,6 +15,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // rectangle for hitbox?       
         private bool isCollided; // bool isCollided
         // check for Exit tile in Sprite - if collided load next map
+        public void AssignCollider()
+        {
+
+        }
 
         // ---------- METHODS ---------- //
         // CheckCollisions() - make Vector2 inst of void? or BOOL?

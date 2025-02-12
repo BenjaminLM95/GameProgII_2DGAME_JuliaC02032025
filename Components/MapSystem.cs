@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -22,9 +24,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         private string[,] tileMap = new string[mapHeight, mapWidth]; 
         Random rnd = new Random();
-        
-        // reference isCollider from Sprite - NO: assign colliders inside Sprite instead
-        // needs to be able to randomize on load AND Load predefined maps from files
+
 
         // ---------- METHODS ---------- //
         /// <summary>
@@ -81,17 +81,42 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 for (int x = 0; x < mapWidth; x++)
                 {
                     string tileType = tileMap[x, y];
-                    Texture2D texture = _sprite.InitializeSprite(tileType);
+                    Texture2D texture = _sprite.InitializeSprite(tileType); // method needs (string name, ContentManager content)
 
-                    if(texture != null) {
+                    if (texture != null) {
                         Vector2 position = new Vector2(x * texture.Width, y * texture.Height);
                         spriteBatch.Draw(texture, position, Color.White);
                     }
                 }
             }
         }
-        private void LoadMapFromFile()
+        ///<summary>
+        /// Iterates over every tile in the structure file and loads its
+        /// appearance and behavior. This method also validates that the
+        /// file is well-formed with a player start point, exit, etc.
+        /// </summary>
+        /// <param name="fileStream">
+        /// A stream containing the tile data.
+        /// </param>
+        private void LoadMapFromFile(Stream fileStream)
         {
+            int width;
+            List<string> lines = new List<string>();
+            using (StreamReader reader = new StreamReader(fileStream))
+            {
+                string line = reader.ReadLine();
+                width = line.Length;
+                while(line != null)
+                {
+                    lines.Add(line);
+                    if(line.Length != width) {
+                        throw new Exception(String.Format
+                            ("The length of line {0} is different from all preceeding lines.", 
+                            lines.Count));
+                    }
+                    line = reader.ReadLine();
+                }
+            }
             // reference 2D map project from last term
             // find something like a base directory from this computer, make file in this project for maps
             // like 2D RPG, chars = tiles
