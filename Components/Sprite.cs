@@ -11,7 +11,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     {
         // ---------- VARIABLES ---------- //       
         public Texture2D Texture { get; private set; }
-        public Vector2 Position { get; protected set; } 
+        public Vector2 Position { get; set; } 
         public Vector2 Origin { get; protected set; }
         public bool isCollider { get; private set; }
 
