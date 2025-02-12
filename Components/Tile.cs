@@ -7,7 +7,7 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
-    internal class Sprite : Component
+    internal class Tile : Component
     {
         // ---------- VARIABLES ---------- //       
         public Texture2D Texture { get; private set; }
@@ -17,14 +17,14 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
 
         // ---------- METHODS ---------- //
-        public Sprite(Texture2D texture, Vector2 position)
+        public Tile(Texture2D texture, Vector2 position)
         {
             Texture = texture;
             Position = position;
             Origin = new(Texture.Width / 2, Texture.Height / 2);
         }
 
-        //public Sprite(string textureName, ContentManager content, Vector2 position)
+        //public Tile(string textureName, ContentManager content, Vector2 position)
         //{
          //   InitializeSprite(textureName, content);
           //  Position = position;

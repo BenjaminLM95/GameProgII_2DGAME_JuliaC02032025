@@ -18,7 +18,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // Collision
         Collision _collision;
         // sprite
-        private Sprite _sprite;
+        private Tile _sprite;
 
         // ---------- VARIABLES ---------- //
         // Get/Use health properties from HealthSystem      
@@ -28,7 +28,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // CONSTRUCTOR
         public Player(ContentManager content)
         {
-            _sprite = new Sprite("playerTexture", content, Position);
+            //_sprite = new Tile("playerTexture", content, Position);
         }
 
         // ---------- METHODS ---------- //       

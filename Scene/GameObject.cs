@@ -59,7 +59,7 @@ internal class GameObject
 
     }
     // Update() - branch of Scene Update()
-    public void Update()
+    public void Update(float deltaTime)
     {
         foreach (var component in _components)
         {

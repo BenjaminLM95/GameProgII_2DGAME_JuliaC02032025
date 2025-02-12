@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
@@ -11,54 +12,112 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     internal class MapSystem : Component
     {
         /// <summary>
-        /// Sets up a 10x15 tilemap of sprites taken from the 2D textures in Sprite. 
+        /// Sets up a 10x15 tilemap of sprites taken from the 2D textures in Tile. 
         /// Then creates an array of sprites in a random configuration.
         /// </summary>
 
         // ---------- REFERENCES ---------- //
-        private Sprite[,] _sprites;
+        private Tile[,] _tiles;
 
         // ---------- VARIABLES ---------- //
-        private Point mapTileSize = new(10, 15);
-        public Point TileSize { get; private set; }
-        public Point MapSize { get; private set; }
-        //private const int mapHeight = 10; // map HEIGHT
-        //private const int mapWidth = 15; // map WIDTH
+        //private Point mapTileSize = new(10, 15);
+        private const int mapHeight = 10; // map HEIGHT
+        private const int mapWidth = 15; // map WIDTH
+        Random random = new();
 
-        //private string[,] tileMap = new string[mapHeight, mapWidth]; 
-        //Random rnd = new Random();
-        
-        public MapSystem() // initialize map area
+        private Texture2D _floorTexture;
+        private Texture2D _obstacleTexture;
+        private Texture2D _startTexture;
+        private Texture2D _exitTexture;
+
+        public MapSystem(Texture2D floor, Texture2D obstacle, Texture2D start, Texture2D exit) // initialize map area
         {
-            _sprites = new Sprite[mapTileSize.X, mapTileSize.Y];
+            _floorTexture = floor;
+            _obstacleTexture = obstacle;
+            _startTexture = start;
+            _exitTexture = exit;
 
-            List<Texture2D> textures = new(5);
-            for (int i = 1; i < 6; i++) textures.Add(Globals.Content.Load<Texture2D>($"tile{i}"));
+            GenerateMap();
+        }
 
-            TileSize = new(textures[0].Width, textures[0].Height);
-            MapSize = new(TileSize.X * mapTileSize.X, TileSize.Y * mapTileSize.Y);
+        // ---------- METHODS ---------- //
 
-            Random random = new();
+        private void GenerateMap()
+        {
+            _tiles = new Tile[mapWidth, mapHeight];
 
-            for (int y = 0; y < mapTileSize.Y; y++)
+            // Fill map with floor tiles
+            for (int x = 0; x < mapWidth; x++)
             {
-                for (int x = 0; x < mapTileSize.X; x++)
+                for (int y = 0; y < mapHeight; y++)
                 {
-                    int r = random.Next(0, textures.Count);
-                    _sprites[x, y] = new(textures[r], new(x * TileSize.X, y * TileSize.Y));
+                    _tiles[x, y] = new Tile(_floorTexture, 
+                        new Vector2(x * _floorTexture.Width, y * _floorTexture.Height));
+                }
+            }
+
+            // Place Start tile
+            Point start = GetRandomEmptyTile();
+            _tiles[start.X, start.Y] = new Tile(_startTexture, 
+                new Vector2(start.X * _startTexture.Width, start.Y * _startTexture.Height));
+
+            // Place Exit tile
+            Point exit;
+            do
+            {
+                exit = GetRandomEmptyTile();
+            } while (exit == start); // Ensure exit is not placed at the same position as start
+
+            _tiles[exit.X, exit.Y] = new Tile(_exitTexture, 
+                new Vector2(exit.X * _exitTexture.Width, exit.Y * _exitTexture.Height));
+
+            // Place Obstacle tiles (20% of the map)
+            int obstacleCount = (mapWidth * mapHeight) / 5;
+            for (int i = 0; i < obstacleCount; i++)
+            {
+                Point obstaclePos = GetRandomEmptyTile();
+                _tiles[obstaclePos.X, obstaclePos.Y] = 
+                    new Tile(_obstacleTexture, 
+                    new Vector2(obstaclePos.X * _obstacleTexture.Width, 
+                    obstaclePos.Y * _obstacleTexture.Height));
+            }
+        }
+
+        private Point GetRandomEmptyTile()
+        {
+            Point pos;
+            do
+            {
+                pos = new Point(random.Next(mapWidth), random.Next(mapHeight));
+            } while (_tiles[pos.X, pos.Y].Texture != _floorTexture); // Ensure only replacing a floor tile
+            return pos;
+        }
+
+        public void Draw(SpriteBatch spriteBatch) 
+        {
+            for (int x = 0; x < mapWidth; x++)
+            {
+                for (int y = 0; y < mapHeight; y++)
+                {
+                    _tiles[x, y].Draw(spriteBatch);
                 }
             }
         }
 
-        // ---------- METHODS ---------- //
-        public void Draw(SpriteBatch spriteBatch) // no spritebatch?
+        internal class Tile
         {
-            for (int y = 0; y < mapTileSize.Y; y++)
+            public Texture2D Texture { get; }
+            public Vector2 Position { get; }
+
+            public Tile(Texture2D texture, Vector2 position)
             {
-                for (int x = 0; x < mapTileSize.X; x++)
-                {
-                    _sprites[x, y].Draw(spriteBatch);
-                }
+                Texture = texture;
+                Position = position;
+            }
+
+            public void Draw(SpriteBatch spriteBatch)
+            {
+                spriteBatch.Draw(Texture, Position, Color.White);
             }
         }
         /// <summary>
@@ -108,7 +167,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             // assign each tile a random pos using rnd variable
             // get sprite positions from RandomizeMap()
 
-            if (_sprites == null) {
+            if (_tiles == null) {
                 return; }
 
             for (int y = 0; y < mapHeight; y++)
@@ -116,7 +175,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 for (int x = 0; x < mapWidth; x++)
                 {
                     string tileType = tileMap[x, y];
-                    Texture2D texture = _sprites.InitializeSprite(tileType); // method needs (string name, ContentManager content)
+                    Texture2D texture = _tiles.InitializeSprite(tileType); // method needs (string name, ContentManager content)
 
                     if (texture != null) {
                         Vector2 position = new Vector2(x * texture.Width, y * texture.Height);

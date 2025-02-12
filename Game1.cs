@@ -15,6 +15,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
         private Player _player;
         private Scene _scene;
         GameObject _gameObject;
+        private MapSystem _mapSystem;
 
         public static Game1 instance;
 
@@ -42,6 +43,14 @@ namespace GameProgII_2DGAME_JuliaC02032025
             GameObject playerObject = new GameObject();
             playerObject.AddComponent(_player);
 
+            // Load Map textures
+            MapSystem map = new MapSystem(
+            Content.Load<Texture2D>("floor"),
+            Content.Load<Texture2D>("obstacle"),
+            Content.Load<Texture2D>("start"),
+            Content.Load<Texture2D>("exit")
+            );
+
             // Add player to the scene
             _scene.AddGameObject(playerObject);
         }
@@ -61,8 +70,9 @@ namespace GameProgII_2DGAME_JuliaC02032025
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            _spriteBatch.Begin();    
-            _scene.Draw(_spriteBatch); // draw all gameobjects !!!
+            _spriteBatch.Begin();
+            //_scene.Draw(_spriteBatch); // draw all gameobjects !!!
+            _mapSystem.Draw(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);

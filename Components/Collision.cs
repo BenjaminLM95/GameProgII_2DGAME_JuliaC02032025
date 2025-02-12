@@ -9,12 +9,12 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     internal class Collision : Component
     {
         // ---------- REFERENCES ---------- //
-        Sprite _sprite;
+        Tile _sprite;
 
         // ---------- VARIABLES ---------- //
         // rectangle for hitbox?       
         private bool isCollided; // bool isCollided
-        // check for Exit tile in Sprite - if collided load next map
+        // check for Exit tile in Tile - if collided load next map
         public void AssignCollider()
         {
 

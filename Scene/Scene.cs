@@ -31,7 +31,7 @@ internal class Scene
     {
         foreach (var gameObject in _gameObjects)
         {
-            gameObject.Update();
+            gameObject.Update(1f);
         }
     }
 
