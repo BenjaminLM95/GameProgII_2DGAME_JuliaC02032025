@@ -1,6 +1,10 @@
 ﻿using GameProgII_2DGAME_JuliaC02032025.Components;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Drawing;
+using Point = Microsoft.Xna.Framework.Point;
 
 internal class Scene
 {
@@ -41,5 +45,18 @@ internal class Scene
         {
             gameObject.Draw(spriteBatch);
         }
+    }
+}
+
+public static class Globals // don't need?
+{
+    public static float Time { get; set; }
+    public static ContentManager Content { get; set; }
+    public static SpriteBatch SpriteBatch { get; set; }
+    public static Point WindowSize { get; set; }
+
+    public static void Update(GameTime gt)
+    {
+        Time = (float)gt.ElapsedGameTime.TotalSeconds;
     }
 }

@@ -38,23 +38,13 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         private void ReadInput() 
         {
             Vector2 newPosition = Position; // make copy of current position
+            var KeyboardState = Keyboard.GetState();
 
-            if(Keyboard.GetState().IsKeyDown(Keys.W)) // UP
-            {
-                newPosition.Y -= 1 * speed;
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.A)) // LEFT
-            {
-                newPosition.X -= 1 * speed;
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.S)) // DOWN
-            {
-                newPosition.Y += 1 * speed;
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.D)) // RIGHT
-            {
-                newPosition.X += 1 * speed;
-            }
+            if(KeyboardState.IsKeyDown(Keys.W)) newPosition.Y -= 1 * speed; // UP
+            if (KeyboardState.IsKeyDown(Keys.A)) newPosition.X -= 1 * speed; // LEFT
+            if (KeyboardState.IsKeyDown(Keys.S)) newPosition.Y += 1 * speed; // DOWN
+            if (KeyboardState.IsKeyDown(Keys.D)) newPosition.X += 1 * speed; // RIGHT
+            
             Position = newPosition; // reassign modified pos back to property
         }
 

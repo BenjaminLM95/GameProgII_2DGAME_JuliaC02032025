@@ -31,6 +31,7 @@ internal class GameObject
         Console.WriteLine($"Added component: {component.GetType().Name}");
         IsActive = true;
     }
+
     /// <summary>
     /// Removes a component from the list.
     /// </summary>

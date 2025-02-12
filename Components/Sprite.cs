@@ -11,17 +11,24 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     {
         // ---------- VARIABLES ---------- //       
         public Texture2D Texture { get; private set; }
-        public Vector2 Position { get; set; } = Vector2.Zero;
+        public Vector2 Position { get; protected set; } 
+        public Vector2 Origin { get; protected set; }
         public bool isCollider { get; private set; }
 
 
         // ---------- METHODS ---------- //
-        // Initialize dictionary
-        public Sprite(string textureName, ContentManager content, Vector2 position)
+        public Sprite(Texture2D texture, Vector2 position)
         {
-            InitializeSprite(textureName, content);
+            Texture = texture;
             Position = position;
+            Origin = new(Texture.Width / 2, Texture.Height / 2);
         }
+
+        //public Sprite(string textureName, ContentManager content, Vector2 position)
+        //{
+         //   InitializeSprite(textureName, content);
+          //  Position = position;
+        //}
 
         /// <summary>
         /// Loads texture by name, content for Game1 Content.RootDirectory?

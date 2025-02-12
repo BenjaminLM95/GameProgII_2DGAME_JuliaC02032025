@@ -27,7 +27,7 @@ internal class Component // Abstract
 
     public virtual void Update() {
     }    
-    public virtual void Draw(SpriteBatch spriteBatch) { // Draw() - branch of GameObject Draw()
+    public virtual void Draw(SpriteBatch spriteBatch) { 
     }
    
     public void OnDestroy()

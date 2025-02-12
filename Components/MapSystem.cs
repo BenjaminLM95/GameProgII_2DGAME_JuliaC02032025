@@ -16,21 +16,56 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         /// </summary>
 
         // ---------- REFERENCES ---------- //
-        private Sprite _sprite;
+        private Sprite[,] _sprites;
 
         // ---------- VARIABLES ---------- //
-        private const int mapHeight = 10; // map HEIGHT
-        private const int mapWidth = 15; // map WIDTH
+        private Point mapTileSize = new(10, 15);
+        public Point TileSize { get; private set; }
+        public Point MapSize { get; private set; }
+        //private const int mapHeight = 10; // map HEIGHT
+        //private const int mapWidth = 15; // map WIDTH
 
-        private string[,] tileMap = new string[mapHeight, mapWidth]; 
-        Random rnd = new Random();
+        //private string[,] tileMap = new string[mapHeight, mapWidth]; 
+        //Random rnd = new Random();
+        
+        public MapSystem() // initialize map area
+        {
+            _sprites = new Sprite[mapTileSize.X, mapTileSize.Y];
 
+            List<Texture2D> textures = new(5);
+            for (int i = 1; i < 6; i++) textures.Add(Globals.Content.Load<Texture2D>($"tile{i}"));
+
+            TileSize = new(textures[0].Width, textures[0].Height);
+            MapSize = new(TileSize.X * mapTileSize.X, TileSize.Y * mapTileSize.Y);
+
+            Random random = new();
+
+            for (int y = 0; y < mapTileSize.Y; y++)
+            {
+                for (int x = 0; x < mapTileSize.X; x++)
+                {
+                    int r = random.Next(0, textures.Count);
+                    _sprites[x, y] = new(textures[r], new(x * TileSize.X, y * TileSize.Y));
+                }
+            }
+        }
 
         // ---------- METHODS ---------- //
+        public void Draw(SpriteBatch spriteBatch) // no spritebatch?
+        {
+            for (int y = 0; y < mapTileSize.Y; y++)
+            {
+                for (int x = 0; x < mapTileSize.X; x++)
+                {
+                    _sprites[x, y].Draw(spriteBatch);
+                }
+            }
+        }
         /// <summary>
         /// Create a 10x15 area and fill it with floor tiles, 
         /// then find random positions to place start, end, and obstacle tiles
         /// </summary>
+        /*
         private void RandomizeMap()
         {
             // double nested for loop using map Height/Width
@@ -73,7 +108,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             // assign each tile a random pos using rnd variable
             // get sprite positions from RandomizeMap()
 
-            if (_sprite == null) {
+            if (_sprites == null) {
                 return; }
 
             for (int y = 0; y < mapHeight; y++)
@@ -81,7 +116,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 for (int x = 0; x < mapWidth; x++)
                 {
                     string tileType = tileMap[x, y];
-                    Texture2D texture = _sprite.InitializeSprite(tileType); // method needs (string name, ContentManager content)
+                    Texture2D texture = _sprites.InitializeSprite(tileType); // method needs (string name, ContentManager content)
 
                     if (texture != null) {
                         Vector2 position = new Vector2(x * texture.Width, y * texture.Height);
@@ -90,6 +125,9 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 }
             }
         }
+        */
+
+
         ///<summary>
         /// Iterates over every tile in the structure file and loads its
         /// appearance and behavior. This method also validates that the
