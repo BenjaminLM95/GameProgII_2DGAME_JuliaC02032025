@@ -18,42 +18,64 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // Collision
         Collision _collision;
         // sprite
-        Sprite _sprite;
+        private Sprite _sprite;
 
         // ---------- VARIABLES ---------- //
         // Get/Use health properties from HealthSystem      
-        public Vector2 position = new Vector2(); // Vector2 position
+        public Vector2 Position { get; private set; } = new Vector2(); // Vector2 position
         private float speed = 5f;
 
-        // ---------- METHODS ---------- //       
-        private void ReadInput() // WASD input movement (Update?)
+        // CONSTRUCTOR
+        public Player(ContentManager content)
         {
+            _sprite = new Sprite("playerTexture", content, Position);
+        }
+
+        // ---------- METHODS ---------- //       
+        /// <summary>
+        /// Reads player input and updates position.
+        /// </summary>
+        private void ReadInput() 
+        {
+            Vector2 newPosition = Position; // make copy of current position
+
             if(Keyboard.GetState().IsKeyDown(Keys.W)) // UP
             {
-                position.Y -= 1 * speed;
+                newPosition.Y -= 1 * speed;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.A)) // LEFT
             {
-                position.X -= 1 * speed;
+                newPosition.X -= 1 * speed;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.S)) // DOWN
             {
-                position.Y += 1 * speed;
+                newPosition.Y += 1 * speed;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D)) // RIGHT
             {
-                position.X += 1 * speed;
+                newPosition.X += 1 * speed;
             }
+            Position = newPosition; // reassign modified pos back to property
         }
-        
-        // METHODS TO USE - centralize these to Game1?, use in Update()
-        // CheckCollisions() (method from collision component)
-        // Die() (from HealthSystem)
-        private void Update()
+
+        /// <summary>
+        /// Updates the player's state.
+        /// </summary>
+        public override void Update()
         {
             ReadInput();
-            _collision.CheckCollisions();
+            _collision?.CheckCollisions();
+            _sprite.Position = Position;
             //_healthSystem.(); -- mmake CheckDamage() method??
+        }
+
+        /// <summary>
+        /// Draws the player sprite
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            _sprite.Draw(spriteBatch);
         }
     }
 }

@@ -2,19 +2,19 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
+using GameProgII_2DGAME_JuliaC02032025.Components;
 
 namespace GameProgII_2DGAME_JuliaC02032025
 {
     public class Game1 : Game
     {
         // ---------- REFERENCES ---------- //
-        Scene _scene;
-        GameObject _gameObject;
-        // make a while loop while player's health is above 0?
-
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+
+        private Player _player;
+        private Scene _scene;
+        GameObject _gameObject;
 
         public static Game1 instance;
 
@@ -28,7 +28,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            _scene = new Scene();
 
             base.Initialize();
         }
@@ -37,16 +37,22 @@ namespace GameProgII_2DGAME_JuliaC02032025
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            // Create Player as a GameObject
+            _player = new Player(Content);
+            GameObject playerObject = new GameObject();
+            playerObject.AddComponent(_player);
+
+            // Add player to the scene
+            _scene.AddGameObject(playerObject);
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             // TODO: Add your update logic here
-            
+            _scene.Update();
 
             base.Update(gameTime);
         }
@@ -55,12 +61,10 @@ namespace GameProgII_2DGAME_JuliaC02032025
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
-            _spriteBatch.Begin();
-
-            _scene.Draw(_spriteBatch); // !!! throws null reference exception
-
+            _spriteBatch.Begin();    
+            _scene.Draw(_spriteBatch); // draw all gameobjects !!!
             _spriteBatch.End();
+
             base.Draw(gameTime);
         }
     }

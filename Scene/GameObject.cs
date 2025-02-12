@@ -2,10 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 internal class GameObject 
@@ -23,18 +19,26 @@ internal class GameObject
     public List<Component> _components = new List<Component>();
 
     // ---------- METHODS ---------- //
-    // AddComponent()
-    protected virtual void AddComponent()
+
+    /// <summary>
+    /// Adds component to the list
+    /// </summary>
+    /// <param name="component"></param>
+    public virtual void AddComponent(Component component)
     {
         // reference/call corresponding Component method
-        _components.Add(new Component()); // TEST if works
+        _components.Add(component); // TEST if works
+        Console.WriteLine($"Added component: {component.GetType().Name}");
         IsActive = true;
     }
-    // RemoveComponent()
-    protected virtual void RemoveComponent()
+    /// <summary>
+    /// Removes a component from the list.
+    /// </summary>
+    /// <param name="component"></param>
+    public virtual void RemoveComponent(Component component)
     {
         if (_components != null)
-            _components.RemoveAt(1); // may need to change to remove differently
+            _components.Remove(component); 
     }
     // HasComponent()
     protected virtual void HasComponent() // check if the gameobject has a component
@@ -54,21 +58,22 @@ internal class GameObject
 
     }
     // Update() - branch of Scene Update()
-    protected virtual void Update(GameTime gameTime)
+    public void Update()
     {
-
+        foreach (var component in _components)
+        {
+            component.Update();
+        }
     }
-    // Draw() - branch of Scene Draw()
-    protected virtual void Draw(GameTime gameTime)
-    {
-        // reference/call corresponding Component method
-    }
-
+   
     internal void Draw(SpriteBatch spriteBatch)
     {
-        for (int i = 0; i < _components.Count; i++)
+        if (_components.Count == 0)
+            return; // Avoid drawing empty objects
+
+        foreach (var component in _components)
         {
-            _components[i].Draw(spriteBatch);
+            component.Draw(spriteBatch);
         }
     }
 }

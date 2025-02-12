@@ -17,47 +17,26 @@ internal class Component // Abstract
 
     // ---------- METHODS ---------- //
     // OnStart() - branch off GameObject AddComponent()
-    protected virtual Component AddComponent(Component newComponent)
+    public virtual void AddComponent(Component component)
     {
         //_player = new Player();
-        _gameObject._components.Add(new Player());
+        _gameObject._components.Add(component);
         Console.Write($"Added new Player to {_gameObject._components}"); // another way to display debug for MonoGame?
         // add this to the list of Components (GObj has the list)
-        return newComponent;
     }
 
-    // Update()
-    public void Update(GameTime gameTime)
-    {
-
+    public virtual void Update() {
+    }    
+    public virtual void Draw(SpriteBatch spriteBatch) { // Draw() - branch of GameObject Draw()
     }
-    // Draw() - branch of GameObject Draw()
-    public virtual void Draw(SpriteBatch spriteBatch)
-    {
-        //Sprite.LoadSprites(content);
-        //Texture2D player = content.Load<Texture2D>("component");
-    }
-    // OnDestroy()
+   
     public void OnDestroy()
     {
         // remove is from the list that GameObject has
     }
-    // Initialize()
+    
     public void Initialize()
     {
         // add to list of components in GameObject
     }
-
-    // ---------------------------------------------------------------------------------------- //
-    // OnEnable() - don't need ( can be bool that is switched when component is active in the scene)
-    private void OnEnable()
-    {
-
-    }
-    // OnDisable() - don't need
-    private void OnDisable()
-    {
-
-    }
-    // Enabled bool
 }

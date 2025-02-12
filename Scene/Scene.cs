@@ -1,35 +1,45 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿using GameProgII_2DGAME_JuliaC02032025.Components;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 internal class Scene
 {
+    
     // ---------- VARIABLES ---------- //
     // List of GameObjects
     List<GameObject> _gameObjects = new List<GameObject>();
 
-    // ---------- METHODS ---------- //
-    // AddGameObject()
-    public void AddGameObject()
-    {
-        // logic addds GameObjects to list _gameObjects
-    }
-    // Draw()
-    public virtual void Draw(SpriteBatch spriteBatch)
-    {
-        for (int i = 0; i < _gameObjects.Count; i++)
-        {
-            _gameObjects[i].Draw(spriteBatch);
-        }
-        // reference/call corresponding GameObject method
+    // ---------- METHODS ---------- //    
 
-    }
-    // Update()
-    protected virtual void Update()
+    /// <summary>
+    /// Add a gameobject to the scene.
+    /// </summary>
+    /// <param name="gameObject"></param>
+    public void AddGameObject(GameObject gameObject)
     {
-        // reference/call corresponding GameObject method
+        _gameObjects.Add(gameObject);
+    }
+
+    /// <summary>
+    /// Call Update on all GameObjects
+    /// </summary>
+    public void Update()
+    {
+        foreach (var gameObject in _gameObjects)
+        {
+            gameObject.Update();
+        }
+    }
+
+    /// <summary>
+    /// Call Draw on all GameObjects
+    /// </summary>
+    /// <param name="spriteBatch"></param>
+    public void Draw(SpriteBatch spriteBatch)
+    {
+        foreach (var gameObject in _gameObjects)
+        {
+            gameObject.Draw(spriteBatch);
+        }
     }
 }
