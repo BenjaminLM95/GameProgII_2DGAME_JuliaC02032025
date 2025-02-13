@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameProgII_2DGAME_JuliaC02032025.Components;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
@@ -6,9 +7,8 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 internal class GameObject 
 {    
     // ---------- VARIABLES ---------- //
-    Vector2 position = new Vector2(100, 100);
+    public Vector2 Position { get; set; } = new Vector2(100, 100);
     private float rotation = 50f;
-    public bool IsActive { get; set; }
     private bool hasComponent { get; set; }
 
     public List<Component> _components = new List<Component>();
@@ -16,61 +16,66 @@ internal class GameObject
     // ---------- METHODS ---------- //
     void Start()
     {
-        //AddComponent(Player);
+       
     }
 
     /// <summary>
-    /// Adds component to the list
+    /// Adds component to the list & initializes it.
     /// </summary>
     /// <param name="component"></param>
-    public virtual void AddComponent(Component component)
+    public void AddComponent(Component component)
     {
-        // reference/call corresponding Component method
-        _components.Add(component); // TEST if works
-        //Console.WriteLine($"Added component: {component.GetType().Name}");
-        IsActive = true;
+        component.GameObject = this;
+        _components.Add(component); 
+        component.Start();
     }
 
     /// <summary>
     /// Removes a component from the list.
     /// </summary>
     /// <param name="component"></param>
-    public virtual void RemoveComponent(Component component)
+    public void RemoveComponent(Component component)
     {
         if (_components != null)
             _components.Remove(component); 
     }
-    // HasComponent()
-    protected virtual void HasComponent() // check if the gameobject has a component
-    {
-        if (_components != null)
-            hasComponent = true;
-    }
-    // GetComponent(of type)
-    protected virtual Component GetComponent(Component componentType)
-    {
-        // get current component
-        return componentType;
-    }
-    // Destroy()
-    protected virtual void Destroy()
-    {
 
+    /// <summary>
+    /// Returns the first component of the given type, or null if not found.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T GetComponent<T>() where T : Component
+    {
+        foreach (var component in _components)
+        {
+            if(component is T tcomponent) {
+                return tcomponent; }
+        }
+        return null;
     }
-    // Update() - branch of Scene Update()
+
+    /// <summary>
+    /// Checks if the GameObject has a component of a specific type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public bool HasComponent<T>() where T : Component
+    {
+        return GetComponent<T>() != null;
+    }
+
+    // Update all components
     public void Update(float deltaTime)
     {
         foreach (var component in _components)
         {
-            //component.Update(gameTime); // null reference exception !!!
+            component.Update(deltaTime); 
         }
     }
-   
-    internal void Draw(SpriteBatch spriteBatch)
+    // Draw all components
+    public void Draw(SpriteBatch spriteBatch)
     {
-        if (_components.Count == 0)
-            return; // Avoid drawing empty objects
-
         foreach (var component in _components)
         {
             component.Draw(spriteBatch);

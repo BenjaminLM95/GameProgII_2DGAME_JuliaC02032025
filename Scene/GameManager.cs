@@ -14,13 +14,18 @@ internal class GameManager
     public GameObject _gameObject;
     public Scene _scene;
 }
-public static class Globals // don't need?
+public static class Globals 
 {
     public static float Time { get; set; }
     public static ContentManager Content { get; set; }
     public static SpriteBatch SpriteBatch { get; set; }
     public static Point WindowSize { get; set; }
 
+    public static void Initialize(ContentManager content, SpriteBatch spriteBatch)
+    {
+        Content = content;
+        SpriteBatch = spriteBatch;
+    }
     public static void Update(GameTime gt)
     {
         Time = (float)gt.ElapsedGameTime.TotalSeconds;

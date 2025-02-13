@@ -31,7 +31,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         private void Die()
         {
             // set gamaobject inactive (reference bool isActive from GameObject)
-            _gameManager._gameObject.IsActive = false; // ERROR: set acessor is inacessible
+            
             // remove player sprite from dictionary?
         }
     }

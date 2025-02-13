@@ -3,48 +3,35 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 internal class Component // Abstract
 {
     GameManager _gameManager;
 
-    // ---------- VARIABLES ---------- //   
-    public Texture2D texture;
-    public Vector2 position;
-
-    /*
-    public Component(Texture2D texture, Vector2 position)
-    {
-        this.texture = texture;
-        this.position = position;
-    }
-    */
+    /// <summary>
+    /// The GameObject this component is attached to.
+    /// </summary>
+    public GameObject GameObject { get; set; }
 
     // ---------- METHODS ---------- //
-    // OnStart() - branch off GameObject AddComponent()
-    public virtual void AddComponent(Component component)
-    {
-        //_player = new Player();
-        _gameManager._gameObject._components.Add(component);
-        Console.Write($"Added new Player to {_gameManager._gameObject._components}"); // another way to display debug for MonoGame?
-        // add this to the list of Components (GObj has the list)
-    }
 
-    public virtual void Update(float deltaTime) { }    
+    /// <summary>
+    /// Called when the component is added to a GameObject.
+    /// </summary>
+    public virtual void Start() { }
+
+    /// <summary>
+    /// Updates the component logic every frame.
+    /// </summary>
+    public virtual void Update(float deltaTime) { }
+
+    /// <summary>
+    /// Draws the component if needed.
+    /// </summary>
     public virtual void Draw(SpriteBatch spriteBatch) { }
-   
-    public void OnDestroy()
-    {
-        // remove is from the list that GameObject has
-    }
-    
-    public void Initialize()
-    {
-        // add to list of components in GameObject
-    }
+
+    /// <summary>
+    /// Called when the component is removed or the GameObject is destroyed.
+    /// </summary>
+    public virtual void OnDestroy() { }
 }

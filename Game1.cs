@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using static System.Formats.Asn1.AsnWriter;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 
@@ -36,26 +37,21 @@ namespace GameProgII_2DGAME_JuliaC02032025
         protected override void Initialize()
         {
             base.Initialize();
-            _gameManager._player = new Player(_gameManager._sprite.Texture, new Vector2(100, 100));
-            _gameManager._scene = new Scene();
+ 
+            // Create Player as a GameObject
+            GameObject playerObject = new GameObject();
+            //Player playerComponent = new Player(Globals.Content.Load<Texture2D>("player"), new Vector2(100, 100));
+            playerObject.AddComponent(new Player());
+            playerObject.AddComponent(new Sprite());
+            _gameManager._scene.AddGameObject(playerObject);
 
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // Create Player as a GameObject
-            
-            GameObject playerObject = new GameObject();
-            //playerObject.AddComponent(_gameManager._player); // gamemanager null ref exception
-
-            Texture2D texture = Content.Load<Texture2D>("player");
-            _gameManager._sprite = new Sprite(texture, Vector2.Zero);
-            _gameManager._player = new Player(texture, Vector2.Zero);
-
-            // Add player to the scene
-            _gameManager._scene.AddGameObject(playerObject);
+            Globals.Initialize(Content, _spriteBatch);
+            base.LoadContent();           
         }
 
         protected override void Update(GameTime gameTime)
@@ -64,8 +60,8 @@ namespace GameProgII_2DGAME_JuliaC02032025
                 Exit();
 
             // TODO: Add your update logic here
-            _gameManager._scene.Update(gameTime);
-            _gameManager._player.ReadInput();
+            //_gameManager._scene.Update(gameTime);
+            //_gameManager._player.ReadInput();
 
             base.Update(gameTime);
         }
@@ -79,7 +75,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
             //_scene.Draw(_spriteBatch); // draw all gameobjects !!!
             //_mapSystem.Draw(_spriteBatch); // mapsystem is null !!!
             //_spriteBatch.Draw(Texture, new Rectangle(50, 50, 50, 50), Color.White);
-            _spriteBatch.Draw(_gameManager._sprite.Texture, _gameManager._sprite.Position, Color.White);
+            //_spriteBatch.Draw(_gameManager._sprite.Texture, _gameManager._sprite.Position, Color.White);
 
             _spriteBatch.End();
 

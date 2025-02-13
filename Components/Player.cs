@@ -16,46 +16,39 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         // ---------- VARIABLES ---------- //
         // Get/Use health properties from HealthSystem      
-        private float speed = 5f;
+        private float speed = 2f;
+        private Sprite sprite;
 
-        // CONSTRUCTOR
-        public Player(Texture2D texture, Vector2 position) {
-            sprite = Globals.Content.Load<Texture2D>("player");
-        }
+        // ---------- METHODS ---------- //
+        public override void Start()
+        {
+            //GameObject playerObject = new GameObject();
+            //playerObject.AddComponent(new Player());
 
-        // ---------- METHODS ---------- //       
-        /// <summary>
-        /// Reads player input and updates Position.
-        /// </summary>
-        public void ReadInput() 
-        {            
-            var KeyboardState = Keyboard.GetState();
-
-            if (KeyboardState.IsKeyDown(Keys.W)) position.Y -= 1 * speed; // UP
-            if (KeyboardState.IsKeyDown(Keys.A)) position.X -= 1 * speed; // LEFT
-            if (KeyboardState.IsKeyDown(Keys.S)) position.Y += 1 * speed; // DOWN
-            if (KeyboardState.IsKeyDown(Keys.D)) position.X += 1 * speed; // RIGHT           
+            sprite = GameObject.GetComponent<Sprite>();
+            if (sprite == null)
+            {
+                //sprite = new Sprite(Globals.Content.Load<Texture2D>("player"), Vector2.Zero);
+                sprite = new Sprite();
+                GameObject.AddComponent(sprite); // Add a sprite if missing
+                sprite.LoadSprite("player");
+            }
         }
 
         /// <summary>
         /// Updates the player's state.
         /// </summary>
         public override void Update(float deltaTime)
-        {           
-            //base.Update(gameTime);
-            ReadInput();
-            //_collision?.CheckCollisions();
-            //_sprite.Position = Position; // sprite null error in build !!!
-            //_healthSystem.(); -- mmake CheckDamage() method??
-        }
-
-        /// <summary>
-        /// Draws the player sprite
-        /// </summary> 
-        /// <param name="spriteBatch"></param>
-        public override void Draw(SpriteBatch spriteBatch)
         {
-            _gameManager._sprite.Draw(spriteBatch);
+            Vector2 position = GameObject.Position;
+            KeyboardState KeyboardState = Keyboard.GetState();
+
+            if (KeyboardState.IsKeyDown(Keys.W)) position.Y -= speed; // UP
+            if (KeyboardState.IsKeyDown(Keys.A)) position.X -= speed; // LEFT
+            if (KeyboardState.IsKeyDown(Keys.S)) position.Y += speed; // DOWN
+            if (KeyboardState.IsKeyDown(Keys.D)) position.X += speed; // RIGHT     
+            
+            GameObject.Position = position;
         }
     }
 }

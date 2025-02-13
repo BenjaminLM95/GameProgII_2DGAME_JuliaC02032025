@@ -12,55 +12,48 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         GameManager _gameManager;
 
         // ---------- VARIABLES ---------- //       
-        public Texture2D Texture { get; private set; }
+        private Texture2D texture;
         public Vector2 Position { get; set; } 
-        //public Vector2 Origin { get; protected set; }
         public bool isCollider { get; private set; }
 
 
         // ---------- METHODS ---------- //
+        public Sprite() { } // Default constructor 
         public Sprite(Texture2D texture, Vector2 position)
         {
-            this.Texture = texture;
+            this.texture = texture;
             this.Position = position;
-            //Origin = new(this.Texture.Width / 2, this.Texture.Height / 2);
         }
 
-        void LoadSprites()
-        {
-            //Texture2D texture = Content.Load<Texture2D>("player");
-            // Load Map textures
-            //MapSystem map = new MapSystem(
-            //Content.Load<Texture2D>("floor"),
-            //Content.Load<Texture2D>("obstacle"),
-            //Content.Load<Texture2D>("start"),
-            //Content.Load<Texture2D>("exit")
-            //);
-            //Texture = Content.Load<Texture2D>("floor"); // test
-        }
-        
         /// <summary>
-        /// Loads Texture by name, content for Game1 Content.RootDirectory?
+        /// Loads a texture from the Content Manager.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="content"></param>
-        public void InitializeSprite(string name, ContentManager content)
+        /// <param name="textureName"></param>
+        public virtual void LoadSprite(string textureName)
         {
-            //Texture = Game1.instance.Content.Load<Texture2D>(name);
-            Texture = content.Load<Texture2D>(name);
+            texture =Globals.Content.Load<Texture2D>(textureName);
+            
         }
 
         /// <summary>
-        /// Draws the sprite at it's Position
+        /// Draws the sprite at the GameObject's position.
         /// </summary>
         /// <param name="spriteBatch"></param>
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (Texture != null)
+            if (texture != null)
             {
-                spriteBatch.Draw(Texture, Position, Color.White);
+                spriteBatch.Draw(texture, GameObject.Position, Color.White);
             }
-            base.Draw(spriteBatch);
         }
     }
 }
+//Texture2D texture = Content.Load<Texture2D>("player");
+// Load Map textures
+//MapSystem map = new MapSystem(
+//Content.Load<Texture2D>("floor"),
+//Content.Load<Texture2D>("obstacle"),
+//Content.Load<Texture2D>("start"),
+//Content.Load<Texture2D>("exit")
+//);
+//Texture = Content.Load<Texture2D>("floor"); // test
