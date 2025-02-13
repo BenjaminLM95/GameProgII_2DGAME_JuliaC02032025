@@ -5,6 +5,9 @@ using Microsoft.Xna.Framework;
 
 internal class GameManager
 {
+    private static GameManager _instance;
+    public static GameManager Instance => _instance ??= new GameManager();
+
     public Collision _collision;
     public Component _component;
     public HealthSystem _healthSystem;
@@ -12,7 +15,12 @@ internal class GameManager
     public Player _player;
     public Sprite _sprite;
     public GameObject _gameObject;
+
     public Scene _scene;
+    private GameManager()
+    {
+        _scene = new Scene();
+    }
 }
 public static class Globals 
 {

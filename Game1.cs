@@ -36,22 +36,38 @@ namespace GameProgII_2DGAME_JuliaC02032025
         }
         protected override void Initialize()
         {
-            base.Initialize();
- 
-            // Create Player as a GameObject
-            GameObject playerObject = new GameObject();
-            //Player playerComponent = new Player(Globals.Content.Load<Texture2D>("player"), new Vector2(100, 100));
-            playerObject.AddComponent(new Player());
-            playerObject.AddComponent(new Sprite());
-            _gameManager._scene.AddGameObject(playerObject);
+            // Initialize GameManager BEFORE using it
+            //_gameManager = new GameManager();
 
+            // Initialize Scene inside GameManager if it's null
+            //if (_gameManager._scene == null)
+            //    _gameManager._scene = new Scene();
+
+            
+
+            base.Initialize();
         }
 
         protected override void LoadContent()
         {
+            Globals.Content = Content;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            Globals.Initialize(Content, _spriteBatch);
-            base.LoadContent();           
+
+            // Create and add Player GameObject
+            GameObject playerObject = new GameObject();
+            Player player = new Player();
+            Sprite playerSprite = new Sprite();
+
+            //Player playerComponent = new Player(Globals.Content.Load<Texture2D>("player"), new Vector2(100, 100));
+            playerObject.AddComponent(player);
+            playerObject.AddComponent(playerSprite);
+
+            playerSprite.LoadSprite("player");
+
+            GameManager.Instance._scene.AddGameObject(playerObject);
+
+            //Globals.Initialize(Content, _spriteBatch);
+            //base.LoadContent();           
         }
 
         protected override void Update(GameTime gameTime)
@@ -59,6 +75,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            GameManager.Instance._scene.Update(gameTime);
             // TODO: Add your update logic here
             //_gameManager._scene.Update(gameTime);
             //_gameManager._player.ReadInput();
@@ -71,6 +88,9 @@ namespace GameProgII_2DGAME_JuliaC02032025
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+            // Draw all GameObjects, including the player
+            GameManager.Instance._scene.Draw(_spriteBatch);
 
             //_scene.Draw(_spriteBatch); // draw all gameobjects !!!
             //_mapSystem.Draw(_spriteBatch); // mapsystem is null !!!

@@ -16,7 +16,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         // ---------- VARIABLES ---------- //
         // Get/Use health properties from HealthSystem      
-        private float speed = 2f;
+        private float speed = 80f;
         private Sprite sprite;
 
         // ---------- METHODS ---------- //
@@ -31,7 +31,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 //sprite = new Sprite(Globals.Content.Load<Texture2D>("player"), Vector2.Zero);
                 sprite = new Sprite();
                 GameObject.AddComponent(sprite); // Add a sprite if missing
-                sprite.LoadSprite("player");
+                //sprite.LoadSprite("player");
             }
         }
 
@@ -43,10 +43,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             Vector2 position = GameObject.Position;
             KeyboardState KeyboardState = Keyboard.GetState();
 
-            if (KeyboardState.IsKeyDown(Keys.W)) position.Y -= speed; // UP
-            if (KeyboardState.IsKeyDown(Keys.A)) position.X -= speed; // LEFT
-            if (KeyboardState.IsKeyDown(Keys.S)) position.Y += speed; // DOWN
-            if (KeyboardState.IsKeyDown(Keys.D)) position.X += speed; // RIGHT     
+            if (KeyboardState.IsKeyDown(Keys.W)) position.Y -= speed * deltaTime; // UP
+            if (KeyboardState.IsKeyDown(Keys.A)) position.X -= speed * deltaTime; // LEFT
+            if (KeyboardState.IsKeyDown(Keys.S)) position.Y += speed * deltaTime; // DOWN
+            if (KeyboardState.IsKeyDown(Keys.D)) position.X += speed * deltaTime; // RIGHT     
             
             GameObject.Position = position;
         }

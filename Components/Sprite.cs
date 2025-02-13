@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -31,8 +32,12 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         /// <param name="textureName"></param>
         public virtual void LoadSprite(string textureName)
         {
-            texture =Globals.Content.Load<Texture2D>(textureName);
-            
+            if (Globals.Content == null)
+            {
+                throw new Exception("Globals.Content is not initialized! Ensure Game1.LoadContent() runs before calling LoadSprite().");
+            }
+
+            texture =Globals.Content.Load<Texture2D>(textureName);           
         }
 
         /// <summary>
@@ -48,12 +53,3 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
     }
 }
-//Texture2D texture = Content.Load<Texture2D>("player");
-// Load Map textures
-//MapSystem map = new MapSystem(
-//Content.Load<Texture2D>("floor"),
-//Content.Load<Texture2D>("obstacle"),
-//Content.Load<Texture2D>("start"),
-//Content.Load<Texture2D>("exit")
-//);
-//Texture = Content.Load<Texture2D>("floor"); // test

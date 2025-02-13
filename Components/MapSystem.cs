@@ -221,3 +221,12 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
     }
 }
+//Texture2D texture = Content.Load<Texture2D>("player");
+// Load Map textures
+//MapSystem map = new MapSystem(
+//Content.Load<Texture2D>("floor"),
+//Content.Load<Texture2D>("obstacle"),
+//Content.Load<Texture2D>("start"),
+//Content.Load<Texture2D>("exit")
+//);
+//Texture = Content.Load<Texture2D>("floor"); // test
