@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using Point = Microsoft.Xna.Framework.Point;
 
 internal class Scene
-{  
+{
     // ---------- VARIABLES ---------- //
-    List<GameObject> _gameObjects = new List<GameObject>();
+    public List<GameObject> _gameObjects = new List<GameObject>();
 
     // ---------- METHODS ---------- //    
 

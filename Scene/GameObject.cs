@@ -1,5 +1,6 @@
 ﻿using GameProgII_2DGAME_JuliaC02032025.Components;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -82,5 +83,18 @@ internal class GameObject
         {
             component.Draw(spriteBatch);
         }
+    }
+
+    public static T FindObjectOfType<T>() where T : Component
+    {
+        foreach (GameObject obj in GameManager.Instance._scene._gameObjects)
+        {
+            T component = obj.GetComponent<T>();
+            if (component != null)
+            {
+                return component; 
+            }
+        }
+        return null;
     }
 }
