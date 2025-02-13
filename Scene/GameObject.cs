@@ -1,24 +1,23 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 internal class GameObject 
 {    
-    Scene _scene; // Reference to scene
-
     // ---------- VARIABLES ---------- //
-    // Position / Rotation
     Vector2 position = new Vector2(100, 100);
     private float rotation = 50f;
-    // bool isActive
     public bool IsActive { get; set; }
     private bool hasComponent { get; set; }
-    // List of components
+
     public List<Component> _components = new List<Component>();
 
     // ---------- METHODS ---------- //
+    void Start()
+    {
+        //AddComponent(Player);
+    }
 
     /// <summary>
     /// Adds component to the list
@@ -28,7 +27,7 @@ internal class GameObject
     {
         // reference/call corresponding Component method
         _components.Add(component); // TEST if works
-        Console.WriteLine($"Added component: {component.GetType().Name}");
+        //Console.WriteLine($"Added component: {component.GetType().Name}");
         IsActive = true;
     }
 
@@ -63,7 +62,7 @@ internal class GameObject
     {
         foreach (var component in _components)
         {
-            component.Update();
+            //component.Update(gameTime); // null reference exception !!!
         }
     }
    

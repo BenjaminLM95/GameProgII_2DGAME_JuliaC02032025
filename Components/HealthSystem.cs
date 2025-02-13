@@ -8,8 +8,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
     internal class HealthSystem : Component
     {
-        // ---------- REFERENCES ---------- //        
-        GameObject _gameObject; // reference Player AND Enemy (as gameobjects?)
+        GameManager _gameManager;
 
         // ---------- VARIABLES ---------- //
         // property Health
@@ -32,7 +31,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         private void Die()
         {
             // set gamaobject inactive (reference bool isActive from GameObject)
-            _gameObject.IsActive = false; // ERROR: set acessor is inacessible
+            _gameManager._gameObject.IsActive = false; // ERROR: set acessor is inacessible
             // remove player sprite from dictionary?
         }
     }

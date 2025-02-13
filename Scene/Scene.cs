@@ -7,10 +7,8 @@ using System.Drawing;
 using Point = Microsoft.Xna.Framework.Point;
 
 internal class Scene
-{
-    
+{  
     // ---------- VARIABLES ---------- //
-    // List of GameObjects
     List<GameObject> _gameObjects = new List<GameObject>();
 
     // ---------- METHODS ---------- //    
@@ -27,11 +25,13 @@ internal class Scene
     /// <summary>
     /// Call Update on all GameObjects
     /// </summary>
-    public void Update()
+    public void Update(GameTime gameTime)
     {
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
         foreach (var gameObject in _gameObjects)
         {
-            gameObject.Update(1f);
+            gameObject.Update(deltaTime);
         }
     }
 
@@ -45,18 +45,5 @@ internal class Scene
         {
             gameObject.Draw(spriteBatch);
         }
-    }
-}
-
-public static class Globals // don't need?
-{
-    public static float Time { get; set; }
-    public static ContentManager Content { get; set; }
-    public static SpriteBatch SpriteBatch { get; set; }
-    public static Point WindowSize { get; set; }
-
-    public static void Update(GameTime gt)
-    {
-        Time = (float)gt.ElapsedGameTime.TotalSeconds;
     }
 }

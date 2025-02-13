@@ -12,11 +12,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     internal class MapSystem : Component
     {
         /// <summary>
-        /// Sets up a 10x15 tilemap of sprites taken from the 2D textures in Tile. 
+        /// Sets up a 10x15 tilemap of sprites taken from the 2D textures in Sprite. 
         /// Then creates an array of sprites in a random configuration.
         /// </summary>
 
-        // ---------- REFERENCES ---------- //
+        GameManager _gameManager;
         private Tile[,] _tiles;
 
         // ---------- VARIABLES ---------- //
@@ -30,12 +30,13 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         private Texture2D _startTexture;
         private Texture2D _exitTexture;
 
-        public MapSystem(Texture2D floor, Texture2D obstacle, Texture2D start, Texture2D exit) // initialize map area
+        public MapSystem(Texture2D floor, Texture2D obstacle, Texture2D start, Texture2D exit, Vector2 position) // initialize map area
         {
             _floorTexture = floor;
             _obstacleTexture = obstacle;
             _startTexture = start;
             _exitTexture = exit;
+            position = position;
 
             GenerateMap();
         }
@@ -66,7 +67,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             do
             {
                 exit = GetRandomEmptyTile();
-            } while (exit == start); // Ensure exit is not placed at the same position as start
+            } while (exit == start); // Ensure exit is not placed at the same Position as start
 
             _tiles[exit.X, exit.Y] = new Tile(_exitTexture, 
                 new Vector2(exit.X * _exitTexture.Width, exit.Y * _exitTexture.Height));
@@ -175,11 +176,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 for (int x = 0; x < mapWidth; x++)
                 {
                     string tileType = tileMap[x, y];
-                    Texture2D texture = _tiles.InitializeSprite(tileType); // method needs (string name, ContentManager content)
+                    Texture2D Texture = _tiles.InitializeSprite(tileType); // method needs (string name, ContentManager content)
 
-                    if (texture != null) {
-                        Vector2 position = new Vector2(x * texture.Width, y * texture.Height);
-                        spriteBatch.Draw(texture, position, Color.White);
+                    if (Texture != null) {
+                        Vector2 Position = new Vector2(x * Texture.Width, y * Texture.Height);
+                        spriteBatch.Draw(Texture, Position, Color.White);
                     }
                 }
             }

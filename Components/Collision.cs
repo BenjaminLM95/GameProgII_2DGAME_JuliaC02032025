@@ -8,13 +8,12 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
     internal class Collision : Component
     {
-        // ---------- REFERENCES ---------- //
-        Tile _sprite;
+        GameManager _gameManager;
 
         // ---------- VARIABLES ---------- //
         // rectangle for hitbox?       
         private bool isCollided; // bool isCollided
-        // check for Exit tile in Tile - if collided load next map
+        // check for Exit tile in Sprite - if collided load next map
         public void AssignCollider()
         {
 
@@ -32,7 +31,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             // if its non-walkable make it so the player cant move on it
             // if Exit load next map from ref. MapSystem
-            // if Start clear player tile then transform.position to start tile of next map
+            // if Start clear player tile then transform.Position to start tile of next map
         }
     }
 }

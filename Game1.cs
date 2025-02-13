@@ -2,7 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using GameProgII_2DGAME_JuliaC02032025.Components;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+
 
 namespace GameProgII_2DGAME_JuliaC02032025
 {
@@ -12,10 +13,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Player _player;
-        private Scene _scene;
-        GameObject _gameObject;
-        private MapSystem _mapSystem;
+        GameManager _gameManager;
 
         public static Game1 instance;
 
@@ -27,11 +25,20 @@ namespace GameProgII_2DGAME_JuliaC02032025
             instance = this;
         }
 
+        public bool isGameOver { get; private set; }
+        public void GameOver()
+        {
+            if (isGameOver)
+            {
+                // freeze the game 
+            }
+        }
         protected override void Initialize()
         {
-            _scene = new Scene();
-
             base.Initialize();
+            _gameManager._player = new Player(_gameManager._sprite.Texture, new Vector2(100, 100));
+            _gameManager._scene = new Scene();
+
         }
 
         protected override void LoadContent()
@@ -39,20 +46,16 @@ namespace GameProgII_2DGAME_JuliaC02032025
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Create Player as a GameObject
-            _player = new Player(Content);
+            
             GameObject playerObject = new GameObject();
-            playerObject.AddComponent(_player);
+            //playerObject.AddComponent(_gameManager._player); // gamemanager null ref exception
 
-            // Load Map textures
-            MapSystem map = new MapSystem(
-            Content.Load<Texture2D>("floor"),
-            Content.Load<Texture2D>("obstacle"),
-            Content.Load<Texture2D>("start"),
-            Content.Load<Texture2D>("exit")
-            );
+            Texture2D texture = Content.Load<Texture2D>("player");
+            _gameManager._sprite = new Sprite(texture, Vector2.Zero);
+            _gameManager._player = new Player(texture, Vector2.Zero);
 
             // Add player to the scene
-            _scene.AddGameObject(playerObject);
+            _gameManager._scene.AddGameObject(playerObject);
         }
 
         protected override void Update(GameTime gameTime)
@@ -61,7 +64,8 @@ namespace GameProgII_2DGAME_JuliaC02032025
                 Exit();
 
             // TODO: Add your update logic here
-            _scene.Update();
+            _gameManager._scene.Update(gameTime);
+            _gameManager._player.ReadInput();
 
             base.Update(gameTime);
         }
@@ -70,9 +74,13 @@ namespace GameProgII_2DGAME_JuliaC02032025
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
             //_scene.Draw(_spriteBatch); // draw all gameobjects !!!
-            _mapSystem.Draw(_spriteBatch);
+            //_mapSystem.Draw(_spriteBatch); // mapsystem is null !!!
+            //_spriteBatch.Draw(Texture, new Rectangle(50, 50, 50, 50), Color.White);
+            _spriteBatch.Draw(_gameManager._sprite.Texture, _gameManager._sprite.Position, Color.White);
+
             _spriteBatch.End();
 
             base.Draw(gameTime);
