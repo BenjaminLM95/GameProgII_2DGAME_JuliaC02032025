@@ -1,8 +1,4 @@
-﻿using GameProgII_2DGAME_JuliaC02032025.Components;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿using Microsoft.Xna.Framework.Graphics;
 
 internal class Component // Abstract
 {

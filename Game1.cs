@@ -36,15 +36,6 @@ namespace GameProgII_2DGAME_JuliaC02032025
         }
         protected override void Initialize()
         {
-            // Initialize GameManager BEFORE using it
-            //_gameManager = new GameManager();
-
-            // Initialize Scene inside GameManager if it's null
-            //if (_gameManager._scene == null)
-            //    _gameManager._scene = new Scene();
-
-            
-
             base.Initialize();
         }
 
@@ -53,21 +44,32 @@ namespace GameProgII_2DGAME_JuliaC02032025
             Globals.Content = Content;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Create and add Player GameObject
+            // ***** PLAYER ***** //
+            // Create Player GameObject & Player/Sprite components
             GameObject playerObject = new GameObject();
             Player player = new Player();
             Sprite playerSprite = new Sprite();
+            Collision collision = new Collision();
 
-            //Player playerComponent = new Player(Globals.Content.Load<Texture2D>("player"), new Vector2(100, 100));
+            // Add player & sprite component to Player GameObject
             playerObject.AddComponent(player);
             playerObject.AddComponent(playerSprite);
-
+            playerObject.AddComponent(collision);
             playerSprite.LoadSprite("player");
 
-            GameManager.Instance._scene.AddGameObject(playerObject);
+            // Add created GameObject to the scene
+            GameManager.Instance._scene.AddGameObject(playerObject);    
+            
+            // ***** MAP ***** //
+            // Create Map GameObject & MapSystem component
+            GameObject mapObject = new GameObject();
+            MapSystem mapSystem = new MapSystem();
 
-            //Globals.Initialize(Content, _spriteBatch);
-            //base.LoadContent();           
+            // Add MapSystem component to Map GameObject
+            mapObject.AddComponent(mapSystem);
+
+            // Add created GameObject to the scene
+            GameManager.Instance._scene.AddGameObject(mapObject);
         }
 
         protected override void Update(GameTime gameTime)
@@ -75,11 +77,10 @@ namespace GameProgII_2DGAME_JuliaC02032025
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            // Call Scene.cs's Update method within this instance
+            // (which updates all GameObjects)
             GameManager.Instance._scene.Update(gameTime);
-            // TODO: Add your update logic here
-            //_gameManager._scene.Update(gameTime);
-            //_gameManager._player.ReadInput();
-
+ 
             base.Update(gameTime);
         }
 
@@ -89,13 +90,9 @@ namespace GameProgII_2DGAME_JuliaC02032025
 
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-            // Draw all GameObjects, including the player
+            // Draw all GameObjects in the scene
             GameManager.Instance._scene.Draw(_spriteBatch);
-
-            //_scene.Draw(_spriteBatch); // draw all gameobjects !!!
-            //_mapSystem.Draw(_spriteBatch); // mapsystem is null !!!
-            //_spriteBatch.Draw(Texture, new Rectangle(50, 50, 50, 50), Color.White);
-            //_spriteBatch.Draw(_gameManager._sprite.Texture, _gameManager._sprite.Position, Color.White);
+            //GameManager.Instance._mapSystem.Draw(_spriteBatch);
 
             _spriteBatch.End();
 
@@ -106,14 +103,14 @@ namespace GameProgII_2DGAME_JuliaC02032025
 /*
  * PROJECT
 Implement a Map system that can:
-    Generate random maps (minimum 10x15)
-    Load predefined maps from files
-    Handle different tile types (at minimum: walkable, non-walkable, and exit tiles)
+ !  Generate random maps (minimum 10x15)
+ !  Load predefined maps from files
+ ?  Handle different tile types (at minimum: walkable, non-walkable, and exit tiles)
 
 Basic gameplay features:
-    Player movement using WASD/ arrow keys
-    Collision detection with non-walkable tiles
-    Level transition when player reaches exit tile
+✅  Player movement using WASD/ arrow keys
+ ?  Collision detection with non-walkable tiles
+ ?  Level transition when player reaches exit tile
 
 !!! NOTE
     inheriting classes dont need to override unless ther are part of that 'group' of the class

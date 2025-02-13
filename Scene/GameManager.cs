@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 
 internal class GameManager
 {
-    private static GameManager _instance;
+    public static GameManager _instance {  get; private set; }
     public static GameManager Instance => _instance ??= new GameManager();
 
     public Collision _collision;
@@ -17,9 +17,12 @@ internal class GameManager
     public GameObject _gameObject;
 
     public Scene _scene;
-    private GameManager()
+    public GameManager()
     {
+        _instance = this;
         _scene = new Scene();
+        _gameObject = new GameObject();
+        _mapSystem = new MapSystem();
     }
 }
 public static class Globals 
@@ -28,14 +31,4 @@ public static class Globals
     public static ContentManager Content { get; set; }
     public static SpriteBatch SpriteBatch { get; set; }
     public static Point WindowSize { get; set; }
-
-    public static void Initialize(ContentManager content, SpriteBatch spriteBatch)
-    {
-        Content = content;
-        SpriteBatch = spriteBatch;
-    }
-    public static void Update(GameTime gt)
-    {
-        Time = (float)gt.ElapsedGameTime.TotalSeconds;
-    }
 }

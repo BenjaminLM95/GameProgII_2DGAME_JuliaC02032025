@@ -1,9 +1,7 @@
 ﻿using GameProgII_2DGAME_JuliaC02032025.Components;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System.Drawing;
 using Point = Microsoft.Xna.Framework.Point;
 
 internal class Scene

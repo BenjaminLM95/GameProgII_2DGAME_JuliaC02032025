@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
@@ -12,18 +9,28 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         // ---------- VARIABLES ---------- //
         // property Health
-        public int Health { get; private set; } // reference past assignments from more detailed property        
+        public int Health { get; private set; } = 100; // reference past assignments from more detailed property
+        public int currentHealth;
         int maxHealth = 100; // variable maxHealth
-
+        public Vector2 tilePosition;
         public int Damage { get; private set; } // property Damage       
         bool isAlive = true;
+        public bool isPlayer = false;
 
         // ---------- METHODS ---------- //
+
+        public override void Start()
+        {
+            currentHealth = Health;
+        }
         private void TakeDamage(int damage)
         {
-            if (Health <= 0)
+            //currentHealth = Mathf.Clamp(currentHealth - damage, 0, Health);
+            if (currentHealth <= 0)
             {
+                currentHealth = 0;
                 Die();
+                isAlive = false;
             }
             Health -= damage;
         }
@@ -32,7 +39,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             // set gamaobject inactive (reference bool isActive from GameObject)
             
-            // remove player sprite from dictionary?
+            if(isPlayer)
+            {
+                // show game over
+            }
         }
     }
 }

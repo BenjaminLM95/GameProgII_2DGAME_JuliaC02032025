@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
 using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -17,93 +16,19 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         /// </summary>
 
         GameManager _gameManager;
-        private Tile[,] _tiles;
 
         // ---------- VARIABLES ---------- //
-        //private Point mapTileSize = new(10, 15);
+
         private const int mapHeight = 10; // map HEIGHT
         private const int mapWidth = 15; // map WIDTH
-        Random random = new();
+        private Tile[,] _tiles;
+        private Random random = new();
 
-        private Texture2D _floorTexture;
-        private Texture2D _obstacleTexture;
-        private Texture2D _startTexture;
-        private Texture2D _exitTexture;
-
-        public MapSystem(Texture2D floor, Texture2D obstacle, Texture2D start, Texture2D exit, Vector2 position) // initialize map area
-        {
-            _floorTexture = floor;
-            _obstacleTexture = obstacle;
-            _startTexture = start;
-            _exitTexture = exit;
-            position = position;
-
-            GenerateMap();
-        }
-
-        // ---------- METHODS ---------- //
-
-        private void GenerateMap()
-        {
-            _tiles = new Tile[mapWidth, mapHeight];
-
-            // Fill map with floor tiles
-            for (int x = 0; x < mapWidth; x++)
-            {
-                for (int y = 0; y < mapHeight; y++)
-                {
-                    _tiles[x, y] = new Tile(_floorTexture, 
-                        new Vector2(x * _floorTexture.Width, y * _floorTexture.Height));
-                }
-            }
-
-            // Place Start tile
-            Point start = GetRandomEmptyTile();
-            _tiles[start.X, start.Y] = new Tile(_startTexture, 
-                new Vector2(start.X * _startTexture.Width, start.Y * _startTexture.Height));
-
-            // Place Exit tile
-            Point exit;
-            do
-            {
-                exit = GetRandomEmptyTile();
-            } while (exit == start); // Ensure exit is not placed at the same Position as start
-
-            _tiles[exit.X, exit.Y] = new Tile(_exitTexture, 
-                new Vector2(exit.X * _exitTexture.Width, exit.Y * _exitTexture.Height));
-
-            // Place Obstacle tiles (20% of the map)
-            int obstacleCount = (mapWidth * mapHeight) / 5;
-            for (int i = 0; i < obstacleCount; i++)
-            {
-                Point obstaclePos = GetRandomEmptyTile();
-                _tiles[obstaclePos.X, obstaclePos.Y] = 
-                    new Tile(_obstacleTexture, 
-                    new Vector2(obstaclePos.X * _obstacleTexture.Width, 
-                    obstaclePos.Y * _obstacleTexture.Height));
-            }
-        }
-
-        private Point GetRandomEmptyTile()
-        {
-            Point pos;
-            do
-            {
-                pos = new Point(random.Next(mapWidth), random.Next(mapHeight));
-            } while (_tiles[pos.X, pos.Y].Texture != _floorTexture); // Ensure only replacing a floor tile
-            return pos;
-        }
-
-        public void Draw(SpriteBatch spriteBatch) 
-        {
-            for (int x = 0; x < mapWidth; x++)
-            {
-                for (int y = 0; y < mapHeight; y++)
-                {
-                    _tiles[x, y].Draw(spriteBatch);
-                }
-            }
-        }
+        // Texures
+        public Texture2D _floorTexture { get; private set; }
+        public Texture2D _obstacleTexture { get; private set; }
+        public Texture2D _startTexture { get; private set; }
+        public Texture2D _exitTexture { get; private set; }
 
         internal class Tile
         {
@@ -121,72 +46,68 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 spriteBatch.Draw(Texture, Position, Color.White);
             }
         }
-        /// <summary>
-        /// Create a 10x15 area and fill it with floor tiles, 
-        /// then find random positions to place start, end, and obstacle tiles
-        /// </summary>
-        /*
-        private void RandomizeMap()
+
+        // ---------- METHODS ---------- //
+
+        public override void Start()
         {
-            // double nested for loop using map Height/Width
-            for (int y = 0; y < mapHeight; y++)
+            // Load textures from Global.Content
+            _floorTexture = Globals.Content.Load<Texture2D>("floor");
+            _obstacleTexture = Globals.Content.Load<Texture2D>("obstacle");
+            _startTexture = Globals.Content.Load<Texture2D>("start");
+            _exitTexture = Globals.Content.Load<Texture2D>("exit");
+
+            // Debugging
+            if (_floorTexture == null) Console.WriteLine("Floor texture is null!");
+            if (_obstacleTexture == null) Console.WriteLine("Obstacle texture is null!");
+            if (_startTexture == null) Console.WriteLine("Start texture is null!");
+            if (_exitTexture == null) Console.WriteLine("Exit texture is null!");
+
+            GenerateMap();
+        }
+
+        public void GenerateMap()
+        {
+            _tiles = new Tile[mapWidth, mapHeight];
+
+            if (_tiles == null) // debug check
             {
-                for (int x = 0; x < mapWidth; x++)
+                System.Console.WriteLine("Error: _tiles array is null. Map generation failed.");
+                return;
+            }
+
+            // Fill map with floor tiles
+            for (int x = 0; x < mapWidth; x++)
+            {
+                for (int y = 0; y < mapHeight; y++)
                 {
-                    tileMap[x, y] = "Floor"; // All tiles are initially floor
+                    if (_floorTexture == null)
+                        Console.WriteLine("Error: Floor texture is null!");
+                    _tiles[x, y] = new Tile(_floorTexture, new Vector2(x * 32, y * 32));
                 }
             }
-            // Place START tile
-            int startX = rnd.Next(0, mapWidth);
-            int startY = rnd.Next(0, mapHeight);
-            tileMap[startY, startX] = "Start";
 
-            // Place END tile
-            int endX = rnd.Next(0, mapWidth);
-            int endY = rnd.Next(0, mapHeight);
-            tileMap[startY, startX] = "End";
+            // Place Start tile
+            Point start = GetRandomEmptyTile();
+            _tiles[start.X, start.Y] = new Tile(_startTexture, 
+                new Vector2(start.X * 32, start.Y * 32));
 
-            // Place obstacle tiles randomly
-            int obstacleCount = (mapWidth * mapHeight) / 5; // 20% of tiles are obstacles
+            // Place Exit tile
+            Point exit;
+            do { exit = GetRandomEmptyTile(); } while (exit == start);
+            _tiles[exit.X, exit.Y] = new Tile(_exitTexture, 
+                new Vector2(exit.X * 32, exit.Y * 32)); // Ensure exit is not placed at the same Position as start
+
+            // Place Obstacle tiles (20% of the map)
+            int obstacleCount = (mapWidth * mapHeight) / 5;
             for (int i = 0; i < obstacleCount; i++)
             {
-                int obsX, obsY;
-                do {
-                    obsX = rnd.Next(mapWidth);
-                    obsY = rnd.Next(mapHeight);
-                } while (tileMap[obsY, obsX] != "Floor"); // Only place on floor tiles
-
-                tileMap[obsY, obsX] = "Obstacle";
+                Point obstaclePos = GetRandomEmptyTile();
+                _tiles[obstaclePos.X, obstaclePos.Y] = 
+                    new Tile(_obstacleTexture, 
+                    new Vector2(obstaclePos.X * 32, obstaclePos.Y * 32));
             }
-        }
-        /// <summary>
-        /// Draw the tiles at their random positions
-        /// </summary>
-        /// <param name="spriteBatch"></param>
-        private void DrawRandomMap(SpriteBatch spriteBatch)
-        {
-            // assign each tile a random pos using rnd variable
-            // get sprite positions from RandomizeMap()
-
-            if (_tiles == null) {
-                return; }
-
-            for (int y = 0; y < mapHeight; y++)
-            {
-                for (int x = 0; x < mapWidth; x++)
-                {
-                    string tileType = tileMap[x, y];
-                    Texture2D Texture = _tiles.InitializeSprite(tileType); // method needs (string name, ContentManager content)
-
-                    if (Texture != null) {
-                        Vector2 Position = new Vector2(x * Texture.Width, y * Texture.Height);
-                        spriteBatch.Draw(Texture, Position, Color.White);
-                    }
-                }
-            }
-        }
-        */
-
+        } 
 
         ///<summary>
         /// Iterates over every tile in the structure file and loads its
@@ -215,18 +136,67 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                     line = reader.ReadLine();
                 }
             }
-            // reference 2D map project from last term
-            // find something like a base directory from this computer, make file in this project for maps
-            // like 2D RPG, chars = tiles
+        }
+
+        // Helper methods
+        public bool IsValidTile(Point pos)
+        {
+            return pos.X >= 0 && pos.X < mapWidth && pos.Y >= 0 && pos.Y < mapHeight;
+        }
+
+        public Tile GetTileAt(Point pos)
+        {
+            if(!IsValidTile(pos)) return null;
+            return _tiles[pos.X, pos.Y];
+        }
+
+        public Vector2 GetStartTilePosition()
+        {
+            for (int x = 0; x < mapWidth; x++)
+            {
+                for (int y = 0; y < mapHeight; y++)
+                {
+                    if (_tiles[x,y].Texture == _startTexture)
+                        return new Vector2(x, y);
+                }
+            }
+            return Vector2.Zero;
+        }
+
+        private Point GetRandomEmptyTile()
+        {
+            Point pos;
+            do
+            {
+                pos = new Point(random.Next(mapWidth), random.Next(mapHeight));
+            } while (_tiles[pos.X, pos.Y] != null && _tiles[pos.X, pos.Y].Texture != _floorTexture);
+            return pos;
+        }
+
+        /// <summary>
+        /// Draws the map.
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            Console.WriteLine("Map is being drawn...");
+            foreach (var tile in _tiles)
+            {
+                if (tile == null)
+                    Console.WriteLine("Null tile found!");
+            }
+
+            for (int x = 0; x < mapWidth; x++)
+            {
+                for (int y = 0; y < mapHeight; y++)
+                {
+                    Tile tile = _tiles[x, y];
+                    if (tile != null)
+                    {
+                        tile.Draw(spriteBatch);  // Draw the tile at its specified position
+                    }
+                }
+            }
         }
     }
 }
-//Texture2D texture = Content.Load<Texture2D>("player");
-// Load Map textures
-//MapSystem map = new MapSystem(
-//Content.Load<Texture2D>("floor"),
-//Content.Load<Texture2D>("obstacle"),
-//Content.Load<Texture2D>("start"),
-//Content.Load<Texture2D>("exit")
-//);
-//Texture = Content.Load<Texture2D>("floor"); // test

@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
-using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
@@ -16,6 +13,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         private Texture2D texture;
         public Vector2 Position { get; set; } 
         public bool isCollider { get; private set; }
+        private int spriteScale = 2;
 
 
         // ---------- METHODS ---------- //
@@ -48,8 +46,17 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             if (texture != null)
             {
-                spriteBatch.Draw(texture, GameObject.Position, Color.White);
+                // Original size
+                int width = texture.Width;
+                int height = texture.Height;
+                // Scale by 2X
+                Rectangle destinationRectangle = new Rectangle(
+                    (int)GameObject.Position.X,
+                    (int)GameObject.Position.Y,
+                    width * 2, height * 2); // scaling
+
+                spriteBatch.Draw(texture, destinationRectangle, Color.White);
             }
-        }
+        } 
     }
 }

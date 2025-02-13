@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
@@ -16,22 +13,17 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         // ---------- VARIABLES ---------- //
         // Get/Use health properties from HealthSystem      
-        private float speed = 80f;
+        private float speed = 300f;
         private Sprite sprite;
-
+        
         // ---------- METHODS ---------- //
         public override void Start()
         {
-            //GameObject playerObject = new GameObject();
-            //playerObject.AddComponent(new Player());
-
             sprite = GameObject.GetComponent<Sprite>();
             if (sprite == null)
             {
-                //sprite = new Sprite(Globals.Content.Load<Texture2D>("player"), Vector2.Zero);
                 sprite = new Sprite();
                 GameObject.AddComponent(sprite); // Add a sprite if missing
-                //sprite.LoadSprite("player");
             }
         }
 

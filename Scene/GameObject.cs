@@ -1,5 +1,4 @@
 ﻿using GameProgII_2DGAME_JuliaC02032025.Components;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
@@ -14,10 +13,6 @@ internal class GameObject
     public List<Component> _components = new List<Component>();
 
     // ---------- METHODS ---------- //
-    void Start()
-    {
-       
-    }
 
     /// <summary>
     /// Adds component to the list & initializes it.
@@ -65,7 +60,10 @@ internal class GameObject
         return GetComponent<T>() != null;
     }
 
-    // Update all components
+    /// <summary>
+    /// Call Update on all components.
+    /// </summary>
+    /// <param name="deltaTime"></param>
     public void Update(float deltaTime)
     {
         foreach (var component in _components)
@@ -73,7 +71,11 @@ internal class GameObject
             component.Update(deltaTime); 
         }
     }
-    // Draw all components
+
+    /// <summary>
+    /// Call Draw on all components.
+    /// </summary>
+    /// <param name="spriteBatch"></param>
     public void Draw(SpriteBatch spriteBatch)
     {
         foreach (var component in _components)
