@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
 
+/// <summary>
+/// Manages the game state, including handling the scene and game objects.
+/// </summary>
 internal class GameManager
 {
     public static GameManager _instance {  get; private set; }
@@ -25,16 +28,11 @@ internal class GameManager
     }
 
     public MapSystem _mapSystem { get;  set; }
-
-    public void Start()
-    {
-        _mapSystem = GameObject.FindObjectOfType<MapSystem>();       
-    }
 }
+
+// Global utility class to store game-related properties 
 public static class Globals 
 {
-    public static float Time { get; set; }
     public static ContentManager Content { get; set; }
     public static SpriteBatch SpriteBatch { get; set; }
-    public static Point WindowSize { get; set; }
 }

@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using static System.Formats.Asn1.AsnWriter;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -33,6 +32,9 @@ namespace GameProgII_2DGAME_JuliaC02032025
             base.Initialize();
         }
 
+        /// <summary>
+        /// Loads content for the game, including textures and initializing game objects.
+        /// </summary>
         protected override void LoadContent()
         {
             Globals.Content = Content;
@@ -79,7 +81,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
             // Call Scene.cs's Update method within this instance
             // (which updates all GameObjects)
             GameManager.Instance._scene.Update(gameTime);
- 
+
             base.Update(gameTime);
         }
 
@@ -103,16 +105,4 @@ namespace GameProgII_2DGAME_JuliaC02032025
         }
     }
 }
-
-/* PROJECT
-Implement a Map system that can:
-✅  Generate random maps (minimum 10x15)
- !  Load predefined maps from files
- ?  Handle different tile types (at minimum: walkable, non-walkable, and exit tiles)
-
-Basic gameplay features:
-✅  Player movement using WASD/ arrow keys
- ✅  Collision detection with non-walkable tiles
- ?  Level transition when player reaches exit tile
-*/
 

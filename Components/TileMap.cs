@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Xml.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
+    /// <summary>
+    /// Represents the map of tiles in the game, including managing tile textures and rendering the map.
+    /// </summary>
     internal class TileMap : Component
     {
         GameManager _gameManager;
@@ -31,9 +33,18 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
 
         // ---------- METHODS ---------- //
-        
+
+        public void ClearTiles() 
+        {
+            _tileSprites.Clear(); 
+            Debug.WriteLine("Tilemap cleared!");
+        }
+
         public void Initialize() // Initialize with floor tiles
         {
+            //_tileSprites.Clear();
+            if (_tileSprites.Count > 0) return;
+
             for (int y = 0; y < mapHeight; y++)
             {
                 for (int x = 0; x < mapWidth; x++)
@@ -46,35 +57,60 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                     _tileSprites.Add(tileSprite);
                 }
             }
+            Debug.WriteLine($"Tilemap initialized with {_tileSprites.Count} tiles.");
         }
 
         public void LoadTextures(ContentManager content)
         {
-            floorTexture = content.Load<Texture2D>("floor");
-            obstacleTexture = content.Load<Texture2D>("obstacle");
-            startTexture = content.Load<Texture2D>("start");
-            exitTexture = content.Load<Texture2D>("exit");
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            foreach (var tileSprite in _tileSprites)
+            try
             {
-                spriteBatch.Draw(tileSprite.Texture, tileSprite.Position, Color.White);
+                floorTexture = content.Load<Texture2D>("floor");
+                obstacleTexture = content.Load<Texture2D>("obstacle");
+                startTexture = content.Load<Texture2D>("start");
+                exitTexture = content.Load<Texture2D>("exit");
+
+                Debug.WriteLine("Textures loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading textures: {ex.Message}");
             }
         }
 
-        // Get the tile at a specific position
+        // Returns the tile at a specific coordinate.
         public Sprite GetTileAt(int x, int y)
         {
             // Check if the coordinates are within bounds before accessing the tile
             if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
             {
-                Debug.WriteLine("TileMap: Coordinates out of bounds!");
-                return null; // Return null if out of bounds
+                Debug.WriteLine($"Error: GetTileAt({x}, {y}) is out of bounds!");
+                return null;  
             }
 
-            return _tileSprites[y * mapWidth + x];
+            int index = y * mapWidth + x;
+
+            // Ensure _tileSprites has enough elements before accessing
+            if (index < 0 || index >= _tileSprites.Count)
+            {
+                Debug.WriteLine($"Error: GetTileAt({x}, {y}) is out of bounds!");
+                return null;
+            }
+            return _tileSprites[index];
+        }
+
+        // Draw all tiles to the screen.
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            foreach (var tileSprite in _tileSprites)
+            {
+                if (tileSprite.Texture == null)
+                {
+                    Debug.WriteLine($"Warning: Tile at {tileSprite.Position} has no texture!");
+                    continue;
+                }
+                spriteBatch.Draw(tileSprite.Texture, tileSprite.Position, Color.White);
+            }
+            Debug.WriteLine("Tilemap successfully drawn.");
         }
     }
 }

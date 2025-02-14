@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
@@ -7,17 +6,16 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
+    /// <summary>
+    /// Handles player input, movement, and interactions with the map (e.g., obstacles, exit).
+    /// </summary>
     internal class Player : Component
     {
-        /// <summary>
-        /// Responsible for handling player input, and updating the player's Position in Update()
-        /// </summary>
-  
         GameManager _gameManager;
         private TileMap tileMap;
 
         // ---------- VARIABLES ---------- //
-        // Get/Use health properties from HealthSystem      
+         
         private float speed = 300f;
         private int tileSize = 32;
         private int spriteScale = 1;
@@ -29,6 +27,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
 
         // ---------- METHODS ---------- //
+
+        // Initializes the player by finding the map system and tile map.
         public override void Start() 
         {
             _gameManager = GameManager.Instance;
@@ -50,9 +50,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             tileMap = _gameManager._mapSystem?.Tilemap;  
         }
 
-        /// <summary>
-        /// Updates the player's state.
-        /// </summary>
+        // Updates the player's position based on input, checking for obstacles before moving.
         public override void Update(float deltaTime)
         {
             if (tileMap == null)  // DEBUG: Retry if tileMap is still missing
@@ -65,10 +63,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 else
                 {
                     Debug.WriteLine("Player: tileMap STILL NULL in Update!");
-                    return; // Stop running logic until it's ready
+                    return;  
                 }
             }
 
+            // Input
             Vector2 currentPos = GameObject.Position;
             Vector2 targetPos = currentPos;
 
@@ -89,7 +88,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             }
         }
 
-        // Convert world currentPos to tile coordinates
+        // Convert world position to tile coordinates
         private Point GetTileCoordinates(Vector2 worldPosition)
         {
             return new Point(
@@ -109,7 +108,21 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 Console.WriteLine($"Obstacle at {tileCoordinates.X}, {tileCoordinates.Y}!");
                 return true;
             }
+            return false;
+        }
 
+        // Checks if the player's current position is on an exit tile.
+        public bool IsExit(Vector2 playerPosition)
+        {
+            Point tileCoordinates = new Point((int)playerPosition.X / 32, (int)playerPosition.Y / 32); 
+            if (tileMap == null) return false;
+
+            Sprite targetTile = tileMap.GetTileAt(tileCoordinates.X, tileCoordinates.Y);
+            if (targetTile != null && targetTile.Texture == tileMap.exitTexture)
+            {
+                Console.WriteLine($"Exit at {tileCoordinates.X}, {tileCoordinates.Y}!");
+                return true;
+            }
             return false;
         }
     }

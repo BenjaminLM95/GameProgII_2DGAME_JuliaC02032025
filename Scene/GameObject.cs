@@ -15,10 +15,7 @@ internal class GameObject
 
     // ---------- METHODS ---------- //
 
-    /// <summary>
-    /// Adds component to the list & initializes it.
-    /// </summary>
-    /// <param name="component"></param>
+    // Adds component to the list & initializes it.
     public void AddComponent(Component component)
     {
         component.GameObject = this;
@@ -26,21 +23,14 @@ internal class GameObject
         component.Start();
     }
 
-    /// <summary>
-    /// Removes a component from the list.
-    /// </summary>
-    /// <param name="component"></param>
+    // Removes a component from the list.
     public void RemoveComponent(Component component)
     {
         if (_components != null)
             _components.Remove(component); 
     }
 
-    /// <summary>
-    /// Returns the first component of the given type, or null if not found.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
+    // Returns the first component of the given type, or null if not found.
     public T GetComponent<T>() where T : Component
     {
         foreach (var component in _components)
@@ -51,20 +41,13 @@ internal class GameObject
         return null;
     }
 
-    /// <summary>
-    /// Checks if the GameObject has a component of a specific type.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
+    // Checks if the GameObject has a component of a specific type.
     public bool HasComponent<T>() where T : Component
     {
         return GetComponent<T>() != null;
     }
 
-    /// <summary>
-    /// Call Update on all components.
-    /// </summary>
-    /// <param name="deltaTime"></param>
+    // Call Update on all components.
     public void Update(float deltaTime)
     {
         foreach (var component in _components)
@@ -73,10 +56,7 @@ internal class GameObject
         }
     }
 
-    /// <summary>
-    /// Call Draw on all components.
-    /// </summary>
-    /// <param name="spriteBatch"></param>
+    // Call Draw on all components.
     public void Draw(SpriteBatch spriteBatch)
     {
         foreach (var component in _components)
@@ -85,6 +65,7 @@ internal class GameObject
         }
     }
 
+    // Returns a component from a GameObject
     public static T FindObjectOfType<T>() where T : Component
     {
         foreach (GameObject obj in GameManager.Instance._scene._gameObjects)

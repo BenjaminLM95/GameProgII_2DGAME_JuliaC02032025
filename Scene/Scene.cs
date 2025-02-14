@@ -11,18 +11,13 @@ internal class Scene
 
     // ---------- METHODS ---------- //    
 
-    /// <summary>
-    /// Add a gameobject to the scene.
-    /// </summary>
-    /// <param name="gameObject"></param>
+    // Add a gameobject to the scene.
     public void AddGameObject(GameObject gameObject)
     {
         _gameObjects.Add(gameObject);
     }
 
-    /// <summary>
-    /// Call Update on all GameObjects
-    /// </summary>
+    // Call Update on all GameObjects
     public void Update(GameTime gameTime)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -33,10 +28,7 @@ internal class Scene
         }
     }
 
-    /// <summary>
-    /// Call Draw on all GameObjects
-    /// </summary>
-    /// <param name="spriteBatch"></param>
+    // Call Draw on all GameObjects
     public void Draw(SpriteBatch spriteBatch)
     {
         foreach (var gameObject in _gameObjects)

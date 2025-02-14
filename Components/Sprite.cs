@@ -25,10 +25,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             this.Position = position;
         }
 
-        /// <summary>
-        /// Loads a texture from the Content Manager.
-        /// </summary>
-        /// <param name="textureName"></param>
+        // Loads a texture from the Content Manager.
         public virtual void LoadSprite(string textureName)
         {
             if (Globals.Content == null)
@@ -39,10 +36,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             Texture = Globals.Content.Load<Texture2D>(textureName);           
         }
 
-        /// <summary>
-        /// Draws the sprite at the GameObject's position.
-        /// </summary>
-        /// <param name="spriteBatch"></param>
+        // Draws the sprite at the GameObject's position.
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (Texture != null)

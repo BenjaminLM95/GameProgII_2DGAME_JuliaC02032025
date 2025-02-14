@@ -25,7 +25,6 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
         private void TakeDamage(int damage)
         {
-            //currentHealth = Mathf.Clamp(currentHealth - damage, 0, Health);
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
