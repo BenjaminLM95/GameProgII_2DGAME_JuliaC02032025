@@ -34,11 +34,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
             // ---!!!--- MAP GENERATION ---!!!--- // <switch here
 
-            //GenerateMap();  // Random map generation
+            GenerateMap();  // Random map generation
 
             // Load map from.txt file
-            LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
-                "GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
+            //LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
+                //"GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
         }
 
         public void Update(GameTime gameTime)
