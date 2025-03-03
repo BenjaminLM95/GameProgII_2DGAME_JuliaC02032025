@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
+using GameProgII_2DGAME_JuliaC02032025.Components.Enemies;
 
 /// <summary>
 /// Manages the game state, including handling the scene and game objects.
@@ -18,6 +19,8 @@ internal class GameManager
     public Sprite _sprite;
     public GameObject _gameObject;
     public TileMap _tileMap;
+    public Combat _combat;
+    public Enemy _enemy;
 
     public Scene _scene;
     public GameManager()

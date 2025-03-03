@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
@@ -23,6 +24,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         private int obstacleDensity = 10; // __% of the map are obstacles
 
+        List<Vector2> emptyTiles = new List<Vector2>();
+
         // ---------- METHODS ---------- //
 
         public override void Start()
@@ -38,7 +41,9 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
             // Load map from.txt file
             //LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
-                //"GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
+            //"GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
+            LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
+              "GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
         }
 
         public void Update(GameTime gameTime)
@@ -82,15 +87,20 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 {
                     Sprite tile = Tilemap.GetTileAt(x, y);
 
+                    // Implement wall rule
+
                     // Randomize the tile type
                     int randomValue = random.Next(100);
                     if (randomValue < obstacleDensity)
                     {
-                        tile.Texture = Globals.Content.Load<Texture2D>("obstacle");  
+                        tile.Texture = Globals.Content.Load<Texture2D>("obstacle"); 
+                        // change this to obstacle rules
                     }
                     else
                     {
-                        tile.Texture = Globals.Content.Load<Texture2D>("floor");  
+                        tile.Texture = Globals.Content.Load<Texture2D>("floor");
+                        // add to list of empty tiles to be referenced in GetRandomEmptyTile()
+                        //emptyTiles.Add(reference Vector2 position);
                     }
                 }
             }

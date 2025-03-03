@@ -32,6 +32,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 isAlive = false;
             }
             Health -= damage;
+            // update health bar
         }
 
         private void Die()
@@ -42,6 +43,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             {
                 // show game over
             }
+        }
+
+        private void HealthBar()
+        {
+            // for every sprite, display a health bar below them. with damage, take away from float?
         }
     }
 }
