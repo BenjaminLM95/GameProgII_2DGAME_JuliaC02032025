@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
@@ -9,7 +10,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {   
     internal class MapSystem : Component
     {
-        Globals globals;
+        GameManager _gameManager;
         public TileMap Tilemap { get; private set; }
 
         // ---------- VARIABLES ---------- //
@@ -23,22 +24,26 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         private int obstacleDensity = 10; // __% of the map are obstacles
 
+        List<Vector2> emptyTiles = new List<Vector2>();
+
         // ---------- METHODS ---------- //
 
         public override void Start()
         {
             // Create TileMap and initialize it
             Tilemap = new TileMap();
-            Tilemap.LoadTextures(Globals.content);
+            Tilemap.LoadTextures(Globals.Content);
             Tilemap.Initialize();
 
             // ---!!!--- MAP GENERATION ---!!!--- // <switch here
 
-            //GenerateMap();  // Random map generation
+            GenerateMap();  // Random map generation
 
             // Load map from.txt file
-            LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
-                "GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
+            //LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
+            //"GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
+            LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
+              "GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
         }
 
         public void Update(GameTime gameTime)
@@ -82,15 +87,20 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 {
                     Sprite tile = Tilemap.GetTileAt(x, y);
 
+                    // Implement wall rule
+
                     // Randomize the tile type
                     int randomValue = random.Next(100);
                     if (randomValue < obstacleDensity)
                     {
-                        tile.Texture = Globals.content.Load<Texture2D>("obstacle");  
+                        tile.Texture = Globals.Content.Load<Texture2D>("obstacle"); 
+                        // change this to obstacle rules
                     }
                     else
                     {
-                        tile.Texture = Globals.content.Load<Texture2D>("floor");  
+                        tile.Texture = Globals.Content.Load<Texture2D>("floor");
+                        // add to list of empty tiles to be referenced in GetRandomEmptyTile()
+                        //emptyTiles.Add(reference Vector2 position);
                     }
                 }
             }
@@ -105,8 +115,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             } while (exitTile == startTile);
 
             // Set the start and exit tiles
-            Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y).Texture = Globals.content.Load<Texture2D>("start");
-            Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y).Texture = Globals.content.Load<Texture2D>("exit");
+            Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y).Texture = Globals.Content.Load<Texture2D>("start");
+            Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y).Texture = Globals.Content.Load<Texture2D>("exit");
         }
         public void Draw(SpriteBatch spriteBatch)
         {

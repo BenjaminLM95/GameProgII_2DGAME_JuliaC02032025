@@ -125,5 +125,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             }
             return false;
         }
+
+        private void CheckForEnemy() // return Vector2 ?
+        {
+            // to be used in Combat.cs, if player is on enemy player takes turn
+            // ref: Enemy.cs for enemies position
+        }
     }
 }
