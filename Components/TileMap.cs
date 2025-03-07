@@ -12,7 +12,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     /// </summary>
     internal class TileMap : Component
     {
-        GameManager _gameManager;
+        Globals globals;
 
         // ---------- VARIABLES ---------- //    
         private SpriteBatch _spriteBatch;
@@ -108,7 +108,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                     Debug.WriteLine($"Warning: Tile at {tileSprite.Position} has no texture!");
                     continue;
                 }
-                spriteBatch.Draw(tileSprite.Texture, tileSprite.Position, Color.White);
+                Globals.spriteBatch.Draw(tileSprite.Texture, tileSprite.Position, Color.White);
             }
             Debug.WriteLine("Tilemap successfully drawn.");
         }

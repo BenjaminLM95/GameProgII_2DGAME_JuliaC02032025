@@ -18,3 +18,7 @@ The game starts by generating a random tilemap or loading a predefined map from 
 The player navigates the map while avoiding obstacles.
 If the player reaches the exit tile, the game loads a new level with a fresh map (or rather it should, I made logic for it but could not implement it properly).
 
+---------- TERMINAL ----------
+build game : dotnet build
+run game in VS Code : dotnet run
+open Content.mgcb : dotnet mgcb-editor .//Content/Content.mgcb

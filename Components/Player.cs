@@ -11,7 +11,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     /// </summary>
     internal class Player : Component
     {
-        GameManager _gameManager;
+        Globals globals;
         private TileMap tileMap;
 
         // ---------- VARIABLES ---------- //
@@ -31,23 +31,23 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // Initializes the player by finding the map system and tile map.
         public override void Start() 
         {
-            _gameManager = GameManager.Instance;
+            globals = Globals.Instance;
 
-            if (_gameManager == null)
+            if (globals == null)
             {
-                Debug.WriteLine("Player: _gameManager is NULL!");
+                Debug.WriteLine("Player: globals is NULL!");
                 return;
             }
 
-            _gameManager._mapSystem = GameObject.FindObjectOfType<MapSystem>();
+            globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();
 
-            if (_gameManager._mapSystem == null)
+            if (globals._mapSystem == null)
             {
-                Debug.WriteLine("Player: _gameManager._mapSystem is NULL! Trying to find it...");
-                _gameManager._mapSystem = GameObject.FindObjectOfType<MapSystem>();  
+                Debug.WriteLine("Player: globals._mapSystem is NULL! Trying to find it...");
+                globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();  
             }
 
-            tileMap = _gameManager._mapSystem?.Tilemap;  
+            tileMap = globals._mapSystem?.Tilemap;  
         }
 
         // Updates the player's position based on input, checking for obstacles before moving.
@@ -55,7 +55,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             if (tileMap == null)  // DEBUG: Retry if tileMap is still missing
             {
-                tileMap = _gameManager._mapSystem?.Tilemap;
+                tileMap = globals._mapSystem?.Tilemap;
                 if (tileMap != null)
                 {
                     Debug.WriteLine("Player: tileMap assigned in Update!");

@@ -14,10 +14,11 @@ namespace GameProgII_2DGAME_JuliaC02032025
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        GameManager _gameManager;
         private MapSystem mapSystem;
 
         public static Game1 instance;
+
+        World world;
 
         public Game1()
         {
@@ -37,9 +38,10 @@ namespace GameProgII_2DGAME_JuliaC02032025
         /// </summary>
         protected override void LoadContent()
         {
-            Globals.Content = Content;
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-            Globals.SpriteBatch = _spriteBatch;
+            Globals.content = this.Content;
+            Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            world = new World();
 
             // ***** MAP ***** //
             // Create Map GameObject & MapSystem component
@@ -56,7 +58,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
             tileMap.Initialize();
 
             // Add created GameObject to the scene
-            GameManager.Instance._scene.AddGameObject(mapObject);
+            Globals.Instance._scene.AddGameObject(mapObject);
 
             // ***** PLAYER ***** //
             // Create Player GameObject & Player/Sprite components
@@ -70,7 +72,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
             playerSprite.LoadSprite("player");
 
             // Add created GameObject to the scene
-            GameManager.Instance._scene.AddGameObject(playerObject);
+            Globals.Instance._scene.AddGameObject(playerObject);
         }
 
         protected override void Update(GameTime gameTime)
@@ -78,9 +80,10 @@ namespace GameProgII_2DGAME_JuliaC02032025
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             
+            world.Update();
             // Call Scene.cs's Update method within this instance
             // (which updates all GameObjects)
-            GameManager.Instance._scene.Update(gameTime);
+            //Globals.Instance._scene.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -89,17 +92,19 @@ namespace GameProgII_2DGAME_JuliaC02032025
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            Globals.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
-            if (mapSystem != null)
-            {
-                mapSystem.Draw(_spriteBatch);
-            }
+            //if (mapSystem != null)
+            //{
+            //    mapSystem.Draw(_spriteBatch);
+            //}
 
             // Draw all GameObjects in the scene
-            GameManager.Instance._scene.Draw(_spriteBatch);
+            //Globals.Instance._scene.Draw(_spriteBatch);
 
-            _spriteBatch.End();
+            world.Draw();
+
+            Globals.spriteBatch.End();
 
             base.Draw(gameTime);
         }

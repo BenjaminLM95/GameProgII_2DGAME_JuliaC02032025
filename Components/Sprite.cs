@@ -7,13 +7,13 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
     internal class Sprite : Component
     {
-        GameManager _gameManager;
+        Globals globals;
 
         // ---------- VARIABLES ---------- //       
-        //private Texture2D texture;
+
         public Texture2D Texture { get; set; }
         public Vector2 Position { get; set; } 
-        public bool isCollider { get; private set; }
+
         private int spriteScale = 2;
 
 
@@ -28,12 +28,12 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // Loads a texture from the Content Manager.
         public virtual void LoadSprite(string textureName)
         {
-            if (Globals.Content == null)
+            if (Globals.content == null)
             {
                 throw new Exception("Globals.Content is not initialized! Ensure Game1.LoadContent() runs before calling LoadSprite().");
             }
 
-            Texture = Globals.Content.Load<Texture2D>(textureName);           
+            Texture = Globals.content.Load<Texture2D>(textureName);           
         }
 
         // Draws the sprite at the GameObject's position.
@@ -51,7 +51,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                     width * spriteScale, height * spriteScale); // scaling
 
                 //spriteBatch.Draw(Texture, Position, Color.White);
-                spriteBatch.Draw(Texture, destinationRectangle, Color.White);
+                Globals.spriteBatch.Draw(Texture, destinationRectangle, Color.White);
             }
         } 
     }

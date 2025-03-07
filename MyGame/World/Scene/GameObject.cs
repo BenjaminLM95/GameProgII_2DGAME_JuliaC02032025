@@ -68,7 +68,7 @@ internal class GameObject
     // Returns a component from a GameObject
     public static T FindObjectOfType<T>() where T : Component
     {
-        foreach (GameObject obj in GameManager.Instance._scene._gameObjects)
+        foreach (GameObject obj in Globals.Instance._scene._gameObjects)
         {
             T component = obj.GetComponent<T>();
             if (component != null)

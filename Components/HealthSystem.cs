@@ -5,7 +5,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
     internal class HealthSystem : Component
     {
-        GameManager _gameManager;
+        Globals globals;
 
         // ---------- VARIABLES ---------- //
         // property Health

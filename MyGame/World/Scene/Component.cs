@@ -2,8 +2,6 @@
 
 internal class Component // Abstract
 {
-    GameManager _gameManager;
-
     // The GameObject this component is attached to.
     public GameObject GameObject { get; set; }
 

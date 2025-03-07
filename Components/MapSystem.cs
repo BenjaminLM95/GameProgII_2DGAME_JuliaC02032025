@@ -9,7 +9,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {   
     internal class MapSystem : Component
     {
-        GameManager _gameManager;
+        Globals globals;
         public TileMap Tilemap { get; private set; }
 
         // ---------- VARIABLES ---------- //
@@ -29,7 +29,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             // Create TileMap and initialize it
             Tilemap = new TileMap();
-            Tilemap.LoadTextures(Globals.Content);
+            Tilemap.LoadTextures(Globals.content);
             Tilemap.Initialize();
 
             // ---!!!--- MAP GENERATION ---!!!--- // <switch here
@@ -86,11 +86,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                     int randomValue = random.Next(100);
                     if (randomValue < obstacleDensity)
                     {
-                        tile.Texture = Globals.Content.Load<Texture2D>("obstacle");  
+                        tile.Texture = Globals.content.Load<Texture2D>("obstacle");  
                     }
                     else
                     {
-                        tile.Texture = Globals.Content.Load<Texture2D>("floor");  
+                        tile.Texture = Globals.content.Load<Texture2D>("floor");  
                     }
                 }
             }
@@ -105,8 +105,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             } while (exitTile == startTile);
 
             // Set the start and exit tiles
-            Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y).Texture = Globals.Content.Load<Texture2D>("start");
-            Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y).Texture = Globals.Content.Load<Texture2D>("exit");
+            Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y).Texture = Globals.content.Load<Texture2D>("start");
+            Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y).Texture = Globals.content.Load<Texture2D>("exit");
         }
         public void Draw(SpriteBatch spriteBatch)
         {
