@@ -8,7 +8,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {
     internal class Combat : Component
     {
-        private GameManager gameManager;
+        private Globals gameManager;
+
+        private bool isPlayerTurn = true;
+        private bool isEnemyTurn = false;
 
         // handle player & enemy turn
         // visual indicator of who's turn it is
@@ -19,6 +22,14 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         private void Update()
         {
+            if (isPlayerTurn) {
+                PlayerTurn();
+            }
+            else if (isEnemyTurn) {
+                EnemyTurn();
+            }
+
+            TurnIndicator();
             // override component Update() ?
             // CheckTurn()
             // TurnIndicator()
@@ -27,6 +38,16 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
         private void CheckTurn()
         {
+            if (gameManager._player.playerMovedOntoEnemyTile)
+            {
+                isPlayerTurn = true;
+                isEnemyTurn = false;
+            }
+            else if (gameManager._enemy.enemyMovedOntoPlayerTile)
+            {
+                isPlayerTurn = false;
+                isEnemyTurn = true;
+            }
             // based on who moved onto opponent's tile, turn is theirs first
             // (i.e. player moves onto enemy, player's turn is first)
             // add turn check to respective components or deal with it here?
@@ -41,12 +62,16 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         private void PlayerTurn()
         {
+            isPlayerTurn = false;
+            isEnemyTurn = true;
             // turn options: deal damage to enemy, move, recover from stun effect
             // get move from input in Player.cs
             // end of turn: calculate damage from enemy
         }
         private void EnemyTurn()
         {
+            isEnemyTurn = false;
+            isPlayerTurn = true;
             // turn options: deal damage to player, move, recover from stun effect
             // get move from enemy pathfinding in Enemy.cs
             // end of turn: calculate damage from player

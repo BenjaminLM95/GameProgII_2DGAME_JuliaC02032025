@@ -20,6 +20,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         private int tileSize = 32;
         private int spriteScale = 1;
 
+        public bool playerMovedOntoEnemyTile {  get; private set; }
+
         public Player() { }
         public Player(TileMap tileMap)
         {

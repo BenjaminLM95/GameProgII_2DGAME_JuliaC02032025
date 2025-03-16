@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -10,7 +11,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 {   
     internal class MapSystem : Component
     {
-        GameManager _gameManager;
+        private Globals _gameManager;
         public TileMap Tilemap { get; private set; }
 
         // ---------- VARIABLES ---------- //
@@ -32,7 +33,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             // Create TileMap and initialize it
             Tilemap = new TileMap();
-            Tilemap.LoadTextures(Globals.Content);
+            Tilemap.LoadTextures(Globals.content);
             Tilemap.Initialize();
 
             // ---!!!--- MAP GENERATION ---!!!--- // <switch here
@@ -42,8 +43,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             // Load map from.txt file
             //LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
             //"GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
-            LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
-              "GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
+            //LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
+            //  "GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
         }
 
         public void Update(GameTime gameTime)
@@ -86,6 +87,25 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 for (int x = 0; x < mapWidth; x++)
                 {
                     Sprite tile = Tilemap.GetTileAt(x, y);
+                    tile.Texture = Globals.content.Load<Texture2D>("floor");
+
+                    if (CanPlaceObstacle(x, y))
+                    {
+                        // Randomly determine the size of the obstacle (between 2x2 and 4x4, including combinations like 2x3)
+                        int obstacleWidth = random.Next(2, 5); // 2, 3, or 4 width
+                        int obstacleHeight = random.Next(2, 5); // 2, 3, or 4 height
+
+                        // Place the obstacle if there's enough space
+                        if (CanFitObstacle(x, y, obstacleWidth, obstacleHeight))
+                        {
+                            // Mark the area as occupied by an obstacle
+                            PlaceObstacle(x, y, obstacleWidth, obstacleHeight);
+                            tile.Texture = Globals.content.Load<Texture2D>("obstacle"); // Mark as obstacle
+                        }
+                    }
+
+                    /*
+                    Sprite tile = Tilemap.GetTileAt(x, y);
 
                     // Implement wall rule
 
@@ -93,15 +113,16 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                     int randomValue = random.Next(100);
                     if (randomValue < obstacleDensity)
                     {
-                        tile.Texture = Globals.Content.Load<Texture2D>("obstacle"); 
+                        tile.Texture = Globals.content.Load<Texture2D>("obstacle"); 
                         // change this to obstacle rules
                     }
                     else
                     {
-                        tile.Texture = Globals.Content.Load<Texture2D>("floor");
+                        tile.Texture = Globals.content.Load<Texture2D>("floor");
                         // add to list of empty tiles to be referenced in GetRandomEmptyTile()
                         //emptyTiles.Add(reference Vector2 position);
                     }
+                    */
                 }
             }
 
@@ -115,13 +136,55 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             } while (exitTile == startTile);
 
             // Set the start and exit tiles
-            Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y).Texture = Globals.Content.Load<Texture2D>("start");
-            Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y).Texture = Globals.Content.Load<Texture2D>("exit");
+            Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y).Texture = Globals.content.Load<Texture2D>("start");
+            Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y).Texture = Globals.content.Load<Texture2D>("exit");
         }
         public void Draw(SpriteBatch spriteBatch)
         {
             Tilemap.Draw(spriteBatch);
         }
+
+        private bool CanPlaceObstacle(int x, int y)
+        {
+            // Check if the tile is not already occupied by another obstacle and is within the map bounds
+            if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
+                return false;
+
+            Sprite tile = Tilemap.GetTileAt(x, y);
+            return tile.Texture.Name == "floor"; // Only place obstacles where there are floor tiles
+        }
+
+        private bool CanFitObstacle(int x, int y, int width, int height)
+        {
+            // Check if the obstacle fits within the map boundaries
+            if (x + width > mapWidth || y + height > mapHeight)
+                return false;
+
+            // Check if the area is empty (no obstacles or boundaries)
+            for (int i = y; i < y + height; i++)
+            {
+                for (int j = x; j < x + width; j++)
+                {
+                    if (!CanPlaceObstacle(j, i)) // If any spot is not valid, return false
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        private void PlaceObstacle(int x, int y, int width, int height)
+        {
+            for (int i = y; i < y + height; i++)
+            {
+                for (int j = x; j < x + width; j++)
+                {
+                    // Mark the tiles as obstacles
+                    Sprite tile = Tilemap.GetTileAt(j, i);
+                    tile.Texture = Globals.content.Load<Texture2D>("obstacle"); // Change to obstacle texture
+                }
+            }
+        }
+
 
         // Finds a random empty tile (not an obstacle) on the map.
         private Vector2 GetRandomEmptyTile()

@@ -2,13 +2,17 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components.Enemies
 {
     internal class Enemy : Component
     {
-        private GameManager gameManager;
+        private Globals gameManager;
+        private HealthSystem healthSystem;
+        private Pathfinding pathfinding;
+
         private Basic basicEnemy;
         private Advanced advancedEnemy;
 
@@ -16,6 +20,9 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components.Enemies
         private int minEnemyCount = 2;
         private int maxEnemyCount = 7;
         private List<Enemy> enemies = new List<Enemy>();
+
+        private bool isStunned = false;
+        public bool enemyMovedOntoPlayerTile { get; private set; }
 
         // spawn mechanic on random area of the map, maximum and minimum count
         // move towards player / pathfinding
@@ -29,13 +36,45 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components.Enemies
             // ref: TileMap.cs
         }
 
-        private void PathfindToPlayer()
+        public void MoveTowardsPlayer(Player player)
         {
+            if (!isStunned)
+            {
+                // Move enemy to next tile
+                Vector2 playerPosition = gameManager._player.GameObject.Position;
+                Vector2 nextMove = pathfinding.GetNextMove(playerPosition);
+            }
             // based on the position of the player in Player.cs,
             // enemy finds closest possible path without obstacles to get to them.
             // ref: TileMap.cs, Player.cs
         }
 
+        public void TakeDamage(int damage)
+        {
+            gameManager._healthSystem.TakeDamage(damage);
+            isStunned = true; // stunned after taking damage
+        }
+
+        public void RecoverFromStun()
+        {
+            isStunned = false;
+        }
+
+        public void EnemyTurn()
+        {
+            // If stunned, just recover and skip action
+            if (isStunned)
+            {
+                RecoverFromStun();
+            }
+            else
+            {
+                // enemy AI behavior: Move, attack, etc.
+                MoveTowardsPlayer(player);
+            }
+        }
+
+        // -------------------------------------------------------------------//
         private void CheckForPlayer() // return Vector2 ?
         {
             // to be used in Combat.cs, if enemy is on player enemy takes turn

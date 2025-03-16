@@ -23,7 +23,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             currentHealth = Health;
         }
-        private void TakeDamage(int damage)
+        public void TakeDamage(int damage)
         {
             if (currentHealth <= 0)
             {
@@ -33,6 +33,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             }
             Health -= damage;
             // update health bar
+            ShowDamageEffect(damage);
         }
 
         private void Die()
@@ -45,9 +46,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             }
         }
 
-        private void HealthBar()
+        private void ShowDamageEffect(int damage)
         {
-            // for every sprite, display a health bar below them. with damage, take away from float?
+            // floating text showing damage above sprite
+            //DamageText damageText = new DamageText(damage, this.GameObject.Position);
+            //Globals.spriteBatch.DrawString(damageText.Font, damageText.Text, damageText.Position, Color.Red);
         }
-    }
 }

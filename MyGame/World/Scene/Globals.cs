@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using GameProgII_2DGAME_JuliaC02032025.Components.Enemies;
 
 #endregion
 
@@ -33,6 +34,7 @@ internal class Globals
     public Sprite _sprite;
     public GameObject _gameObject;
     public TileMap _tileMap;
+    public Enemy _enemy;
 
     public Scene _scene;
     public Globals()
