@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameProgII_2DGAME_JuliaC02032025.Components.Enemies;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
@@ -13,13 +14,16 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
     {
         Globals globals;
         private TileMap tileMap;
+        private HealthSystem healthSystem;
 
         // ---------- VARIABLES ---------- //
-         
+
         private float speed = 300f;
         private int tileSize = 32;
         private int spriteScale = 1;
 
+        // Turn based combat
+        private bool hasMovedThisTurn = false;
         public bool playerMovedOntoEnemyTile {  get; private set; }
 
         public Player() { }
@@ -34,15 +38,19 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         public override void Start() 
         {
             globals = Globals.Instance;
-
             if (globals == null)
             {
                 Debug.WriteLine("Player: globals is NULL!");
                 return;
             }
 
-            globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();
+            healthSystem = GameObject.GetComponent<HealthSystem>(); // health
+            if (healthSystem == null)
+            {
+                healthSystem = GameObject.FindObjectOfType<HealthSystem>();
+            }
 
+            globals._mapSystem = GameObject.FindObjectOfType<MapSystem>(); // map recognition
             if (globals._mapSystem == null)
             {
                 Debug.WriteLine("Player: globals._mapSystem is NULL! Trying to find it...");
@@ -55,6 +63,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // Updates the player's position based on input, checking for obstacles before moving.
         public override void Update(float deltaTime)
         {
+            if (hasMovedThisTurn) return;
+
             if (tileMap == null)  // DEBUG: Retry if tileMap is still missing
             {
                 tileMap = globals._mapSystem?.Tilemap;
@@ -75,10 +85,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
             KeyboardState KeyboardState = Keyboard.GetState();
 
-            if (KeyboardState.IsKeyDown(Keys.W)) targetPos.Y -= speed * deltaTime; // UP
-            if (KeyboardState.IsKeyDown(Keys.A)) targetPos.X -= speed * deltaTime; // LEFT
-            if (KeyboardState.IsKeyDown(Keys.S)) targetPos.Y += speed * deltaTime; // DOWN
-            if (KeyboardState.IsKeyDown(Keys.D)) targetPos.X += speed * deltaTime; // RIGHT     
+            if (KeyboardState.IsKeyDown(Keys.W)) targetPos.Y -= tileSize; // UP
+            if (KeyboardState.IsKeyDown(Keys.A)) targetPos.X -= tileSize; // LEFT
+            if (KeyboardState.IsKeyDown(Keys.S)) targetPos.Y += tileSize; // DOWN
+            if (KeyboardState.IsKeyDown(Keys.D)) targetPos.X += tileSize; // RIGHT     
 
             // Convert target position to tile coordinates
             Point targetTilePos = GetTileCoordinates(targetPos);
@@ -87,6 +97,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             if (!IsObstacle(targetTilePos))
             {
                 GameObject.Position = targetPos;
+                hasMovedThisTurn = true;
+                // Combat
+                CheckForEnemy();
+                Globals.Instance._combat.PlayerTurn();
             }
         }
 
@@ -128,10 +142,29 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             return false;
         }
 
+        // Combat
+        public void Attack(Enemy enemy)
+        {
+            if (enemy != null)
+            {
+                enemy.TakeDamage(10); 
+            }
+        }
+
+        public void TakeDamage(int damage)
+        {
+            healthSystem.TakeDamage(damage);
+        }
+
+        // Turn-based system
         private void CheckForEnemy() // return Vector2 ?
         {
             // to be used in Combat.cs, if player is on enemy player takes turn
             // ref: Enemy.cs for enemies position
+        }
+        public void ResetTurn()
+        {
+            hasMovedThisTurn = false;
         }
     }
 }

@@ -46,7 +46,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
             // ***** MAP ***** //
             // Create Map GameObject & MapSystem component
             GameObject mapObject = new GameObject();
-            mapSystem = new MapSystem();
+            MapSystem mapSystem = new MapSystem();
             TileMap tileMap = new TileMap();
 
             // Add components to Map GameObject        

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace GameProgII_2DGAME_JuliaC02032025.Components
@@ -25,24 +26,27 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
         public void TakeDamage(int damage)
         {
+            if (!isAlive) return;
+
+            currentHealth -= damage;
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
-                Die();
                 isAlive = false;
+                Die();
             }
-            Health -= damage;
-            // update health bar
-            ShowDamageEffect(damage);
+            //Health -= damage;
+            
+            ShowDamageEffect(damage); // update health bar
         }
 
         private void Die()
         {
-            // set gamaobject inactive (reference bool isActive from GameObject)
-            
-            if(isPlayer)
+            //GameObject.IsActive = false;
+
+            if (isPlayer)
             {
-                // show game over
+                Debug.WriteLine("Game Over!");
             }
         }
 
@@ -52,4 +56,5 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             //DamageText damageText = new DamageText(damage, this.GameObject.Position);
             //Globals.spriteBatch.DrawString(damageText.Font, damageText.Text, damageText.Position, Color.Red);
         }
+    }
 }

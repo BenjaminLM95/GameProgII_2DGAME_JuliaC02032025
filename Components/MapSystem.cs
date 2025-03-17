@@ -37,7 +37,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             Tilemap.Initialize();
 
             // ---!!!--- MAP GENERATION ---!!!--- // <switch here
-
+            Debug.WriteLine("MapSystem: Generating random map.");
             GenerateMap();  // Random map generation
 
             // Load map from.txt file
@@ -138,6 +138,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             // Set the start and exit tiles
             Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y).Texture = Globals.content.Load<Texture2D>("start");
             Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y).Texture = Globals.content.Load<Texture2D>("exit");
+
+            Debug.WriteLine("Random map generated successfully.");
         }
         public void Draw(SpriteBatch spriteBatch)
         {

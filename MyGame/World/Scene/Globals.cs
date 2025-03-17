@@ -35,6 +35,7 @@ internal class Globals
     public GameObject _gameObject;
     public TileMap _tileMap;
     public Enemy _enemy;
+    public Combat _combat;
 
     public Scene _scene;
     public Globals()
