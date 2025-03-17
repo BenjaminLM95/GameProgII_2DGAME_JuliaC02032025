@@ -16,7 +16,18 @@ The player does their own checks for collisions, recognizing obstacles and runni
 The game starts by generating a random tilemap or loading a predefined map from the MyMaps folder. Predefined maps use chars and convert them into their corresponding Textures.
 
 The player navigates the map while avoiding obstacles.
-If the player reaches the exit tile, the game loads a new level with a fresh map (or rather it should, I made logic for it but could not implement it properly).
+
+Combat
+Based on a bool that checks if it is the player's turn, depending on wether its player/enemy check adjacent 32 x 32 pixel tiles for the opponent. 
+If the opponent is adjacent, attacks and switches turn
+Turn indicator is drawn above currently active gameobject
+
+Enemy
+Enemies start at 1 count and go up to 10 maximum. They move towards player by tile (32 x 32). 
+They check if next to player and attack, take damage, or recover from stun on turn
+
+MapSystem
+Obstacle dimensions are specified in GenerateMap()
 
 ---------- TERMINAL ----------
 build game : dotnet build
