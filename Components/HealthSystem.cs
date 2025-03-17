@@ -35,7 +35,6 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 isAlive = false;
                 Die();
             }
-            //Health -= damage;
             
             ShowDamageEffect(damage); // update health bar
         }

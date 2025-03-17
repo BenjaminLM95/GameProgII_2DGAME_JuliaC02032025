@@ -103,26 +103,6 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                             tile.Texture = Globals.content.Load<Texture2D>("obstacle"); // Mark as obstacle
                         }
                     }
-
-                    /*
-                    Sprite tile = Tilemap.GetTileAt(x, y);
-
-                    // Implement wall rule
-
-                    // Randomize the tile type
-                    int randomValue = random.Next(100);
-                    if (randomValue < obstacleDensity)
-                    {
-                        tile.Texture = Globals.content.Load<Texture2D>("obstacle"); 
-                        // change this to obstacle rules
-                    }
-                    else
-                    {
-                        tile.Texture = Globals.content.Load<Texture2D>("floor");
-                        // add to list of empty tiles to be referenced in GetRandomEmptyTile()
-                        //emptyTiles.Add(reference Vector2 position);
-                    }
-                    */
                 }
             }
 
@@ -189,7 +169,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
 
         // Finds a random empty tile (not an obstacle) on the map.
-        private Vector2 GetRandomEmptyTile()
+        public Vector2 GetRandomEmptyTile()
         {
             Vector2 randomTile;
 

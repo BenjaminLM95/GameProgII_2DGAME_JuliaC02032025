@@ -75,6 +75,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             isPlayerTurn = true;
         }
 
+        /// <summary>
+        /// checks if enemy is next to the player 
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
         private Enemy CheckForAdjacentEnemy(Player player)
         {
             Vector2 playerPos = player.GameObject.Position;
@@ -89,6 +94,11 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             return null;
         }
 
+        /// <summary>
+        /// check if player is next to the enemy
+        /// </summary>
+        /// <param name="enemy"></param>
+        /// <returns></returns>
         private Player CheckForAdjacentPlayer(Enemy enemy)
         {
             Vector2 enemyPos = enemy.GameObject.Position;
