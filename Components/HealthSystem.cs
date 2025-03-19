@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Numerics;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Components
+namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     internal class HealthSystem : Component
     {
@@ -35,7 +35,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 isAlive = false;
                 Die();
             }
-            
+
             ShowDamageEffect(damage); // update health bar
         }
 

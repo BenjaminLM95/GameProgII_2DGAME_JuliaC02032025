@@ -1,11 +1,11 @@
-﻿using GameProgII_2DGAME_JuliaC02032025.Components.Enemies;
+﻿using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Components
+namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     /// <summary>
     /// Handles player input, movement, and interactions with the map (e.g., obstacles, exit).
@@ -24,7 +24,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         // Turn based combat
         private bool hasMovedThisTurn = false;
-        public bool playerMovedOntoEnemyTile {  get; private set; }
+        public bool playerMovedOntoEnemyTile { get; private set; }
 
         public Player() { }
         public Player(TileMap tileMap)
@@ -32,10 +32,12 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             this.tileMap = tileMap;
         }
 
+        // make constructor for health, position, base variables
+
         // ---------- METHODS ---------- //
 
         // Initializes the player by finding the map system and tile map.
-        public override void Start() 
+        public override void Start()
         {
             globals = Globals.Instance;
             if (globals == null)
@@ -54,10 +56,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             if (globals._mapSystem == null)
             {
                 Debug.WriteLine("Player: globals._mapSystem is NULL! Trying to find it...");
-                globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();  
+                globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();
             }
 
-            tileMap = globals._mapSystem?.Tilemap;  
+            tileMap = globals._mapSystem?.Tilemap;
         }
 
         // Updates the player's position based on input, checking for obstacles before moving.
@@ -75,7 +77,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 else
                 {
                     Debug.WriteLine("Player: tileMap STILL NULL in Update!");
-                    return;  
+                    return;
                 }
             }
 
@@ -130,7 +132,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // Checks if the player's current position is on an exit tile.
         public bool IsExit(Vector2 playerPosition)
         {
-            Point tileCoordinates = new Point((int)playerPosition.X / 32, (int)playerPosition.Y / 32); 
+            Point tileCoordinates = new Point((int)playerPosition.X / 32, (int)playerPosition.Y / 32);
             if (tileMap == null) return false;
 
             Sprite targetTile = tileMap.GetTileAt(tileCoordinates.X, tileCoordinates.Y);
@@ -147,7 +149,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             if (enemy != null)
             {
-                enemy.TakeDamage(10); 
+                enemy.TakeDamage(10);
             }
         }
 

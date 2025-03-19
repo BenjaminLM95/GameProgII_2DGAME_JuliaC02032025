@@ -1,4 +1,4 @@
-﻿using GameProgII_2DGAME_JuliaC02032025.Components;
+﻿using GameProgII_2DGame_Julia_C02032025.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -6,8 +6,11 @@ using static System.Formats.Asn1.AsnWriter;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 
-namespace GameProgII_2DGAME_JuliaC02032025
+namespace GameProgII_2DGame_Julia_C02032025
 {
+    /// <summary>
+    /// this fixes "Missing XML comment" warning
+    /// </summary>
     public class Game1 : Game
     {
         // ---------- REFERENCES ---------- //
@@ -15,11 +18,16 @@ namespace GameProgII_2DGAME_JuliaC02032025
         private SpriteBatch _spriteBatch;
 
         private MapSystem mapSystem;
-
+        /// <summary>
+        /// 
+        /// </summary>
         public static Game1 instance;
 
         World world;
 
+        /// <summary>
+        /// Initialize constructor
+        /// </summary>
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -28,6 +36,9 @@ namespace GameProgII_2DGAME_JuliaC02032025
             instance = this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected override void Initialize()
         {
             base.Initialize();
@@ -38,7 +49,7 @@ namespace GameProgII_2DGAME_JuliaC02032025
         /// </summary>
         protected override void LoadContent()
         {
-            Globals.content = this.Content;
+            Globals.content = Content;
             Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
 
             world = new World();
@@ -74,12 +85,15 @@ namespace GameProgII_2DGAME_JuliaC02032025
             // Add created GameObject to the scene
             Globals.Instance._scene.AddGameObject(playerObject);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameTime"></param>
         protected override void Update(GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
+
             world.Update();
             // Call Scene.cs's Update method within this instance
             // (which updates all GameObjects)
@@ -88,19 +102,15 @@ namespace GameProgII_2DGAME_JuliaC02032025
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// Draw world, contains scene, contains component/gameobject/globals
+        /// </summary>
+        /// <param name="gameTime"></param>
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             Globals.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-
-            //if (mapSystem != null)
-            //{
-            //    mapSystem.Draw(_spriteBatch);
-            //}
-
-            // Draw all GameObjects in the scene
-            //Globals.Instance._scene.Draw(_spriteBatch);
 
             world.Draw();
 

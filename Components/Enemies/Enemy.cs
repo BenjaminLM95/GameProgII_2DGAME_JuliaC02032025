@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Components.Enemies
+namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 {
     internal class Enemy : Component
     {
@@ -23,6 +23,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components.Enemies
 
         private bool isStunned = false;
         public bool enemyMovedOntoPlayerTile { get; private set; }
+
+        // make constructor for health, position, base variables
 
         // ---------- METHODS ---------- //
 
@@ -84,12 +86,12 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components.Enemies
             if (Math.Abs(playerPos.X - enemyPos.X) > Math.Abs(playerPos.Y - enemyPos.Y))
             {
                 // Move horizontally first if player is further in X direction
-                moveDirection.X = (playerPos.X > enemyPos.X) ? 32 : -32;
+                moveDirection.X = playerPos.X > enemyPos.X ? 32 : -32;
             }
             else
             {
                 // Otherwise, move vertically
-                moveDirection.Y = (playerPos.Y > enemyPos.Y) ? 32 : -32;
+                moveDirection.Y = playerPos.Y > enemyPos.Y ? 32 : -32;
             }
 
             GameObject.Position += moveDirection;
@@ -119,8 +121,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components.Enemies
             Vector2 playerPos = player.GameObject.Position;
             Vector2 enemyPos = GameObject.Position;
 
-            return (Math.Abs(playerPos.X - enemyPos.X) == 32 && playerPos.Y == enemyPos.Y) ||
-                   (Math.Abs(playerPos.Y - enemyPos.Y) == 32 && playerPos.X == enemyPos.X);
+            return Math.Abs(playerPos.X - enemyPos.X) == 32 && playerPos.Y == enemyPos.Y ||
+                   Math.Abs(playerPos.Y - enemyPos.Y) == 32 && playerPos.X == enemyPos.X;
         }
     }
 }

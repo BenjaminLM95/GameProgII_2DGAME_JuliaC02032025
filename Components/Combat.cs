@@ -1,11 +1,10 @@
-﻿using GameProgII_2DGAME_JuliaC02032025.Components.Enemies;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using System;
 using Microsoft.Xna.Framework;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
+using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
 
-
-namespace GameProgII_2DGAME_JuliaC02032025.Components
+namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     internal class Combat : Component
     {
@@ -24,13 +23,15 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             gameManager = Globals.Instance;
             turnIndicatorTexture = Globals.content.Load<Texture2D>("turnIndicator");
         }
- 
+
         private void Update()
         {
-            if (isPlayerTurn) {
+            if (isPlayerTurn)
+            {
                 PlayerTurn();
             }
-            else {
+            else
+            {
                 EnemyTurn();
             }
 
@@ -117,7 +118,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             float dx = Math.Abs(pos1.X - pos2.X);
             float dy = Math.Abs(pos1.Y - pos2.Y);
 
-            return (dx == TILE_SIZE && dy == 0) || (dy == TILE_SIZE && dx == 0);
+            return dx == TILE_SIZE && dy == 0 || dy == TILE_SIZE && dx == 0;
         }
 
         private void StunEffect()
@@ -146,7 +147,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         {
             Globals.spriteBatch.Draw(
                 turnIndicatorTexture,
-                new Vector2(position.X, position.Y - TILE_SIZE), 
+                new Vector2(position.X, position.Y - TILE_SIZE),
                 Color.White
             );
         }

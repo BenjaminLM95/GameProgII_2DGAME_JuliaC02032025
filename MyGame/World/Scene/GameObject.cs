@@ -1,4 +1,4 @@
-﻿using GameProgII_2DGAME_JuliaC02032025.Components;
+﻿using GameProgII_2DGame_Julia_C02032025.Components;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;

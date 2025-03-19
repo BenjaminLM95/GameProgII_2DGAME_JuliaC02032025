@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Components
+namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     /// <summary>
     /// Represents the map of tiles in the game, including managing tile textures and rendering the map.
@@ -34,15 +34,14 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
         // ---------- METHODS ---------- //
 
-        public void ClearTiles() 
+        public void ClearTiles()
         {
-            _tileSprites.Clear(); 
+            _tileSprites.Clear();
             Debug.WriteLine("Tilemap cleared!");
         }
 
         public void Initialize() // Initialize with floor tiles
         {
-            //_tileSprites.Clear();
             if (_tileSprites.Count > 0) return;
 
             for (int y = 0; y < mapHeight; y++)
@@ -84,7 +83,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
             {
                 Debug.WriteLine($"Error: GetTileAt({x}, {y}) is out of bounds!");
-                return null;  
+                return null;
             }
 
             int index = y * mapWidth + x;
@@ -99,7 +98,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         }
 
         // Draw all tiles to the screen.
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch) // take out override?
         {
             foreach (var tileSprite in _tileSprites)
             {

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Components
+namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     internal class Sprite : Component
     {
@@ -12,7 +12,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         // ---------- VARIABLES ---------- //       
 
         public Texture2D Texture { get; set; }
-        public Vector2 Position { get; set; } 
+        public Vector2 Position { get; set; }
 
         private int spriteScale = 2;
 
@@ -21,8 +21,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
         public Sprite() { } // Default constructor 
         public Sprite(Texture2D texture, Vector2 position)
         {
-            this.Texture = texture;
-            this.Position = position;
+            Texture = texture;
+            Position = position;
         }
 
         // Loads a texture from the Content Manager.
@@ -33,7 +33,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 throw new Exception("Globals.Content is not initialized! Ensure Game1.LoadContent() runs before calling LoadSprite().");
             }
 
-            Texture = Globals.content.Load<Texture2D>(textureName);           
+            Texture = Globals.content.Load<Texture2D>(textureName);
         }
 
         // Draws the sprite at the GameObject's position.
@@ -53,6 +53,6 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 //spriteBatch.Draw(Texture, Position, Color.White);
                 Globals.spriteBatch.Draw(Texture, destinationRectangle, Color.White);
             }
-        } 
+        }
     }
 }

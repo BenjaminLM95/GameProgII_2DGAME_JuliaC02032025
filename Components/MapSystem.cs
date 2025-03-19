@@ -7,23 +7,23 @@ using System.IO;
 using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
-namespace GameProgII_2DGAME_JuliaC02032025.Components
-{   
+namespace GameProgII_2DGame_Julia_C02032025.Components
+{
     internal class MapSystem : Component
     {
+        // Handles Map Behaviors, generation/loading, obstacles, and rules.
+
         private Globals _gameManager;
         public TileMap Tilemap { get; private set; }
 
         // ---------- VARIABLES ---------- //
-        
+
         private Random random = new Random();
         private int mapHeight = 15; // map HEIGHT
         private int mapWidth = 25; // map WIDTH
 
         private int tilePixelX = 32; // tile sprites are 16x16
         private int tilePixelY = 32;
-
-        private int obstacleDensity = 10; // __% of the map are obstacles
 
         List<Vector2> emptyTiles = new List<Vector2>();
 
@@ -38,13 +38,13 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
             // ---!!!--- MAP GENERATION ---!!!--- // <switch here
             Debug.WriteLine("MapSystem: Generating random map.");
-            GenerateMap();  // Random map generation
+            //GenerateMap();  // Random map generation
 
             // Load map from.txt file
             //LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
-            //"GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
-            //LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
-            //  "GameProgII_2DGAME_JuliaC02032025\\MyMaps\\Map1.txt");
+            //"GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
+            LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
+              "GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
         }
 
         public void Update(GameTime gameTime)
@@ -55,7 +55,7 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             {
                 // Clear current map and load the next level
                 Tilemap.ClearTiles();
-                GenerateMap();  
+                GenerateMap();
                 Debug.WriteLine("Level Transition: Player reached the exit!");
             }
         }
@@ -70,10 +70,10 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             Vector2 startTile = GetRandomEmptyTile();
 
             Player player = GameObject.FindObjectOfType<Player>();
-            player.GameObject.Position = 
-                new Vector2(startTile.X * tilePixelX, startTile.Y * tilePixelY); 
+            player.GameObject.Position =
+                new Vector2(startTile.X * tilePixelX, startTile.Y * tilePixelY);
 
-            GenerateMap(); 
+            GenerateMap();
         }
 
         // Generates a new random map, setting tile types for floors, obstacles, 
@@ -98,9 +98,9 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                         // Place the obstacle if there's enough space
                         if (CanFitObstacle(x, y, obstacleWidth, obstacleHeight))
                         {
-                            // Mark the area as occupied by an obstacle
+                            // Place obstacle texture
                             PlaceObstacle(x, y, obstacleWidth, obstacleHeight);
-                            tile.Texture = Globals.content.Load<Texture2D>("obstacle"); // Mark as obstacle
+                            tile.Texture = Globals.content.Load<Texture2D>("obstacle");
                         }
                     }
                 }
@@ -111,7 +111,8 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
             Vector2 exitTile;
 
             // Keep finding a different exit tile until it's not the same as the start
-            do {
+            do
+            {
                 exitTile = GetRandomEmptyTile();
             } while (exitTile == startTile);
 
@@ -121,11 +122,12 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
 
             Debug.WriteLine("Random map generated successfully.");
         }
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch) // take out override?
         {
             Tilemap.Draw(spriteBatch);
         }
 
+        #region Obstacle Rules
         private bool CanPlaceObstacle(int x, int y)
         {
             // Check if the tile is not already occupied by another obstacle and is within the map bounds
@@ -162,24 +164,26 @@ namespace GameProgII_2DGAME_JuliaC02032025.Components
                 {
                     // Mark the tiles as obstacles
                     Sprite tile = Tilemap.GetTileAt(j, i);
-                    tile.Texture = Globals.content.Load<Texture2D>("obstacle"); // Change to obstacle texture
+                    tile.Texture = Globals.content.Load<Texture2D>("obstacle");
                 }
             }
         }
-
+        #endregion
 
         // Finds a random empty tile (not an obstacle) on the map.
         public Vector2 GetRandomEmptyTile()
         {
             Vector2 randomTile;
 
-            do {
+            do
+            {
                 int x = random.Next(mapWidth);
                 int y = random.Next(mapHeight);
                 Sprite tile = Tilemap.GetTileAt(x, y);
 
                 // Check if it's a floor tile (not an obstacle)
-                if (tile.Texture.Name == "floor") {
+                if (tile.Texture.Name == "floor")
+                {
                     randomTile = new Vector2(x, y);
                     break;
                 }
