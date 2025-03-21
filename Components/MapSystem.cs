@@ -9,10 +9,11 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
+    /// <summary>
+    /// Handles Map Behaviors, generation/loading, obstacles, and rules.
+    /// </summary>
     internal class MapSystem : Component
     {
-        // Handles Map Behaviors, generation/loading, obstacles, and rules.
-
         private Globals _gameManager;
         public TileMap Tilemap { get; private set; }
 
@@ -38,13 +39,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             // ---!!!--- MAP GENERATION ---!!!--- // <switch here
             Debug.WriteLine("MapSystem: Generating random map.");
-            //GenerateMap();  // Random map generation
+            GenerateMap();  // Random map generation
 
             // Load map from.txt file
             //LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
             //"GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
-            LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
-              "GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
+            //LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
+            //  "GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
         }
 
         public void Update(GameTime gameTime)
@@ -87,22 +88,30 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 for (int x = 0; x < mapWidth; x++)
                 {
                     Sprite tile = Tilemap.GetTileAt(x, y);
-                    tile.Texture = Globals.content.Load<Texture2D>("floor");
-
-                    if (CanPlaceObstacle(x, y))
+                    if (tile != null)
                     {
-                        // Randomly determine the size of the obstacle (between 2x2 and 4x4, including combinations like 2x3)
-                        int obstacleWidth = random.Next(2, 5); // 2, 3, or 4 width
-                        int obstacleHeight = random.Next(2, 5); // 2, 3, or 4 height
-
-                        // Place the obstacle if there's enough space
-                        if (CanFitObstacle(x, y, obstacleWidth, obstacleHeight))
+                        if (x == 0 || x == mapWidth - 1 || y == 0 || y == mapHeight - 1)
                         {
-                            // Place obstacle texture
-                            PlaceObstacle(x, y, obstacleWidth, obstacleHeight);
-                            tile.Texture = Globals.content.Load<Texture2D>("obstacle");
+                            tile.Texture = Globals.content.Load<Texture2D>("wall"); // draw walls on edge
+                        }
+                        else
+                        {
+                            tile.Texture = Globals.content.Load<Texture2D>("floor"); // all else is floor
                         }
                     }
+                }
+            }
+            // generating obstacle clusters
+            for (int i = 0; i < 10; i++)
+            {
+                int obsX = random.Next(1, mapWidth - 4);
+                int obsY = random.Next(1, mapHeight - 4);
+                int obstacleWidth = random.Next(2, 5);
+                int obstacleHeight = random.Next(2, 5);
+
+                if (CanFitObstacle(obsX, obsY, obstacleWidth, obstacleHeight))
+                {
+                    PlaceObstacle(obsX, obsY, obstacleWidth, obstacleHeight);
                 }
             }
 
@@ -117,14 +126,50 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             } while (exitTile == startTile);
 
             // Set the start and exit tiles
-            Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y).Texture = Globals.content.Load<Texture2D>("start");
-            Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y).Texture = Globals.content.Load<Texture2D>("exit");
+            Sprite startSprite = Tilemap.GetTileAt((int)startTile.X, (int)startTile.Y);
+            Sprite exitSprite = Tilemap.GetTileAt((int)exitTile.X, (int)exitTile.Y);
 
-            Debug.WriteLine("Random map generated successfully.");
+            if (startSprite != null)
+                startSprite.Texture = Globals.content.Load<Texture2D>("start");
+
+            if (exitSprite != null)
+                exitSprite.Texture = Globals.content.Load<Texture2D>("exit");
+
+            // Set player position to the start tile
+            Player player = GameObject.FindObjectOfType<Player>();
+            if (player != null)
+            {
+                Debug.WriteLine($"MapSystem: Player position set to {player.GameObject.Position.X}, {player.GameObject.Position.Y}.");
+                player.GameObject.Position = new Vector2(startTile.X * tilePixelX, startTile.Y * tilePixelY);
+            }
+            else if (player == null) {
+                Debug.WriteLine($"MapSystem: Player is NULL.");
+            }
+
+            Debug.WriteLine("MapSystem: Random map generated successfully.");
         }
         public override void Draw(SpriteBatch spriteBatch) // take out override?
         {
             Tilemap.Draw(spriteBatch);
+        }
+
+        public Vector2 GetStartTilePosition()
+        {
+            for (int y = 0; y < mapHeight; y++)
+            {
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    Sprite tile = Tilemap.GetTileAt(x, y);
+                    if (tile != null && tile.Texture == Tilemap.startTexture)
+                    {
+                        return new Vector2(x * tilePixelX, y * tilePixelY);
+                    }
+                }
+            }
+
+            // If start tile not found, use the position from GetRandomEmptyTile()
+            Vector2 startTile = GetRandomEmptyTile();
+            return new Vector2(startTile.X * tilePixelX, startTile.Y * tilePixelY);
         }
 
         #region Obstacle Rules
@@ -199,14 +244,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 // Read all lines from the file
                 string[] lines = System.IO.File.ReadAllLines(filePath);
-                Debug.WriteLine($"Loaded map with " +
+                Debug.WriteLine($"MapSystem: Loaded map with " +
                     $"{lines.Length} lines and {lines[0].Length} " +
                     $"characters in first line.");
 
                 // Validate map dimensions
                 if (lines.Length != mapHeight || lines[0].Length != mapWidth)
                 {
-                    Debug.WriteLine("Error: Map file dimensions do not match expected size.");
+                    Debug.WriteLine("MapSystem Error: Map file dimensions do not match expected size.");
                     return;
                 }
 

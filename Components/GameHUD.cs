@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
-    internal class Input : Component
+    internal class GameHUD
     {
-
     }
 }
+// show player/enemy health
+// show items
+// show turn indicator

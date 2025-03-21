@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using static System.Formats.Asn1.AsnWriter;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
@@ -14,7 +15,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public Texture2D Texture { get; set; }
         public Vector2 Position { get; set; }
 
-        private int spriteScale = 2;
+        private int fixedSize = 32;
+        private float spriteScale = 4.0f; 
 
 
         // ---------- METHODS ---------- //
@@ -41,17 +43,22 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             if (Texture != null)
             {
-                // Original size
-                int width = Texture.Width;
-                int height = Texture.Height;
-                // Scale sprite
                 Rectangle destinationRectangle = new Rectangle(
-                    (int)GameObject.Position.X,
-                    (int)GameObject.Position.Y,
-                    width * spriteScale, height * spriteScale); // scaling
+                (int)GameObject.Position.X,
+                (int)GameObject.Position.Y,
+                (int)(fixedSize * spriteScale),
+                (int)(fixedSize * spriteScale));
 
-                //spriteBatch.Draw(Texture, Position, Color.White);
-                Globals.spriteBatch.Draw(Texture, destinationRectangle, Color.White);
+                spriteBatch.Draw(
+                Texture,              // The texture to draw
+                destinationRectangle, // Destination rectangle (32x32 or scaled version)
+                null,                 // Source rectangle (null = use the entire texture)
+                Color.White,          // Color mask
+                0f,                   // Rotation
+                Vector2.Zero,         // Origin point
+                SpriteEffects.None,   // No effects
+                0f                    // Layer depth
+                );
             }
         }
     }

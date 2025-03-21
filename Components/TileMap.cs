@@ -37,7 +37,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public void ClearTiles()
         {
             _tileSprites.Clear();
-            Debug.WriteLine("Tilemap cleared!");
+            Debug.WriteLine("Tilemap: cleared");
         }
 
         public void Initialize() // Initialize with floor tiles
@@ -56,7 +56,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     _tileSprites.Add(tileSprite);
                 }
             }
-            Debug.WriteLine($"Tilemap initialized with {_tileSprites.Count} tiles.");
+            Debug.WriteLine($"Tilemap: initialized with {_tileSprites.Count} tiles.");
         }
 
         public void LoadTextures(ContentManager content)
@@ -68,11 +68,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 startTexture = content.Load<Texture2D>("start");
                 exitTexture = content.Load<Texture2D>("exit");
 
-                Debug.WriteLine("Textures loaded successfully.");
+                Debug.WriteLine("TileMap: Textures loaded successfully.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error loading textures: {ex.Message}");
+                Debug.WriteLine($"TileMap: Error loading textures: {ex.Message}");
             }
         }
 
@@ -82,7 +82,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Check if the coordinates are within bounds before accessing the tile
             if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight)
             {
-                Debug.WriteLine($"Error: GetTileAt({x}, {y}) is out of bounds!");
+                Debug.WriteLine($"TileMap: Error GetTileAt({x}, {y}) is out of bounds!");
                 return null;
             }
 
@@ -91,7 +91,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Ensure _tileSprites has enough elements before accessing
             if (index < 0 || index >= _tileSprites.Count)
             {
-                Debug.WriteLine($"Error: GetTileAt({x}, {y}) is out of bounds!");
+                Debug.WriteLine($"TileMap: Error GetTileAt({x}, {y}) is out of bounds!");
                 return null;
             }
             return _tileSprites[index];
@@ -109,7 +109,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 }
                 Globals.spriteBatch.Draw(tileSprite.Texture, tileSprite.Position, Color.White);
             }
-            Debug.WriteLine("Tilemap successfully drawn.");
+            //Debug.WriteLine("Tilemap successfully drawn.");
         }
     }
 }

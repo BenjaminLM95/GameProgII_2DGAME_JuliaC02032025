@@ -33,7 +33,10 @@ internal class Scene
     {
         foreach (var gameObject in _gameObjects)
         {
-            gameObject.Draw(spriteBatch);
+            foreach (var component in gameObject._components)
+            {
+                component.Draw(spriteBatch);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
@@ -15,6 +16,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         Globals globals;
         private TileMap tileMap;
         private HealthSystem healthSystem;
+        private Sprite playerSprite;
 
         // ---------- VARIABLES ---------- //
 
@@ -39,11 +41,18 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // Initializes the player by finding the map system and tile map.
         public override void Start()
         {
-            globals = Globals.Instance;
+            // null checks & component assignment
+            globals = Globals.Instance; // globals
             if (globals == null)
             {
-                Debug.WriteLine("Player: globals is NULL!");
+                Debug.WriteLine("Player: globals is NULL!"); 
                 return;
+            }
+
+            playerSprite = GameObject.GetComponent<Sprite>(); // sprite
+            if (playerSprite == null)
+            {
+                Debug.WriteLine("Player: Sprite component is NULL!");
             }
 
             healthSystem = GameObject.GetComponent<HealthSystem>(); // health
@@ -52,14 +61,15 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 healthSystem = GameObject.FindObjectOfType<HealthSystem>();
             }
 
-            globals._mapSystem = GameObject.FindObjectOfType<MapSystem>(); // map recognition
+            globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();  // mapsystem
             if (globals._mapSystem == null)
             {
-                Debug.WriteLine("Player: globals._mapSystem is NULL! Trying to find it...");
+                Debug.WriteLine("Player: globals._mapSystem is NULL! Trying to find it..."); 
                 globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();
             }
 
             tileMap = globals._mapSystem?.Tilemap;
+            Debug.WriteLine("Player: Waiting for map initialization and start position...");
         }
 
         // Updates the player's position based on input, checking for obstacles before moving.
@@ -84,26 +94,54 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Input
             Vector2 currentPos = GameObject.Position;
             Vector2 targetPos = currentPos;
+            bool moved = false;
 
             KeyboardState KeyboardState = Keyboard.GetState();
 
-            if (KeyboardState.IsKeyDown(Keys.W)) targetPos.Y -= tileSize; // UP
-            if (KeyboardState.IsKeyDown(Keys.A)) targetPos.X -= tileSize; // LEFT
-            if (KeyboardState.IsKeyDown(Keys.S)) targetPos.Y += tileSize; // DOWN
-            if (KeyboardState.IsKeyDown(Keys.D)) targetPos.X += tileSize; // RIGHT     
-
-            // Convert target position to tile coordinates
-            Point targetTilePos = GetTileCoordinates(targetPos);
-
-            // Check if target tile is an obstacle before moving
-            if (!IsObstacle(targetTilePos))
+            if (KeyboardState.IsKeyDown(Keys.W))
             {
-                GameObject.Position = targetPos;
-                hasMovedThisTurn = true;
-                // Combat
-                CheckForEnemy();
-                Globals.Instance._combat.PlayerTurn();
+                Debug.WriteLine($"Player: moving UP");
+                targetPos.Y -= tileSize;
+                moved = true;
             }
+            if (KeyboardState.IsKeyDown(Keys.A))
+            {
+                Debug.WriteLine($"Player: moving LEFT");
+                targetPos.X -= tileSize;
+                moved = true;
+            }
+            if (KeyboardState.IsKeyDown(Keys.S))
+            {
+                Debug.WriteLine($"Player: moving DOWN");
+                targetPos.Y += tileSize;
+                moved = true;
+            }
+            if (KeyboardState.IsKeyDown(Keys.D))
+            {
+                Debug.WriteLine($"Player: moving RIGHT");
+                targetPos.X += tileSize; 
+                moved = true;
+            }
+
+            if (moved && !hasMovedThisTurn)
+            {
+                // Convert target position to tile coordinates
+                Point targetTilePos = GetTileCoordinates(targetPos);
+
+                // Check if target tile is an obstacle before moving
+                if (!IsObstacle(targetTilePos))
+                {
+                    GameObject.Position = targetPos;
+                    Debug.WriteLine($"Player: moved to position - {targetPos}");
+                    hasMovedThisTurn = true;
+                    // Combat
+                    CheckForEnemy();
+                }
+            }
+        }
+        public void Draw() // take out override?
+        {
+            
         }
 
         // Convert world position to tile coordinates
@@ -123,7 +161,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (targetTile != null && targetTile.Texture == tileMap.obstacleTexture)
             {
-                Console.WriteLine($"Obstacle at {tileCoordinates.X}, {tileCoordinates.Y}!");
+                Console.WriteLine($"Player: Obstacle at {tileCoordinates.X}, {tileCoordinates.Y}!");
                 return true;
             }
             return false;
