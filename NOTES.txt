@@ -1,0 +1,18 @@
+TO DO:
+- enemy random spawnpoints
+	need to check for valid empty tile
+- player spawnpoint
+	check for start tile > transform position
+- obstacle checks
+	make sure there is a valid win path/no blocked start or exit
+
+- enemy movement
+	turn manager for multiple enemies
+
+- inventory
+	add component to player, ref. GJam Remake inv. list
+	add display (right now is GameHUD)
+- items (ref. term1 assignment)
+	add general properties & unique items (AND custom)
+	item idea: scroll of wind (can hit an enemy back a tile)
+	item idea: warp scroll (sends player to a random empty tile) 
