@@ -52,13 +52,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             // Check if the player has reached the exit tile
             Player player = GameObject.FindObjectOfType<Player>();
-            if (player != null && player.IsExit(player.GameObject.Position))  // Access Position through GameObject
-            {
-                // Clear current map and load the next level
-                Tilemap.ClearTiles();
-                GenerateMap();
-                Debug.WriteLine("Level Transition: Player reached the exit!");
-            }
         }
 
         // Loads the next level by clearing the current tilemap,
@@ -67,6 +60,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             Tilemap.ClearTiles();
 
+            GenerateMap();
+            
             // Reset the player position to a random empty tile
             Vector2 startTile = GetRandomEmptyTile();
 
@@ -74,7 +69,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             player.GameObject.Position =
                 new Vector2(startTile.X * tilePixelX, startTile.Y * tilePixelY);
 
-            GenerateMap();
         }
 
         // Generates a new random map, setting tile types for floors, obstacles, 
@@ -227,7 +221,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Sprite tile = Tilemap.GetTileAt(x, y);
 
                 // Check if it's a floor tile (not an obstacle)
-                if (tile.Texture.Name == "floor")
+                if (tile.Texture.Name == "floor") // getting null ref when re-generating next level (error message: System.NullReferenceException: 'Object reference not set to an instance of an object.'tile was null.)
                 {
                     randomTile = new Vector2(x, y);
                     break;

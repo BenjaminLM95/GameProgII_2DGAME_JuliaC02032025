@@ -1,4 +1,5 @@
 ﻿using GameProgII_2DGame_Julia_C02032025.Components;
+using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -33,7 +34,7 @@ namespace GameProgII_2DGame_Julia_C02032025
             _graphics.IsFullScreen = false;
             _graphics.PreferredBackBufferWidth = 1920;
             _graphics.PreferredBackBufferHeight = 1080;
-            _graphics.ApplyChanges();
+            //_graphics.ApplyChanges();
 
             base.Initialize();
         }
@@ -62,14 +63,31 @@ namespace GameProgII_2DGame_Julia_C02032025
             GameObject playerObject = new GameObject();
             Player player = new Player();
             Sprite playerSprite = new Sprite();
+            Combat combat = new Combat();
 
             // Add player & sprite component to Player GameObject
             playerObject.AddComponent(player);
             playerObject.AddComponent(playerSprite);
             playerSprite.LoadSprite("player");
+            playerObject.AddComponent(combat);
 
             // Add created GameObject to the scene
             Globals.Instance._scene.AddGameObject(playerObject);
+
+            // ***** ENEMY ***** //
+            GameObject enemyObject = new GameObject();
+            Enemy enemy = new Enemy();
+            Sprite enemySprite = new Sprite();
+            Combat enemycombat = new Combat();
+            Pathfinding enemyPathfinding = new Pathfinding();
+
+            enemyObject.AddComponent(enemy);
+            enemyObject.AddComponent(enemySprite);
+            enemySprite.LoadSprite("enemy");
+            enemyObject.AddComponent(enemycombat);
+            enemyObject.AddComponent(enemyPathfinding);
+
+            Globals.Instance._scene.AddGameObject(enemyObject);
         }
 
         protected override void Update(GameTime gameTime)

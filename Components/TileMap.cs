@@ -23,8 +23,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // Tile textures
         public Texture2D floorTexture { get; private set; }
         public Texture2D obstacleTexture { get; private set; }
+        public Texture2D wallTexture { get; private set; }
         public Texture2D startTexture { get; private set; }
         public Texture2D exitTexture { get; private set; }
+        public Texture2D enemyTexture { get; private set; }
+        public Texture2D playerTexture { get; private set; }
 
         public TileMap() { }
         public TileMap(SpriteBatch spriteBatch)
@@ -65,8 +68,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 floorTexture = content.Load<Texture2D>("floor");
                 obstacleTexture = content.Load<Texture2D>("obstacle");
+                wallTexture = content.Load<Texture2D>("wall");
                 startTexture = content.Load<Texture2D>("start");
                 exitTexture = content.Load<Texture2D>("exit");
+                enemyTexture = content.Load<Texture2D>("enemy");
+                playerTexture = content.Load<Texture2D>("player");
 
                 Debug.WriteLine("TileMap: Textures loaded successfully.");
             }

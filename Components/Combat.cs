@@ -3,12 +3,14 @@ using System;
 using Microsoft.Xna.Framework;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
+using System.Diagnostics;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     internal class Combat : Component
     {
         private Globals gameManager;
+        private Player player;
 
         private bool isPlayerTurn = true;
 
@@ -20,39 +22,55 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         public override void Start()
         {
+            Debug.WriteLine("Combat: START");
             gameManager = Globals.Instance;
             turnIndicatorTexture = Globals.content.Load<Texture2D>("turnIndicator");
         }
 
-        private void Update()
+        public override void Update(float deltaTime)
         {
-            if (isPlayerTurn)
-            {
-                PlayerTurn();
-            }
-            else
-            {
-                EnemyTurn();
-            }
-
-            TurnIndicator();
+            TurnManager();
+            //TurnIndicator();
         }
+
+        private void TurnManager() 
+        {
+            // list of GameObjects turnTakers (includes player & all enemies)
+            // index currentTurn = 0 or -1
+            // Update (entry) every frame
+            // - if valid index? (>=0 and < turnTakers.Count)
+            // - if valid check if 
+            //      has taken turn?
+            //      has turn ended?
+            // if both are true
+            //      change to next index
+            //      call take turn ()
+            // nothing to do (after has taken turn & has turn ended both have happened)
+            // else: find next valid
+            // set has taken turn to false & has turn ended to false (after change to next index and find next valid)
+        }
+
         private void CheckTurn()
         {
             if (gameManager._player.playerMovedOntoEnemyTile)
             {
+                Debug.WriteLine("Combat: Player's turn");
                 isPlayerTurn = true;
+                PlayerTurn();
             }
             else if (gameManager._enemy.enemyMovedOntoPlayerTile)
             {
                 isPlayerTurn = false;
+                EnemyTurn();
+                player.hasMovedThisTurn = false;
             }
         }
 
         public void PlayerTurn()
         {
+            TurnIndicator();
             if (!isPlayerTurn) return; // Prevent turn actions if it's not the player's turn
-
+            Debug.WriteLine("Combat: Player's turn");
             Player player = Globals.Instance._player;
             Enemy enemy = CheckForAdjacentEnemy(player);
 
@@ -63,8 +81,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             isPlayerTurn = false;
         }
-        private void EnemyTurn()
+        private void EnemyTurn() // multiple
         {
+            TurnIndicator();
+            Debug.WriteLine("Combat: Enemy's turn");
             Enemy enemy = Globals.Instance._enemy;
             Player player = CheckForAdjacentPlayer(enemy);
 
@@ -89,6 +109,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (IsAdjacent(playerPos, enemyPos))
             {
+                Debug.WriteLine($"Combat: player at {playerPos} found adjacent {enemy} at {enemyPos}");
                 return enemy;
             }
 
@@ -108,6 +129,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (IsAdjacent(enemyPos, playerPos))
             {
+                Debug.WriteLine($"Combat: enemy at {enemyPos} found adjacent {player} at {playerPos}");
                 return player;
             }
 
@@ -133,10 +155,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (isPlayerTurn)
             {
+                Debug.WriteLine($"Combat: turn indicator on player");
                 indicatorPos = Globals.Instance._player.GameObject.Position;
             }
             else
             {
+                Debug.WriteLine($"Combat: turn indicator on enemy");
                 indicatorPos = Globals.Instance._enemy.GameObject.Position;
             }
 
@@ -150,6 +174,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 new Vector2(position.X, position.Y - TILE_SIZE),
                 Color.White
             );
+            Debug.WriteLine($"Combat: turn indicator DRAWN");
         }
     }
 }

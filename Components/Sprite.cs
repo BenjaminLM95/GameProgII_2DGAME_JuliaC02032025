@@ -16,7 +16,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public Vector2 Position { get; set; }
 
         private int fixedSize = 32;
-        private float spriteScale = 4.0f; 
+        private float spriteScale = 1.0f; 
 
 
         // ---------- METHODS ---------- //
