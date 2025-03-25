@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
+using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
@@ -25,7 +26,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private int spriteScale = 1;
 
         // Turn based combat
-        private bool hasMovedThisTurn = false;
+        public bool hasMovedThisTurn = false;
         public bool playerMovedOntoEnemyTile { get; private set; }
 
         public Player() { }
@@ -100,25 +101,25 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (KeyboardState.IsKeyDown(Keys.W))
             {
-                Debug.WriteLine($"Player: moving UP");
+                //Debug.WriteLine($"Player: moving UP");
                 targetPos.Y -= tileSize;
                 moved = true;
             }
             if (KeyboardState.IsKeyDown(Keys.A))
             {
-                Debug.WriteLine($"Player: moving LEFT");
+                //Debug.WriteLine($"Player: moving LEFT");
                 targetPos.X -= tileSize;
                 moved = true;
             }
             if (KeyboardState.IsKeyDown(Keys.S))
             {
-                Debug.WriteLine($"Player: moving DOWN");
+                //Debug.WriteLine($"Player: moving DOWN");
                 targetPos.Y += tileSize;
                 moved = true;
             }
             if (KeyboardState.IsKeyDown(Keys.D))
             {
-                Debug.WriteLine($"Player: moving RIGHT");
+                //Debug.WriteLine($"Player: moving RIGHT");
                 targetPos.X += tileSize; 
                 moved = true;
             }
@@ -132,16 +133,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 if (!IsObstacle(targetTilePos))
                 {
                     GameObject.Position = targetPos;
-                    Debug.WriteLine($"Player: moved to position - {targetPos}");
+                    //Debug.WriteLine($"Player: moved to position - {targetPos}");
                     hasMovedThisTurn = true;
                     // Combat
-                    CheckForEnemy();
+                    CheckForEnemy(targetTilePos);
                 }
-            }
-        }
-        public void Draw() // take out override?
-        {
-            
+                if (IsExit(targetTilePos))
+                {
+                    GameObject.Position = targetPos;
+                    hasMovedThisTurn = true;
+                    // gen rand next level
+                    globals._mapSystem.LoadNextLevel();
+                }
+                //hasMovedThisTurn = false;
+            }            
         }
 
         // Convert world position to tile coordinates
@@ -159,28 +164,50 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             Sprite targetTile = tileMap.GetTileAt(tileCoordinates.X, tileCoordinates.Y);
 
-            if (targetTile != null && targetTile.Texture == tileMap.obstacleTexture)
+            if (targetTile != null && targetTile.Texture == tileMap.obstacleTexture || targetTile.Texture == tileMap.wallTexture)
             {
-                Console.WriteLine($"Player: Obstacle at {tileCoordinates.X}, {tileCoordinates.Y}!");
+                Debug.WriteLine($"Player: Obstacle at {tileCoordinates.X}, {tileCoordinates.Y}!");
                 return true;
             }
             return false;
         }
 
         // Checks if the player's current position is on an exit tile.
-        public bool IsExit(Vector2 playerPosition)
+        public bool IsExit(Point playerPosition)
         {
-            Point tileCoordinates = new Point((int)playerPosition.X / 32, (int)playerPosition.Y / 32);
+            //Point tileCoordinates = new Point((int)playerPosition.X / 32, (int)playerPosition.Y / 32);
             if (tileMap == null) return false;
 
-            Sprite targetTile = tileMap.GetTileAt(tileCoordinates.X, tileCoordinates.Y);
+            Sprite targetTile = tileMap.GetTileAt(playerPosition.X, playerPosition.Y);
             if (targetTile != null && targetTile.Texture == tileMap.exitTexture)
             {
-                Console.WriteLine($"Exit at {tileCoordinates.X}, {tileCoordinates.Y}!");
+                Debug.WriteLine($"Player: Exit found at {playerPosition.X}, {playerPosition.Y}!");
                 return true;
             }
             return false;
         }
+
+        // Turn-based system
+        private bool CheckForEnemy(Point playerPosition) 
+        {
+            Debug.WriteLine($"Player: checking for enemy at {playerPosition.X}, {playerPosition.Y}");
+            if (tileMap == null) return false;
+
+            Sprite targetTile = tileMap.GetTileAt(playerPosition.X, playerPosition.Y);
+
+            if (targetTile != null && targetTile.Texture == tileMap.enemyTexture) // changed from enemy to floor for testing debug
+            {
+                Debug.WriteLine($"Player: enemy found at {playerPosition.X}, {playerPosition.Y}!");
+                playerMovedOntoEnemyTile = true;
+                return true;
+            }
+            return false;
+        }
+        public void ResetTurn()
+        {
+            hasMovedThisTurn = false;
+        }
+
 
         // Combat
         public void Attack(Enemy enemy)
@@ -196,15 +223,5 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             healthSystem.TakeDamage(damage);
         }
 
-        // Turn-based system
-        private void CheckForEnemy() // return Vector2 ?
-        {
-            // to be used in Combat.cs, if player is on enemy player takes turn
-            // ref: Enemy.cs for enemies position
-        }
-        public void ResetTurn()
-        {
-            hasMovedThisTurn = false;
-        }
     }
 }

@@ -14,6 +14,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
 
         }
+        private void RemoveItemFromInventory()
+        {
+
+        }
     }
 }
 /*

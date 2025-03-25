@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -9,12 +10,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 {
     internal class Enemy : Component
     {
-        private Globals gameManager;
+        private Globals globals;
         private HealthSystem healthSystem;
         private Pathfinding pathfinding;
+        private TileMap tileMap;
 
         private Basic basicEnemy;
         private Advanced advancedEnemy;
+        private Sprite enemySprite;
 
         // ---------- VARIABLES ---------- //
         private int minEnemyCount = 2;
@@ -30,7 +33,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
         public override void Start()
         {
-            healthSystem = GameObject.GetComponent<HealthSystem>();
+            globals = Globals.Instance; // globals
+            if (globals == null)
+            {
+                Debug.WriteLine("Player: globals is NULL!");
+                return;
+            }
+
+            enemySprite = GameObject.GetComponent<Sprite>(); // sprite
+            if (enemySprite == null)
+            {
+                Debug.WriteLine("Enemy: Sprite component is NULL!");
+            }
+
+            healthSystem = GameObject.GetComponent<HealthSystem>(); // healthSystem
             if (healthSystem == null)
             {
                 healthSystem = GameObject.FindObjectOfType<HealthSystem>();
@@ -40,15 +56,18 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         {
             if (isStunned) return; // Skip turn if stunned
 
-            Player player = gameManager._player;
+            //Point enemyPosition = 
+            //Player player = gameManager._player;
 
-            if (IsNextToPlayer(player))
-            {
-                Attack(player);
-            }
+                //if (IsNextToPlayer(player))
+                //{
+                //    Debug.WriteLine("Enemy: attacking player");
+                //    Attack(player);
+                //}
             else
             {
-                MoveTowardsPlayer(player);
+                Debug.WriteLine("Enemy: moving towards player");
+                //MoveTowardsPlayer(player);
             }
         }
 
@@ -67,13 +86,27 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         private void SpawnEnemy()
         {
             // Get a random floor tile
-            Vector2 randomTile = gameManager._mapSystem.GetRandomEmptyTile();
+            Vector2 randomTile = globals._mapSystem.GetRandomEmptyTile();
 
             if (randomTile != null)
             {
-                Enemy newEnemy = new Enemy();
-                newEnemy.GameObject.Position = randomTile;
-                enemies.Add(newEnemy);
+                for (int y = 0; y < 10; y++)
+                {
+                    for (int x = 0; x < 15; x++)
+                    {
+                        Sprite tile = tileMap.GetTileAt(x, y);
+                        if (tile != null)
+                        {
+                            Debug.WriteLine($"Enemy: SpawnEnemy at position - {randomTile}");
+                            tile.Texture = tileMap.enemyTexture;
+                            //Globals.spriteBatch.Draw(tile.Texture, randomTile, Color.White);
+
+                            Enemy newEnemy = new Enemy();
+                            newEnemy.GameObject.Position = randomTile;
+                            enemies.Add(newEnemy);
+                        }
+                    }
+                }
             }
         }
         // Tilemap Movement
@@ -116,13 +149,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             isStunned = false;
         }
 
-        private bool IsNextToPlayer(Player player) // check if within 1 tile (32 x 32)
+        private bool CheckForPlayer(Point enemyPosition)
         {
-            Vector2 playerPos = player.GameObject.Position;
-            Vector2 enemyPos = GameObject.Position;
+            Debug.WriteLine($"Enemy: checking for player at {enemyPosition.X}, {enemyPosition.Y}");
+            if (tileMap == null) return false;
 
-            return Math.Abs(playerPos.X - enemyPos.X) == 32 && playerPos.Y == enemyPos.Y ||
-                   Math.Abs(playerPos.Y - enemyPos.Y) == 32 && playerPos.X == enemyPos.X;
+            Sprite targetTile = tileMap.GetTileAt(enemyPosition.X, enemyPosition.Y);
+
+            if (targetTile != null && targetTile.Texture == tileMap.playerTexture) // changed from enemy to floor for testing debug
+            {
+                Debug.WriteLine($"Enemy: player found at {enemyPosition.X}, {enemyPosition.Y}!");
+                enemyMovedOntoPlayerTile = true;
+                return true;
+            }
+            return false;
         }
     }
 }

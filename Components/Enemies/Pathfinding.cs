@@ -9,11 +9,16 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 {
-    internal class Pathfinding
+    internal class Pathfinding : Component
     {
         public PathNode[,] nodeMap;
         public List<PathNode> unexploredNodes = new List<PathNode>();
         public Point startingPoint, targetPoint;
+
+        public override void Start()
+        {
+            Debug.WriteLine("Pathfinding: START");
+        }
 
         public void InitializePathfinding(char[,] map, Point startingFrom, Point goal)
         {
