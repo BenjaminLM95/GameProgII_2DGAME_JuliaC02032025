@@ -16,3 +16,86 @@ TO DO:
 	add general properties & unique items (AND custom)
 	item idea: scroll of wind (can hit an enemy back a tile)
 	item idea: warp scroll (sends player to a random empty tile) 
+
+	null checks that used to be in Player.cs (Start() method)
+	//if (globals == null)
+            //{
+             //   Debug.WriteLine("Player: globals is NULL!"); 
+             //   return;
+            //}
+			//healthSystem = GameObject.GetComponent<HealthSystem>(); // health
+            //if (healthSystem == null)
+            //{
+            //    healthSystem = GameObject.FindObjectOfType<HealthSystem>();
+            //}
+			//if (globals._mapSystem == null)
+            //{
+            //    Debug.WriteLine("Player: globals._mapSystem is NULL! Trying to find it..."); 
+            //    globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();
+            //}
+			in update()
+			if (tileMap != null)
+                {
+                    Debug.WriteLine("Player: tileMap assigned in Update!");
+                }
+                else
+                {
+                    Debug.WriteLine("Player: tileMap STILL NULL in Update!");
+                    return;
+                }
+
+Old map generation code for LOADING FROM TXT FILE
+in Start()
+// Load map from.txt file
+            //LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
+            //"GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
+            //LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
+            //  "GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
+
+other
+// Loads a map from a text file, parsing tile characters and setting textures accordingly.
+        public void LoadMapFromFile(string filePath)
+        {
+            try
+            {
+                // Read all lines from the file
+                string[] lines = System.IO.File.ReadAllLines(filePath);
+                Debug.WriteLine($"MapSystem: Loaded map with " +
+                    $"{lines.Length} lines and {lines[0].Length} " +
+                    $"characters in first line.");
+
+                // Validate map dimensions
+                if (lines.Length != mapHeight || lines[0].Length != mapWidth)
+                {
+                    Debug.WriteLine("MapSystem Error: Map file dimensions do not match expected size.");
+                    return;
+                }
+
+                // Loop through each line
+                for (int y = 0; y < mapHeight; y++)
+                {   // Loop throug each char
+                    for (int x = 0; x < mapWidth; x++)
+                    {
+                        Sprite tile = Tilemap.GetTileAt(x, y);
+                        char tileChar = lines[y][x];
+
+                        switch (tileChar)
+                        {
+                            case 'F': tile.Texture = Tilemap.floorTexture; break;
+                            case 'X': tile.Texture = Tilemap.obstacleTexture; break;
+                            case 'S': tile.Texture = Tilemap.startTexture; break;
+                            case 'E': tile.Texture = Tilemap.exitTexture; break;
+                            default:
+                                Debug.WriteLine($"Unknown tile '{tileChar}' at ({x}, {y})");
+                                break;
+                        }
+                        Debug.WriteLine($"Tile at ({x}, {y}) set to {tileChar}");
+                    }
+                }
+                Debug.WriteLine("Map successfully loaded from file.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading map: {ex.Message}");
+            }
+        }

@@ -12,4 +12,5 @@ internal class Component // Abstract
     public virtual void Update(float deltaTime) { }
 
     public virtual void Draw(SpriteBatch spriteBatch) { }
+    public virtual void LoadContent() { }
 }

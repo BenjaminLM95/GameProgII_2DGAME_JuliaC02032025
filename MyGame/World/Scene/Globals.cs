@@ -23,6 +23,8 @@ internal class Globals
     public static Globals _instance {  get; private set; }
     public static Globals Instance => _instance ??= new Globals();
 
+    public GraphicsDevice GraphicsDevice { get; set; }
+
     public static ContentManager content;
     public static SpriteBatch spriteBatch;
 
@@ -35,6 +37,10 @@ internal class Globals
     public TileMap _tileMap;
     public Enemy _enemy;
     public Combat _combat;
+    public GameHUD _gameHUD;
+    public Pathfinding _pathfinding;
+    public Inventory _inventory;
+    public Items _items;
 
     public Scene _scene;
     public Globals()

@@ -4,19 +4,31 @@ using Microsoft.Xna.Framework;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.ComponentModel;
+using GameProgII_2DGame_Julia_C02032025.Components;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     internal class Combat : Component
     {
+        public static Combat _instance { get; private set; }
+        public static Combat Instance => _instance ??= new Combat();
+        public Combat()
+        {
+            _instance = this;
+        }
+
         private Globals gameManager;
         private Player player;
 
-        private bool isPlayerTurn = true;
-
+        public bool isPlayerTurn { get; private set; } = true;
         private const int TILE_SIZE = 32;
 
         private Texture2D turnIndicatorTexture;
+
+        private List<GameObject> turnTakers = new List<GameObject>();
+        private int currentTurnIndex = 0;
 
         // ---------- METHODS ---------- //
 
@@ -24,16 +36,186 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             Debug.WriteLine("Combat: START");
             gameManager = Globals.Instance;
-            turnIndicatorTexture = Globals.content.Load<Texture2D>("turnIndicator");
+
+            if (Globals.content != null)
+            {
+                try {
+                    turnIndicatorTexture = Globals.content.Load<Texture2D>("turnIndicator");
+                }
+                catch (Exception ex) {
+                    Debug.WriteLine($"Combat: Failed to load turn indicator texture - {ex.Message}");
+                }
+            }
+            InitializeTurnTakers();
         }
 
         public override void Update(float deltaTime)
         {
-            TurnManager();
-            //TurnIndicator();
+            if (turnTakers.Count > 0) // only run turn manager if there are turn takers
+            {
+                TurnManager();
+            }
         }
 
-        private void TurnManager() 
+        private void AddTurnTaker(GameObject turnTakerObj)
+        {
+            if (turnTakerObj == null)
+            {
+                Debug.WriteLine("Combat: Attempted to add null GameObject to turn takers");
+                return;
+            }
+
+            // Verify the GameObject has the required components
+            var component = turnTakerObj.GetComponent<Component>();
+            if (component == null)
+            {
+                Debug.WriteLine("Combat: GameObject does not have a valid Component for turn taking");
+                return;
+            }
+
+            // Check if the GameObject is already in the list to avoid duplicates
+            if (!turnTakers.Contains(turnTakerObj))
+            {
+                turnTakers.Add(turnTakerObj);
+                Debug.WriteLine($"Combat: Added {component.GetType().Name} to turn takers");
+            }
+            else {
+                Debug.WriteLine("Combat: GameObject already in turn takers list");
+            }
+        }
+
+        private void InitializeTurnTakers()
+        {
+            turnTakers.Clear();
+
+            // Add Player
+            if (gameManager._player?.GameObject != null)
+            {
+                AddTurnTaker(gameManager._player.GameObject);
+            }
+            else {
+                Debug.WriteLine("Combat: Player is NOT properly initialized!");
+            }
+
+            // Add Enemies
+            if (gameManager._enemy != null)
+            {
+                var enemyList = gameManager._enemy.GetEnemies();
+                if (enemyList != null)
+                {
+                    foreach (var enemy in enemyList)
+                    {
+                        if (enemy?.GameObject != null) {
+                            AddTurnTaker(enemy.GameObject);
+                        }
+                    }
+                }
+            }
+
+            if (turnTakers.Count == 0)
+            {
+                Debug.WriteLine("Combat: NO TURN TAKERS FOUND - CHECK INITIALIZATION!");
+            }
+            else {
+                Debug.WriteLine($"Combat: Initialized {turnTakers.Count} turn takers.");
+            }
+        }
+
+        private void TurnManager()
+        {
+            if (turnTakers.Count == 0)
+            {
+                Debug.WriteLine("Combat: No turn takers available. Reinitializing...");
+                InitializeTurnTakers();
+                return;
+            }
+
+            if (currentTurnIndex >= turnTakers.Count)
+            {
+                Debug.WriteLine($"Combat: Current turn index {currentTurnIndex} is out of bounds. Resetting.");
+                currentTurnIndex = 0;
+            }
+
+            var currentTurnObject = turnTakers[currentTurnIndex];
+            Debug.WriteLine($"Combat: Current turn object is {currentTurnObject.GetType().Name}");
+
+            var currentEntity = currentTurnObject?.GetComponent<Component>();
+
+            if (currentEntity == null)
+            {
+                Debug.WriteLine("Combat: Invalid entity at turn index. Advancing to next turn.");
+                AdvanceToNextTurn();
+                return;
+            }
+
+            // Update the isPlayerTurn flag based on the current entity
+            isPlayerTurn = currentEntity is Player;
+
+            Debug.WriteLine($"Combat: {currentEntity.GetType().Name}'s turn");
+
+            if (currentEntity is Player player)
+            {
+                PlayerTurn(player);
+            }
+            else if (currentEntity is Enemy enemy) {
+                EnemyTurn(enemy);
+            }
+        }
+
+        public void AdvanceToNextTurn()
+        {
+            if (turnTakers == null || turnTakers.Count == 0)
+            {
+                Debug.WriteLine("Combat: Cannot advance turn - no turn takers");
+                return;
+            }
+
+            currentTurnIndex = (currentTurnIndex + 1) % turnTakers.Count;
+
+            // Reset movement for player when it's their turn
+            if (turnTakers[currentTurnIndex].GetComponent<Player>() is Player playerComponent)
+            {
+                playerComponent.ResetTurn();
+            }
+
+            Debug.WriteLine($"Combat: Advanced to turn index {currentTurnIndex}");
+        }
+
+        private void PlayerTurn(Player player)
+        {
+            Debug.WriteLine("Combat: Player's turn");
+            TurnIndicator(player.GameObject.Position);
+        }
+
+        private void EnemyTurn(Enemy enemy)
+        {
+            Debug.WriteLine("Combat: Enemy's turn");
+            TurnIndicator(enemy.GameObject.Position);
+
+            Player player = gameManager._player;
+            if (enemy.IsNextToPlayer(player))
+            {
+                enemy.Attack(player);
+            }
+            else {
+                enemy.MoveTowardsPlayer(player);
+            }
+            AdvanceToNextTurn();
+        }
+
+        private void TurnIndicator(Vector2 position)
+        {
+            //Globals.spriteBatch.Draw(
+            //    turnIndicatorTexture,
+            //    new Vector2(position.X, position.Y - 32),
+            //    Color.White
+            //);
+            Debug.WriteLine("Combat: Turn indicator drawn");
+        }
+    }
+}
+/*
+ * private void TurnManager() 
         {
             // list of GameObjects turnTakers (includes player & all enemies)
             // index currentTurn = 0 or -1
@@ -49,132 +231,4 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // else: find next valid
             // set has taken turn to false & has turn ended to false (after change to next index and find next valid)
         }
-
-        private void CheckTurn()
-        {
-            if (gameManager._player.playerMovedOntoEnemyTile)
-            {
-                Debug.WriteLine("Combat: Player's turn");
-                isPlayerTurn = true;
-                PlayerTurn();
-            }
-            else if (gameManager._enemy.enemyMovedOntoPlayerTile)
-            {
-                isPlayerTurn = false;
-                EnemyTurn();
-                player.hasMovedThisTurn = false;
-            }
-        }
-
-        public void PlayerTurn()
-        {
-            TurnIndicator();
-            if (!isPlayerTurn) return; // Prevent turn actions if it's not the player's turn
-            Debug.WriteLine("Combat: Player's turn");
-            Player player = Globals.Instance._player;
-            Enemy enemy = CheckForAdjacentEnemy(player);
-
-            if (enemy != null)
-            {
-                player.Attack(enemy);
-            }
-
-            isPlayerTurn = false;
-        }
-        private void EnemyTurn() // multiple
-        {
-            TurnIndicator();
-            Debug.WriteLine("Combat: Enemy's turn");
-            Enemy enemy = Globals.Instance._enemy;
-            Player player = CheckForAdjacentPlayer(enemy);
-
-            if (player != null)
-            {
-                enemy.Attack(player);
-            }
-
-            isPlayerTurn = true;
-        }
-
-        /// <summary>
-        /// checks if enemy is next to the player 
-        /// </summary>
-        /// <param name="player"></param>
-        /// <returns></returns>
-        private Enemy CheckForAdjacentEnemy(Player player)
-        {
-            Vector2 playerPos = player.GameObject.Position;
-            Enemy enemy = Globals.Instance._enemy;
-            Vector2 enemyPos = enemy.GameObject.Position;
-
-            if (IsAdjacent(playerPos, enemyPos))
-            {
-                Debug.WriteLine($"Combat: player at {playerPos} found adjacent {enemy} at {enemyPos}");
-                return enemy;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// check if player is next to the enemy
-        /// </summary>
-        /// <param name="enemy"></param>
-        /// <returns></returns>
-        private Player CheckForAdjacentPlayer(Enemy enemy)
-        {
-            Vector2 enemyPos = enemy.GameObject.Position;
-            Player player = Globals.Instance._player;
-            Vector2 playerPos = player.GameObject.Position;
-
-            if (IsAdjacent(enemyPos, playerPos))
-            {
-                Debug.WriteLine($"Combat: enemy at {enemyPos} found adjacent {player} at {playerPos}");
-                return player;
-            }
-
-            return null;
-        }
-        private bool IsAdjacent(Vector2 pos1, Vector2 pos2)
-        {
-            float dx = Math.Abs(pos1.X - pos2.X);
-            float dy = Math.Abs(pos1.Y - pos2.Y);
-
-            return dx == TILE_SIZE && dy == 0 || dy == TILE_SIZE && dx == 0;
-        }
-
-        private void StunEffect()
-        {
-            // once damaged, entity's next turn can only be to recover from stun. all movement is blocked
-        }
-
-        // Turn Indicator
-        private void TurnIndicator()
-        {
-            Vector2 indicatorPos;
-
-            if (isPlayerTurn)
-            {
-                Debug.WriteLine($"Combat: turn indicator on player");
-                indicatorPos = Globals.Instance._player.GameObject.Position;
-            }
-            else
-            {
-                Debug.WriteLine($"Combat: turn indicator on enemy");
-                indicatorPos = Globals.Instance._enemy.GameObject.Position;
-            }
-
-            DrawTurnIndicator(indicatorPos);
-        }
-
-        private void DrawTurnIndicator(Vector2 position)
-        {
-            Globals.spriteBatch.Draw(
-                turnIndicatorTexture,
-                new Vector2(position.X, position.Y - TILE_SIZE),
-                Color.White
-            );
-            Debug.WriteLine($"Combat: turn indicator DRAWN");
-        }
-    }
-}
+*/

@@ -64,6 +64,13 @@ internal class GameObject
             component.Draw(spriteBatch);
         }
     }
+    public void LoadContent()
+    {
+        foreach (var component in _components)
+        {
+            component.LoadContent();
+        }
+    }
 
     // Returns a component from a GameObject
     public static T FindObjectOfType<T>() where T : Component

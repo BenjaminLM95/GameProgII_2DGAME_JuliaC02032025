@@ -35,8 +35,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             this.tileMap = tileMap;
         }
 
-        // make constructor for health, position, base variables
-
         // ---------- METHODS ---------- //
 
         // Initializes the player by finding the map system and tile map.
@@ -44,52 +42,30 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             // null checks & component assignment
             globals = Globals.Instance; // globals
-            if (globals == null)
-            {
-                Debug.WriteLine("Player: globals is NULL!"); 
-                return;
-            }
-
+            
             playerSprite = GameObject.GetComponent<Sprite>(); // sprite
             if (playerSprite == null)
             {
                 Debug.WriteLine("Player: Sprite component is NULL!");
             }
 
-            healthSystem = GameObject.GetComponent<HealthSystem>(); // health
-            if (healthSystem == null)
-            {
-                healthSystem = GameObject.FindObjectOfType<HealthSystem>();
-            }
-
+            healthSystem = GameObject.GetComponent<HealthSystem>() ?? GameObject.FindObjectOfType<HealthSystem>(); // HealthSystem
             globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();  // mapsystem
-            if (globals._mapSystem == null)
-            {
-                Debug.WriteLine("Player: globals._mapSystem is NULL! Trying to find it..."); 
-                globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();
-            }
+            tileMap = globals._mapSystem?.Tilemap; // TileMap
 
-            tileMap = globals._mapSystem?.Tilemap;
             Debug.WriteLine("Player: Waiting for map initialization and start position...");
+            MoveToStartTile();
         }
 
         // Updates the player's position based on input, checking for obstacles before moving.
         public override void Update(float deltaTime)
         {
-            if (hasMovedThisTurn) return;
+            if (hasMovedThisTurn || !Combat.Instance.isPlayerTurn) return;
 
-            if (tileMap == null)  // DEBUG: Retry if tileMap is still missing
+            if (tileMap == null)  
             {
                 tileMap = globals._mapSystem?.Tilemap;
-                if (tileMap != null)
-                {
-                    Debug.WriteLine("Player: tileMap assigned in Update!");
-                }
-                else
-                {
-                    Debug.WriteLine("Player: tileMap STILL NULL in Update!");
-                    return;
-                }
+                if (tileMap == null) return;
             }
 
             // Input
@@ -133,10 +109,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 if (!IsObstacle(targetTilePos))
                 {
                     GameObject.Position = targetPos;
-                    //Debug.WriteLine($"Player: moved to position - {targetPos}");
+                    Debug.WriteLine($"Player: moved to position - {targetPos}");
                     hasMovedThisTurn = true;
                     // Combat
                     CheckForEnemy(targetTilePos);
+                    // If the player successfully moves, advance the turn
+                    Combat.Instance.AdvanceToNextTurn();
                 }
                 if (IsExit(targetTilePos))
                 {
@@ -144,8 +122,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     hasMovedThisTurn = true;
                     // gen rand next level
                     globals._mapSystem.LoadNextLevel();
+                    // Advance turn after moving to exit
+                    Combat.Instance.AdvanceToNextTurn();
                 }
-                //hasMovedThisTurn = false;
             }            
         }
 
@@ -157,7 +136,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 (int)(worldPosition.Y / (tileSize * spriteScale)));
         }
 
-        // Check if the target tile contains an obstacle
+        // Check if the target tile contains an "obstacle" or "wall" tile
         private bool IsObstacle(Point tileCoordinates)
         {
             if (tileMap == null) return false;
@@ -172,10 +151,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             return false;
         }
 
-        // Checks if the player's current position is on an exit tile.
+        // Checks if the player's current position is on an "exit" tile.
         public bool IsExit(Point playerPosition)
         {
-            //Point tileCoordinates = new Point((int)playerPosition.X / 32, (int)playerPosition.Y / 32);
             if (tileMap == null) return false;
 
             Sprite targetTile = tileMap.GetTileAt(playerPosition.X, playerPosition.Y);
@@ -185,6 +163,27 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 return true;
             }
             return false;
+        }
+
+        // Finds the "start" tile and moves the player to it
+        public void MoveToStartTile()
+        {
+            if (tileMap == null) return;
+
+            for (int y = 0; y < tileMap.mapHeight; y++)
+            {
+                for (int x = 0; x < tileMap.mapWidth; x++)
+                {
+                    Sprite tile = tileMap.GetTileAt(x, y);
+                    if (tile != null && tile.Texture == tileMap.startTexture)
+                    {
+                        GameObject.Position = new Vector2(x * tileSize, y * tileSize);
+                        Debug.WriteLine($"Player: Spawned at start tile ({x}, {y}).");
+                        return;
+                    }
+                }
+            }
+            Debug.WriteLine("Player: Start tile not found!");
         }
 
         // Turn-based system
@@ -201,13 +200,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 playerMovedOntoEnemyTile = true;
                 return true;
             }
+            Debug.WriteLine("Player: no enemy found");
             return false;
         }
-        public void ResetTurn()
-        {
-            hasMovedThisTurn = false;
-        }
-
+        public void ResetTurn() => hasMovedThisTurn = false;
+        public void TakeDamage(int damage) => healthSystem.TakeDamage(damage);
 
         // Combat
         public void Attack(Enemy enemy)
@@ -216,12 +213,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 enemy.TakeDamage(10);
             }
-        }
-
-        public void TakeDamage(int damage)
-        {
-            healthSystem.TakeDamage(damage);
-        }
-
+        }       
     }
 }

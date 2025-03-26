@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 using static System.Formats.Asn1.AsnWriter;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -23,7 +24,7 @@ namespace GameProgII_2DGame_Julia_C02032025
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
+            Content.RootDirectory = "Content";            
             IsMouseVisible = true;
             instance = this;
         }
@@ -44,50 +45,60 @@ namespace GameProgII_2DGame_Julia_C02032025
         /// </summary>
         protected override void LoadContent()
         {
-            Globals.content = Content;
+            Globals.Instance.GraphicsDevice = _graphics.GraphicsDevice;
+            if (Globals.Instance.GraphicsDevice == null)
+            {
+                Debug.WriteLine("GAME1: GraphicsDevice is not initialized!");
+            }
+            else
+            {
+                Debug.WriteLine("GAME1: GraphicsDevice initialized successfully!");
+            }
             Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
+            Globals.content = Content;
 
             // ***** MAP ***** //
             // Create Map GameObject & MapSystem component
             GameObject mapObject = new GameObject();
             MapSystem mapSystem = new MapSystem();
-
             // Add components to Map GameObject        
             mapObject.AddComponent(mapSystem);
-
             // Add created GameObject to the scene
             Globals.Instance._scene.AddGameObject(mapObject);
 
             // ***** PLAYER ***** //
-            // Create Player GameObject & Player/Sprite components
             GameObject playerObject = new GameObject();
             Player player = new Player();
             Sprite playerSprite = new Sprite();
-            Combat combat = new Combat();
+            HealthSystem playerHealth = new HealthSystem();
 
-            // Add player & sprite component to Player GameObject
             playerObject.AddComponent(player);
             playerObject.AddComponent(playerSprite);
+            playerObject.AddComponent(playerHealth);
             playerSprite.LoadSprite("player");
-            playerObject.AddComponent(combat);
 
-            // Add created GameObject to the scene
+            Globals.Instance._player = player;
             Globals.Instance._scene.AddGameObject(playerObject);
 
-            // ***** ENEMY ***** //
-            GameObject enemyObject = new GameObject();
-            Enemy enemy = new Enemy();
-            Sprite enemySprite = new Sprite();
-            Combat enemycombat = new Combat();
-            Pathfinding enemyPathfinding = new Pathfinding();
+            // ***** ENEMY ***** //           
+            Enemy enemyComponent = new Enemy();
+            Globals.Instance._enemy = enemyComponent;
+            // Spawn enemies for the first level
+            enemyComponent.SpawnEnemies(5);
 
-            enemyObject.AddComponent(enemy);
-            enemyObject.AddComponent(enemySprite);
-            enemySprite.LoadSprite("enemy");
-            enemyObject.AddComponent(enemycombat);
-            enemyObject.AddComponent(enemyPathfinding);
+            // ***** COMBAT ***** //
+            GameObject combatObj = new GameObject();
+            Combat combat = Combat.Instance;
+            combatObj.AddComponent(combat);
 
-            Globals.Instance._scene.AddGameObject(enemyObject);
+            Globals.Instance._combat = combat;
+            Globals.Instance._scene.AddGameObject(combatObj);
+            combat.Start();
+
+            // ***** HUD ***** //
+            GameHUD hud = new GameHUD();
+            hud.LoadContent();
+            hud.DrawHUD("Your text here");
         }
 
         protected override void Update(GameTime gameTime)

@@ -14,7 +14,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
     /// </summary>
     internal class MapSystem : Component
     {
-        private Globals _gameManager;
+        private Globals globals;
         public TileMap Tilemap { get; private set; }
 
         // ---------- VARIABLES ---------- //
@@ -32,20 +32,15 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         public override void Start()
         {
+            globals = Globals.Instance;
             // Create TileMap and initialize it
             Tilemap = new TileMap();
             Tilemap.LoadTextures(Globals.content);
             Tilemap.Initialize();
 
-            // ---!!!--- MAP GENERATION ---!!!--- // <switch here
+            // ------ MAP GENERATION ------ //
             Debug.WriteLine("MapSystem: Generating random map.");
             GenerateMap();  // Random map generation
-
-            // Load map from.txt file
-            //LoadMapFromFile("C:\\MY FILES\\Programming\\Unity Projects NSCC\\" + 
-            //"GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
-            //LoadMapFromFile("C:\\Users\\W0517383\\Documents\\GitHub\\" +
-            //  "GameProgII_2DGame_Julia_C02032025\\MyMaps\\Map1.txt");
         }
 
         public void Update(GameTime gameTime)
@@ -62,12 +57,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             GenerateMap();
             
-            // Reset the player position to a random empty tile
-            Vector2 startTile = GetRandomEmptyTile();
+            Vector2 startTile = GetRandomEmptyTile(); // Reset the player position to a random empty tile
 
-            Player player = GameObject.FindObjectOfType<Player>();
-            player.GameObject.Position =
-                new Vector2(startTile.X * tilePixelX, startTile.Y * tilePixelY);
+            globals._player.MoveToStartTile();
 
         }
 
@@ -134,7 +126,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (player != null)
             {
                 Debug.WriteLine($"MapSystem: Player position set to {player.GameObject.Position.X}, {player.GameObject.Position.Y}.");
-                player.GameObject.Position = new Vector2(startTile.X * tilePixelX, startTile.Y * tilePixelY);
+                player.GameObject.Position = new Vector2(startTile.X, startTile.Y);
             }
             else if (player == null) {
                 Debug.WriteLine($"MapSystem: Player is NULL.");
@@ -212,70 +204,39 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // Finds a random empty tile (not an obstacle) on the map.
         public Vector2 GetRandomEmptyTile()
         {
-            Vector2 randomTile;
+            if (Tilemap == null)
+            {
+                Debug.WriteLine("MapSystem: Tilemap is null!");
+                return new Vector2(-1, -1);
+            }
 
-            do
+            int maxAttempts = mapWidth * mapHeight; // Prevent infinite loop
+            int attempts = 0;
+
+            while (attempts < maxAttempts)
             {
                 int x = random.Next(mapWidth);
                 int y = random.Next(mapHeight);
                 Sprite tile = Tilemap.GetTileAt(x, y);
 
-                // Check if it's a floor tile (not an obstacle)
-                if (tile.Texture.Name == "floor") // getting null ref when re-generating next level (error message: System.NullReferenceException: 'Object reference not set to an instance of an object.'tile was null.)
+                if (tile == null)
                 {
-                    randomTile = new Vector2(x, y);
-                    break;
+                    Debug.WriteLine($"MapSystem: Tile at ({x},{y}) is null!");
+                    attempts++;
+                    continue;
                 }
-            } while (true); // Keep looping until a valid tile is found
 
-            return randomTile;
-        }
-
-        // Loads a map from a text file, parsing tile characters and setting textures accordingly.
-        public void LoadMapFromFile(string filePath)
-        {
-            try
-            {
-                // Read all lines from the file
-                string[] lines = System.IO.File.ReadAllLines(filePath);
-                Debug.WriteLine($"MapSystem: Loaded map with " +
-                    $"{lines.Length} lines and {lines[0].Length} " +
-                    $"characters in first line.");
-
-                // Validate map dimensions
-                if (lines.Length != mapHeight || lines[0].Length != mapWidth)
+                // More robust null-safe texture check
+                if (tile.Texture != null && tile.Texture.Name == "floor")
                 {
-                    Debug.WriteLine("MapSystem Error: Map file dimensions do not match expected size.");
-                    return;
+                    return new Vector2(x * 32, y * 32); // Convert to pixel coordinates
                 }
 
-                // Loop through each line
-                for (int y = 0; y < mapHeight; y++)
-                {   // Loop throug each char
-                    for (int x = 0; x < mapWidth; x++)
-                    {
-                        Sprite tile = Tilemap.GetTileAt(x, y);
-                        char tileChar = lines[y][x];
+                attempts++;
+            }
 
-                        switch (tileChar)
-                        {
-                            case 'F': tile.Texture = Tilemap.floorTexture; break;
-                            case 'X': tile.Texture = Tilemap.obstacleTexture; break;
-                            case 'S': tile.Texture = Tilemap.startTexture; break;
-                            case 'E': tile.Texture = Tilemap.exitTexture; break;
-                            default:
-                                Debug.WriteLine($"Unknown tile '{tileChar}' at ({x}, {y})");
-                                break;
-                        }
-                        Debug.WriteLine($"Tile at ({x}, {y}) set to {tileChar}");
-                    }
-                }
-                Debug.WriteLine("Map successfully loaded from file.");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error loading map: {ex.Message}");
-            }
+            Debug.WriteLine("MapSystem: Could not find empty tile after multiple attempts!");
+            return new Vector2(-1, -1);
         }
     }
 }
