@@ -22,7 +22,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Debug.WriteLine("GraphicsDevice is not initialized yet!");
             }
         }
-
+        // Loads the SpriteFont asset
         public override void LoadContent()
         {
             if (Globals.Instance.GraphicsDevice != null)
@@ -43,6 +43,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             // HUD elements here
         }
+        // Draws spritefont
         public void DrawHUD(string text)
         {
             if (spriteBatch != null)

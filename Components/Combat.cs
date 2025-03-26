@@ -56,7 +56,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 TurnManager();
             }
         }
-
+        // Adds valid GameObjects through their components to a list of turn takers
         private void AddTurnTaker(GameObject turnTakerObj)
         {
             if (turnTakerObj == null)
@@ -83,7 +83,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Debug.WriteLine("Combat: GameObject already in turn takers list");
             }
         }
-
+        // Adds player & enemy specifically to turn takers
         private void InitializeTurnTakers()
         {
             turnTakers.Clear();
@@ -100,7 +100,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Add Enemies
             if (gameManager._enemy != null)
             {
-                var enemyList = gameManager._enemy.GetEnemies();
+                var enemyList = gameManager._enemy.GetEnemies(); // get multiple enemies
                 if (enemyList != null)
                 {
                     foreach (var enemy in enemyList)
@@ -120,7 +120,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Debug.WriteLine($"Combat: Initialized {turnTakers.Count} turn takers.");
             }
         }
-
+        // manages turn alternation by changing the index
+        // and updating the current entity to decide which turn method to run
         private void TurnManager()
         {
             if (turnTakers.Count == 0)
@@ -161,7 +162,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 EnemyTurn(enemy);
             }
         }
-
+        // cycles through turntakers in index, resets turns
         public void AdvanceToNextTurn()
         {
             if (turnTakers == null || turnTakers.Count == 0)
@@ -184,13 +185,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private void PlayerTurn(Player player)
         {
             Debug.WriteLine("Combat: Player's turn");
-            TurnIndicator(player.GameObject.Position);
+            TurnIndicator(player.GameObject.Position); // turn indicator
         }
 
         private void EnemyTurn(Enemy enemy)
         {
             Debug.WriteLine("Combat: Enemy's turn");
-            TurnIndicator(enemy.GameObject.Position);
+            TurnIndicator(enemy.GameObject.Position); // turn indicator
 
             Player player = gameManager._player;
             if (enemy.IsNextToPlayer(player))
@@ -214,21 +215,3 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         }
     }
 }
-/*
- * private void TurnManager() 
-        {
-            // list of GameObjects turnTakers (includes player & all enemies)
-            // index currentTurn = 0 or -1
-            // Update (entry) every frame
-            // - if valid index? (>=0 and < turnTakers.Count)
-            // - if valid check if 
-            //      has taken turn?
-            //      has turn ended?
-            // if both are true
-            //      change to next index
-            //      call take turn ()
-            // nothing to do (after has taken turn & has turn ended both have happened)
-            // else: find next valid
-            // set has taken turn to false & has turn ended to false (after change to next index and find next valid)
-        }
-*/
