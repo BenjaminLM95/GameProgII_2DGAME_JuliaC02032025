@@ -53,7 +53,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             healthSystem = GameObject.GetComponent<HealthSystem>() ?? GameObject.FindObjectOfType<HealthSystem>();
             tileMap = globals._mapSystem?.Tilemap;
-            pathfinding = GameObject.FindObjectOfType<Pathfinding>();
+            pathfinding = GameObject.GetComponent<Pathfinding>();
         }
         public void Update()
         {
@@ -100,7 +100,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 SpawnEnemy();
             }
         }
-
+        // move the gameobject-component logic back to Game1, this may fix the turn cycling issue
         private void SpawnEnemy()
         {
             if (globals == null)
@@ -153,12 +153,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         // Tilemap Movement
         public void MoveTowardsPlayer(Player player)
         {
-            if (pathfinding == null || tileMap == null)
-            {
-                Debug.WriteLine("Enemy: Pathfinding or TileMap is null!");
-                return;
-            }
-
+            pathfinding = GameObject.GetComponent<Pathfinding>();
+            
             Vector2 playerPos = player.GameObject.Position / 32;
             Vector2 enemyPos = GameObject.Position / 32;
 
@@ -171,7 +167,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             // Correct null and empty path checking
             if (path == null || path.Count <= 1)
-            {
+            {   // !!! getting this message| FIX!!!
                 Debug.WriteLine($"Enemy: path finding failed. Path is {(path == null ? "null" : $"too short (count: {path.Count}")}");
                 return;
             }

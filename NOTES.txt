@@ -118,3 +118,36 @@ other
             // set has taken turn to false & has turn ended to false (after change to next index and find next valid)
         }
 */
+DEBUGGING OUTPUT - combat-enemies-pathfinding
+Combat: Current turn object is GameObject
+Combat: Player's turn.
+Combat: PlayerTurn() called
+Player: moved to position - {X:544 Y:416}
+Player: checking for enemy at 17, 13
+Player: no enemy found
+Combat: Advanced to turn index 1
+Combat: Current turn object is GameObject
+Combat: Enemy's turn.
+Combat: EnemyTurn called
+Enemy: checking if enemy is next to player
+Enemy: Pathfinding is NULL!
+Enemy: position: {X:19 Y:6}, Player position: {X:17 Y:13}
+Enemy: path finding failed. Path is null
+Combat: Advanced to turn index 2
+
+
+
+was in Pathfinding.cs
+// Calculate cost from start (check surrounding 'nodes' or tiles)
+// cost to end/enemy
+// move towards lowest cost (no diagonal)
+// need to account for moving objects (keep calculating in update during turn)
+// youtube Sebastian Lague pathfinding video on A star pathfinding
+// checking neighbors
+
+// [ ] [X Y+1 ] [ ]
+// [X Y-1 ] [X Y ] [X Y+1 ]
+// [ ] [X Y-1 ] [ ]
+
+// when checking neoghbors, only read neighbors if X, Y are one of them 0
+// like if X != 0 && Y != 0 continue;

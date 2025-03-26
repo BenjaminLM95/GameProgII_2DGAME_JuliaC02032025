@@ -152,7 +152,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Update the isPlayerTurn flag based on the current entity
             isPlayerTurn = currentEntity is Player;
 
-            Debug.WriteLine($"Combat: {currentEntity.GetType().Name}'s turn");
+            Debug.WriteLine($"Combat: {currentEntity.GetType().Name}'s turn.");
 
             if (currentEntity is Player player)
             {
@@ -179,18 +179,18 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 playerComponent.ResetTurn();
             }
 
-            Debug.WriteLine($"Combat: Advanced to turn index {currentTurnIndex}");
+            Debug.WriteLine($"Combat: Advanced to turn index {currentTurnIndex}"); // !! not showing up
         }
 
         private void PlayerTurn(Player player)
         {
-            Debug.WriteLine("Combat: Player's turn");
+            Debug.WriteLine("Combat: PlayerTurn() called");
             TurnIndicator(player.GameObject.Position); // turn indicator
         }
 
         private void EnemyTurn(Enemy enemy)
         {
-            Debug.WriteLine("Combat: Enemy's turn");
+            Debug.WriteLine("Combat: EnemyTurn called");
             TurnIndicator(enemy.GameObject.Position); // turn indicator
 
             Player player = gameManager._player;
@@ -203,15 +203,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
             AdvanceToNextTurn();
         }
-
-        private void TurnIndicator(Vector2 position)
+        // draw turn indicator
+        private void TurnIndicator(Vector2 position) // not drawing?
         {
-            //Globals.spriteBatch.Draw(
-            //    turnIndicatorTexture,
-            //    new Vector2(position.X, position.Y - 32),
-            //    Color.White
-            //);
-            Debug.WriteLine("Combat: Turn indicator drawn");
+            Globals.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            Globals.spriteBatch.Draw( 
+                turnIndicatorTexture,
+                new Vector2(position.X, position.Y - 32),
+                Color.White
+            );
+            Globals.spriteBatch.End();
+            //Debug.WriteLine("Combat: Turn indicator drawn");
         }
     }
 }
+// ERROR System.InvalidOperationException:
+// 'Draw was called, but Begin has not yet been called.
+// Begin must be called successfully before you can call Draw.'

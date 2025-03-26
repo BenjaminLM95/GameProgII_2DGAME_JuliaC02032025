@@ -102,6 +102,22 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
             return _tileSprites[index];
         }
+        public Sprite GetTileNeighbor(int x, int y)
+        {
+            Sprite currentTile = GetTileAt(x, y);
+
+            for (int checkY = -1; checkY < 1; checkY++)
+            {
+                for (int checkX = -1; checkX < 1; checkX++)
+                {
+                    if (checkY == 0 && checkX == 0) {
+                        continue;
+                    }
+                    // it's a neighbor of the current tile, get the tilemap tile texture of all these
+                }
+            }
+            return null;
+        }
 
         // Draw all tiles to the screen.
         public override void Draw(SpriteBatch spriteBatch) // take out override?

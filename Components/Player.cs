@@ -192,18 +192,18 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Debug.WriteLine($"Player: checking for enemy at {playerPosition.X}, {playerPosition.Y}");
             if (tileMap == null) return false;
 
-            Sprite targetTile = tileMap.GetTileAt(playerPosition.X, playerPosition.Y);
+            Sprite targetTile = tileMap.GetTileAt(playerPosition.X, playerPosition.Y); // change to surrounding 8 tiles
 
-            if (targetTile != null && targetTile.Texture == tileMap.enemyTexture) // changed from enemy to floor for testing debug
+            if (targetTile != null && targetTile.Texture == tileMap.enemyTexture) // changed from enemy to other for testing debug| enemyTexture
             {
-                Debug.WriteLine($"Player: enemy found at {playerPosition.X}, {playerPosition.Y}!");
+                Debug.WriteLine($"Player: enemy found at {playerPosition.X}, {playerPosition.Y}!"); // worked with floortexture
                 playerMovedOntoEnemyTile = true;
                 return true;
             }
             Debug.WriteLine("Player: no enemy found");
             return false;
         }
-        public void ResetTurn() => hasMovedThisTurn = false;
+        public void ResetTurn() => hasMovedThisTurn = true; // for debugging put false to move more
         public void TakeDamage(int damage) => healthSystem.TakeDamage(damage);
 
         // Combat

@@ -9,19 +9,24 @@ using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
-{
+{   // BETTER COMMENTS!!!
     internal class Pathfinding : Component
     {
         public PathNode[,] nodeMap;
         public List<PathNode> unexploredNodes = new List<PathNode>();
         public Point startingPoint, targetPoint;
 
+        private TileMap tileMap;
+
         public override void Start()
         {
             Debug.WriteLine("Pathfinding: START");
         }
-
-        public void InitializePathfinding(char[,] map)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="map"></param>
+        public void InitializePathfinding(char[,] map) // need to call this...
         {
             nodeMap = new PathNode[map.GetLength(0), map.GetLength(1)];
 
@@ -29,18 +34,31 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             {
                 for (int y = 0; y < map.GetLength(1); y++)
                 {
+                    Debug.WriteLine("Pathfinding: initializing path nodeMap...");
                     nodeMap[x, y] = new PathNode
                     {
                         position = new Point(x, y),
-                        isWalkable = map[x, y] != 'X' // meaning wall or obstacles
+                        //isWalkable = map[x, y] != 'X' // meaning wall or obstacles
+                        //isWalkable = tileMap.floorTexture // set walkable tiles for enemies to floor tiles
                     };
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="goal"></param>
+        /// <returns></returns>
         public List<Point> FindPath(Point start, Point goal)
         {
-            if (nodeMap == null) return null;
+            //InitializePathfinding(nodeMap);
+
+            if (nodeMap == null)
+            {
+                Debug.WriteLine("Pathfinding: nodeMap is NULL");
+                return null;
+            }
 
             foreach (var node in nodeMap)
             {
@@ -94,7 +112,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             return null; // Path not found
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startNode"></param>
+        /// <param name="endNode"></param>
+        /// <returns></returns>
         private List<Point> RetracePath(PathNode startNode, PathNode endNode)
         {
             List<Point> path = new List<Point>();
@@ -108,14 +131,23 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             path.Reverse();
             return path;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         private int GetDistance(PathNode a, PathNode b)
         {
             int dx = Math.Abs(a.position.X - b.position.X);
             int dy = Math.Abs(a.position.Y - b.position.Y);
             return dx + dy;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nodeList"></param>
+        /// <returns></returns>
         private PathNode GetLowestFCostNode(List<PathNode> nodeList)
         {
             PathNode lowestNode = nodeList[0];
@@ -128,7 +160,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
             return lowestNode;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private List<PathNode> GetNeighbors(PathNode node)
         {
             List<PathNode> neighbors = new List<PathNode>();
@@ -168,16 +204,3 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         }
     }
 }
-// Calculate cost from start (check surrounding 'nodes' or tiles)
-// cost to end/enemy
-// move towards lowest cost (no diagonal)
-// need to account for moving objects (keep calculating in update during turn)
-// youtube Sebastian Lague pathfinding video on A star pathfinding
-// checking neighbors
-
-// [ ] [X Y+1 ] [ ]
-// [X Y-1 ] [X Y ] [X Y+1 ]
-// [ ] [X Y-1 ] [ ]
-
-// when checking neoghbors, only read neighbors if X, Y are one of them 0
-// like if X != 0 && Y != 0 continue;

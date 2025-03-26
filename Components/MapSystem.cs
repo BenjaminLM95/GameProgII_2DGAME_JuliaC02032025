@@ -102,13 +102,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
 
             // Find random positions for start and exit tiles
-            Vector2 startTile = GetRandomEmptyTile();
+            Vector2 startTile = GetRandomEmptyTile(false);
             Vector2 exitTile;
 
             // Keep finding a different exit tile until it's not the same as the start
             do
             {
-                exitTile = GetRandomEmptyTile();
+                exitTile = GetRandomEmptyTile(false);
             } while (exitTile == startTile);
 
             // Set the start and exit tiles
@@ -202,7 +202,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         #endregion
 
         // Finds a random empty tile (not an obstacle) on the map.
-        public Vector2 GetRandomEmptyTile()
+        public Vector2 GetRandomEmptyTile(bool convertToPixelPosition = true)
         {
             if (Tilemap == null)
             {
@@ -229,7 +229,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 // More robust null-safe texture check
                 if (tile.Texture != null && tile.Texture.Name == "floor")
                 {
-                    return new Vector2(x * 32, y * 32); // Convert to pixel coordinates
+                    if (convertToPixelPosition)
+                        return new Vector2(x * 32, y * 32); // Convert to pixel coordinates
+                    else
+                        return new Vector2(x, y);
                 }
 
                 attempts++;
