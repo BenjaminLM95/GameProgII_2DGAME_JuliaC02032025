@@ -26,23 +26,30 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         /// 
         /// </summary>
         /// <param name="map"></param>
-        public void InitializePathfinding(char[,] map) // need to call this...
+        public void InitializePathfinding(TileMap tileMap) // need to call this...
         {
-            nodeMap = new PathNode[map.GetLength(0), map.GetLength(1)];
-
-            for (int x = 0; x < map.GetLength(0); x++)
+            if (tileMap == null)
             {
-                for (int y = 0; y < map.GetLength(1); y++)
+                Debug.WriteLine("Pathfinding: TileMap is NULL");
+                return;
+            }
+            nodeMap = new PathNode[tileMap.mapWidth, tileMap.mapHeight];
+
+            for (int x = 0; x < tileMap.mapWidth; x++)
+            {
+                for (int y = 0; y < tileMap.mapHeight; y++)
                 {
-                    Debug.WriteLine("Pathfinding: initializing path nodeMap...");
+                    var currentTile = tileMap.GetTileAt(x, y);
+
                     nodeMap[x, y] = new PathNode
                     {
                         position = new Point(x, y),
-                        //isWalkable = map[x, y] != 'X' // meaning wall or obstacles
-                        //isWalkable = tileMap.floorTexture // set walkable tiles for enemies to floor tiles
+                        isWalkable = currentTile != null && currentTile.Texture == tileMap.floorTexture
                     };
                 }
             }
+
+            Debug.WriteLine("Pathfinding: nodeMap initialized using TileMap");
         }
         /// <summary>
         /// 
@@ -52,7 +59,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         /// <returns></returns>
         public List<Point> FindPath(Point start, Point goal)
         {
-            //InitializePathfinding(nodeMap);
+            
 
             if (nodeMap == null)
             {
