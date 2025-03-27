@@ -29,6 +29,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public bool hasMovedThisTurn = false;
         public bool playerMovedOntoEnemyTile { get; private set; }
 
+        public Vector2 LastMovementDirection { get; private set; } = Vector2.UnitX; // Default facing right
+
         public Player() { }
         public Player(TileMap tileMap)
         {
@@ -72,6 +74,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Vector2 currentPos = GameObject.Position;
             Vector2 targetPos = currentPos;
             bool moved = false;
+            Vector2 movementDirection = Vector2.Zero;
 
             KeyboardState KeyboardState = Keyboard.GetState();
 
@@ -80,28 +83,37 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 //Debug.WriteLine($"Player: moving UP");
                 targetPos.Y -= tileSize;
                 moved = true;
+                movementDirection = -Vector2.UnitY;
             }
             if (KeyboardState.IsKeyDown(Keys.A))
             {
                 //Debug.WriteLine($"Player: moving LEFT");
                 targetPos.X -= tileSize;
                 moved = true;
+                movementDirection = -Vector2.UnitX;
             }
             if (KeyboardState.IsKeyDown(Keys.S))
             {
                 //Debug.WriteLine($"Player: moving DOWN");
                 targetPos.Y += tileSize;
                 moved = true;
+                movementDirection = Vector2.UnitY;
             }
             if (KeyboardState.IsKeyDown(Keys.D))
             {
                 //Debug.WriteLine($"Player: moving RIGHT");
                 targetPos.X += tileSize; 
                 moved = true;
+                movementDirection = Vector2.UnitX;
             }
 
             if (moved && !hasMovedThisTurn)
             {
+                // Update last movement direction
+                if (movementDirection != Vector2.Zero)
+                {
+                    LastMovementDirection = movementDirection;
+                }
                 // Convert target position to tile coordinates
                 Point targetTilePos = GetTileCoordinates(targetPos);
 
@@ -134,6 +146,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             return new Point(
                 (int)(worldPosition.X / (tileSize * spriteScale)),
                 (int)(worldPosition.Y / (tileSize * spriteScale)));
+        }
+        
+        public Vector2 GetPlayerFacingDirection() // get player's facing direction
+        {
+            return LastMovementDirection;
         }
 
         // Check if the target tile contains an "obstacle" or "wall" tile
@@ -203,7 +220,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Debug.WriteLine("Player: no enemy found");
             return false;
         }
-        public void ResetTurn() => hasMovedThisTurn = true; // for debugging put false to move more
+        public void ResetTurn()
+        {
+            // Reset movement state
+            hasMovedThisTurn = false;
+            playerMovedOntoEnemyTile = false;
+
+            Debug.WriteLine("Player: Turn reset - ready to move again");
+        }
         public void TakeDamage(int damage) => healthSystem.TakeDamage(damage);
 
         // Combat

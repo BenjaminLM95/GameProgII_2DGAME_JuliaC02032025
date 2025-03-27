@@ -58,5 +58,5 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
     }
 }
 // show player/enemy health
-// show items
+// show itemPool
 // show turn indicator

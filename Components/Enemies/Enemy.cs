@@ -53,26 +53,48 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             healthSystem = GameObject.GetComponent<HealthSystem>() ?? GameObject.FindObjectOfType<HealthSystem>();
             tileMap = globals._mapSystem?.Tilemap;
+            if (tileMap == null)
+            {
+                tileMap = GameObject.FindObjectOfType<TileMap>();
+            }
+            if (tileMap == null)
+            {
+                Debug.WriteLine("Enemy: CRITICAL - Could not find TileMap!");
+            }
             pathfinding = GameObject.GetComponent<Pathfinding>();
+            pathfinding = GameObject.FindObjectOfType<Pathfinding>();
+            if (pathfinding != null && tileMap != null)
+            {
+                Debug.WriteLine("Enemy: Attempting to reinitialize Pathfinding");
+                try
+                {
+                    pathfinding.InitializePathfinding(tileMap);
+                }
+                catch (Exception ex) {
+                    Debug.WriteLine($"Enemy: Pathfinding initialization failed - {ex.Message}");
+                }
+            }
+            else {
+                Debug.WriteLine($"Enemy: Pathfinding initialization failed. Pathfinding: {(pathfinding == null ? "NULL" : "Found")}, TileMap: {(tileMap == null ? "NULL" : "Found")}");
+            }
         }
         public void Update()
         {
-            if (isStunned) return; // Skip turn if stunned
+            //if (isStunned) return; // Skip turn if stunned
 
             Player player = GameObject.FindObjectOfType<Player>();
             if (player == null) return;
+            Debug.WriteLine($"Enemy at {GameObject.Position} processing turn");
 
             if (IsNextToPlayer(player))
             {
                 Debug.WriteLine("Enemy: Attacking player");
                 Attack(player);
-                globals._combat.AdvanceToNextTurn();
             }
             else
             {
                 Debug.WriteLine("Enemy: moving towards player");
                 MoveTowardsPlayer(player);
-                globals._combat.AdvanceToNextTurn();
             }
         }
 
@@ -125,36 +147,51 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Enemy newEnemy = new Enemy();
             Sprite enemySprite = new Sprite();
             Pathfinding enemyPathfinding = new Pathfinding();
-            HealthSystem enemyHealth = new HealthSystem();
+            HealthSystem enemyHealth = new HealthSystem(
+            maxHealth: 50,
+            type: HealthSystem.EntityType.Enemy
+            );
 
             // Add components to enemy game object
             enemyObject.AddComponent(newEnemy);
             enemyObject.AddComponent(enemySprite);
             enemyObject.AddComponent(enemyPathfinding);
             enemyObject.AddComponent(enemyHealth);
-
-            // Load enemy sprite
             enemySprite.LoadSprite("enemy");
 
-            // Set enemy position
-            enemyObject.Position = randomTile;
+            enemyObject.Position = randomTile; // set enemy position
 
-            // Add to scene
-            Globals.Instance._scene.AddGameObject(enemyObject);
+            TileMap tileMap = globals._mapSystem.Tilemap;
+            if (tileMap != null)
+            {
+                enemyPathfinding.InitializePathfinding(tileMap);
+                Debug.WriteLine($"Enemy: Spawned and initialized pathfinding at position - {randomTile}");
+            }
+            else
+            {
+                Debug.WriteLine("Enemy: CRITICAL - Cannot initialize pathfinding, TileMap is NULL");
+            }
 
-            Debug.WriteLine($"Enemy: Spawned at position - {randomTile}");
-            //Debug.WriteLine($"Enemy: SpawnEnemy at position - {randomTile}");
-
-            //Enemy newEnemy = new Enemy();
-            //newEnemy.GameObject.Position = randomTile;
-            //_enemies.Add(newEnemy);
+            Globals.Instance._scene.AddGameObject(enemyObject); // add to scene
         }
 
         // Tilemap Movement
         public void MoveTowardsPlayer(Player player)
         {
             pathfinding = GameObject.GetComponent<Pathfinding>();
-            
+            if (pathfinding == null)
+            {
+                Debug.WriteLine("Enemy: Pathfinding component is NULL");
+                return;
+            }
+
+            // Ensure nodeMap is initialized
+            if (pathfinding.nodeMap == null)
+            {
+                Debug.WriteLine("Enemy: Pathfinding nodeMap is NULL");
+                return;
+            }
+
             Vector2 playerPos = player.GameObject.Position / 32;
             Vector2 enemyPos = GameObject.Position / 32;
 
@@ -166,9 +203,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             List<Point> path = pathfinding.FindPath(enemyPoint, playerPoint);
 
             // Correct null and empty path checking
-            if (path == null || path.Count <= 1)
-            {   // !!! getting this message| FIX!!!
-                Debug.WriteLine($"Enemy: path finding failed. Path is {(path == null ? "null" : $"too short (count: {path.Count}")}");
+            if (path == null)
+            {
+                Debug.WriteLine($"Enemy: Path finding completely failed.");
+                return;
+            }
+            if (path.Count <= 1)
+            {
+                Debug.WriteLine($"Enemy: Path is too short. Path count: {path.Count}");
                 return;
             }
 
@@ -177,14 +219,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Vector2 newPosition = new Vector2(nextTile.X * 32, nextTile.Y * 32);
 
             // Check if the tile is walkable before moving
-            Sprite targetTile = tileMap.GetTileAt(enemyPoint.X, enemyPoint.Y);
-            if (targetTile.Texture == tileMap.floorTexture)
+            if (tileMap.GetTileAt(nextTile.X, nextTile.Y).Texture == tileMap.floorTexture)
             {
                 GameObject.Position = newPosition;
                 Debug.WriteLine($"Enemy moved to {newPosition}");
             }
-            else {
-                Debug.WriteLine("Enemy: Next tile is not walkable!");
+            else
+            {
+                Debug.WriteLine($"Enemy: Next tile {nextTile} is not walkable!");
             }
         }
         public List<Enemy> GetEnemies() 
@@ -213,3 +255,5 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         }        
     }
 }
+// NOTE: sometimes moves twice? fix diagonal movement
+//  move gameobject creation to Game1

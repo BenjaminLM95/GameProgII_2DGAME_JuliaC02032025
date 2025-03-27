@@ -27,7 +27,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public Texture2D startTexture { get; private set; }
         public Texture2D exitTexture { get; private set; }
         public Texture2D enemyTexture { get; private set; }
+        public Texture2D enemyGhostTexture { get; private set; }
+        public Texture2D healthPotionTexture { get; private set; }
+        public Texture2D fireScrollTexture { get; private set; }
+        public Texture2D lightningScrollTexture { get; private set; }
+        public Texture2D warpScrollTexture { get; private set; }
         public Texture2D playerTexture { get; private set; }
+        public Texture2D turnIndicatorTexture { get; private set; }
 
         public TileMap() { }
         public TileMap(SpriteBatch spriteBatch)
@@ -71,8 +77,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 wallTexture = content.Load<Texture2D>("wall");
                 startTexture = content.Load<Texture2D>("start");
                 exitTexture = content.Load<Texture2D>("exit");
+                enemyGhostTexture = content.Load<Texture2D>("enemyGhost");
                 enemyTexture = content.Load<Texture2D>("enemy");
                 playerTexture = content.Load<Texture2D>("player");
+                healthPotionTexture = content.Load<Texture2D>("healthPotion");
+                fireScrollTexture = content.Load<Texture2D>("fireScroll");
+                lightningScrollTexture = content.Load<Texture2D>("lightningScroll");
+                warpScrollTexture = content.Load<Texture2D>("warpScroll");
+                turnIndicatorTexture = content.Load<Texture2D>("turnindicator");
 
                 Debug.WriteLine("TileMap: Textures loaded successfully.");
             }

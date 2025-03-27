@@ -19,7 +19,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             _instance = this;
         }
 
-        private Globals gameManager;
+        private Globals globals;
         private Player player;
 
         public bool isPlayerTurn { get; private set; } = true;
@@ -35,12 +35,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public override void Start()
         {
             Debug.WriteLine("Combat: START");
-            gameManager = Globals.Instance;
+            globals = Globals.Instance;
 
             if (Globals.content != null)
             {
                 try {
-                    turnIndicatorTexture = Globals.content.Load<Texture2D>("turnIndicator");
+                    turnIndicatorTexture = Globals.content.Load<Texture2D>("turnIndicator"); 
+                    //Texture2D turnIndicatorTexture = globals._tileMap.turnIndicatorTexture;
                 }
                 catch (Exception ex) {
                     Debug.WriteLine($"Combat: Failed to load turn indicator texture - {ex.Message}");
@@ -66,10 +67,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
 
             // Verify the GameObject has the required components
-            var component = turnTakerObj.GetComponent<Component>();
-            if (component == null)
+            var player = turnTakerObj.GetComponent<Player>();
+            var enemy = turnTakerObj.GetComponent<Enemy>();
+
+            if (player == null && enemy == null)
             {
-                Debug.WriteLine("Combat: GameObject does not have a valid Component for turn taking");
+                Debug.WriteLine("Combat: GameObject is not a Player or Enemy");
                 return;
             }
 
@@ -77,7 +80,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (!turnTakers.Contains(turnTakerObj))
             {
                 turnTakers.Add(turnTakerObj);
-                Debug.WriteLine($"Combat: Added {component.GetType().Name} to turn takers");
+                Debug.WriteLine($"Combat: Added {(player != null ? "Player" : "Enemy")} to turn takers");
             }
             else {
                 Debug.WriteLine("Combat: GameObject already in turn takers list");
@@ -89,23 +92,24 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             turnTakers.Clear();
 
             // Add Player
-            if (gameManager._player?.GameObject != null)
+            if (globals._player?.GameObject != null)
             {
-                AddTurnTaker(gameManager._player.GameObject);
+                AddTurnTaker(globals._player.GameObject);
             }
             else {
                 Debug.WriteLine("Combat: Player is NOT properly initialized!");
             }
 
             // Add Enemies
-            if (gameManager._enemy != null)
+            if (globals._enemy != null)
             {
-                var enemyList = gameManager._enemy.GetEnemies(); // get multiple enemies
+                var enemyList = globals._enemy.GetEnemies(); // get multiple enemies
                 if (enemyList != null)
                 {
                     foreach (var enemy in enemyList)
                     {
-                        if (enemy?.GameObject != null) {
+                        if (enemy?.GameObject != null)
+                        {
                             AddTurnTaker(enemy.GameObject);
                         }
                     }
@@ -138,7 +142,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
 
             var currentTurnObject = turnTakers[currentTurnIndex];
-            Debug.WriteLine($"Combat: Current turn object is {currentTurnObject.GetType().Name}");
+            //Debug.WriteLine($"Combat: Current turn object is {currentTurnObject.GetType().Name}");
 
             var currentEntity = currentTurnObject?.GetComponent<Component>();
 
@@ -190,33 +194,60 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         private void EnemyTurn(Enemy enemy)
         {
-            Debug.WriteLine("Combat: EnemyTurn called");
+            Debug.WriteLine($"Combat: EnemyTurn called for enemy at {enemy.GameObject.Position}");
             TurnIndicator(enemy.GameObject.Position); // turn indicator
 
-            Player player = gameManager._player;
+            Player player = globals._player;
             if (enemy.IsNextToPlayer(player))
             {
                 enemy.Attack(player);
             }
-            else {
+            else
+            {
                 enemy.MoveTowardsPlayer(player);
             }
+
             AdvanceToNextTurn();
         }
         // draw turn indicator
         private void TurnIndicator(Vector2 position) // not drawing?
         {
-            Globals.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            Globals.spriteBatch.Draw( 
-                turnIndicatorTexture,
-                new Vector2(position.X, position.Y - 32),
-                Color.White
-            );
-            Globals.spriteBatch.End();
-            //Debug.WriteLine("Combat: Turn indicator drawn");
+            if (turnIndicatorTexture == null)
+            {
+                Debug.WriteLine("Combat: Turn indicator texture is NULL!");
+                return;
+            }
+
+            try
+            {
+                if (Globals.spriteBatch == null)
+                {
+                    Debug.WriteLine("Combat: SpriteBatch is NULL when trying to draw turn indicator!");
+                    return;
+                }
+
+                Debug.WriteLine($"Combat: Attempting to draw turn indicator at {position}");
+
+                Globals.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                Globals.spriteBatch.Draw(
+                    turnIndicatorTexture,
+                    new Rectangle(
+                        (int)position.X,
+                        (int)position.Y - turnIndicatorTexture.Height,
+                        turnIndicatorTexture.Width,
+                        turnIndicatorTexture.Height
+                    ),
+                    Color.White
+                );
+                Globals.spriteBatch.End();
+
+                Debug.WriteLine("Combat: Turn indicator drawing completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Combat: Error drawing turn indicator - {ex.Message}");
+            }
         }
     }
 }
-// ERROR System.InvalidOperationException:
-// 'Draw was called, but Begin has not yet been called.
-// Begin must be called successfully before you can call Draw.'
+// NOTE: turnIndicator not working, says drawn sucessfully but not seeing it, move forward in draw?

@@ -57,43 +57,18 @@ namespace GameProgII_2DGame_Julia_C02032025
             Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
             Globals.content = Content;
 
-            // ***** MAP ***** //
-            // Create Map GameObject & MapSystem component
-            GameObject mapObject = new GameObject();
-            MapSystem mapSystem = new MapSystem();
-            // Add components to Map GameObject        
-            mapObject.AddComponent(mapSystem);
-            // Add created GameObject to the scene
-            Globals.Instance._scene.AddGameObject(mapObject);
+            AddMap();
 
-            // ***** PLAYER ***** //
-            GameObject playerObject = new GameObject();
-            Player player = new Player();
-            Sprite playerSprite = new Sprite();
-            HealthSystem playerHealth = new HealthSystem();
+            AddPlayer();
 
-            playerObject.AddComponent(player);
-            playerObject.AddComponent(playerSprite);
-            playerObject.AddComponent(playerHealth);
-            playerSprite.LoadSprite("player");
+            AddEnemy();
 
-            Globals.Instance._player = player;
-            Globals.Instance._scene.AddGameObject(playerObject);
+            AddCombat();
 
-            // ***** ENEMY ***** //           
-            Enemy enemyComponent = new Enemy();
-            Globals.Instance._enemy = enemyComponent;
-            // Spawn enemies for the first level
-            enemyComponent.SpawnEnemies(5);
-
-            // ***** COMBAT ***** //
-            GameObject combatObj = new GameObject();
-            Combat combat = Combat.Instance;
-            combatObj.AddComponent(combat);
-
-            Globals.Instance._combat = combat;
-            Globals.Instance._scene.AddGameObject(combatObj);
-            combat.Start();
+            AddItem(ItemType.HealthPotion);
+            AddItem(ItemType.FireScroll);
+            AddItem(ItemType.LightningScroll);
+            AddItem(ItemType.WarpScroll);
 
             // ***** HUD ***** //
             GameHUD hud = new GameHUD();
@@ -113,7 +88,7 @@ namespace GameProgII_2DGame_Julia_C02032025
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             Globals.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
@@ -123,6 +98,93 @@ namespace GameProgII_2DGame_Julia_C02032025
             Globals.spriteBatch.End();
             base.Draw(gameTime);
         }
+
+        #region adding gameobjects & components
+        // ***** PLAYER ***** //
+        void AddPlayer()
+        {
+            GameObject playerObject = new GameObject();
+            Player player = new Player();
+            Sprite playerSprite = new Sprite();
+            HealthSystem playerHealth = new HealthSystem(
+            maxHealth: 100,
+            type: HealthSystem.EntityType.Player
+            );
+
+            playerObject.AddComponent(player);
+            playerObject.AddComponent(playerSprite);
+            playerObject.AddComponent(playerHealth);
+            playerSprite.LoadSprite("player");
+
+            Globals.Instance._player = player;
+            Globals.Instance._scene.AddGameObject(playerObject);
+        }
+
+        // ***** MAP ***** //
+        void AddMap()
+        {
+            // Create Map GameObject & MapSystem component
+            GameObject mapObject = new GameObject();
+            MapSystem mapSystem = new MapSystem();
+            // Add components to Map GameObject        
+            mapObject.AddComponent(mapSystem);
+            // Add created GameObject to the scene
+            Globals.Instance._scene.AddGameObject(mapObject);
+        }
+
+        // ***** ENEMY ***** //           
+        void AddEnemy()
+        {
+            Enemy enemyComponent = new Enemy();
+            Globals.Instance._enemy = enemyComponent;
+            // Spawn enemies for the first level
+            enemyComponent.SpawnEnemies(5);
+        }
+
+        // ***** COMBAT ***** //
+        void AddCombat()
+        {
+            GameObject combatObj = new GameObject();
+            Combat combat = Combat.Instance;
+            combatObj.AddComponent(combat);
+
+            Globals.Instance._combat = combat;
+            Globals.Instance._scene.AddGameObject(combatObj);
+            combat.Start();
+        }
+
+        // ***** ITEMS ***** //
+        void AddItem(ItemType itemType)
+        {
+            GameObject itemObject = new GameObject();
+            Items itemComponent = new Items();
+            Sprite itemSprite = new Sprite();
+
+            // Load sprite based on item type
+            string spriteName = GetSpriteNameForItemType(itemType);
+            itemSprite.LoadSprite(spriteName);
+
+            itemObject.AddComponent(itemComponent);
+            itemObject.AddComponent(itemSprite);
+
+            // Optional: You could add a method to the Items component to initialize with a specific type
+            itemComponent.InitializeItemType(itemType);
+
+            Globals.Instance._scene.AddGameObject(itemObject);
+        }
+
+        private string GetSpriteNameForItemType(ItemType itemType)
+        {
+            return itemType switch
+            {
+                ItemType.HealthPotion => "healthPotion",
+                ItemType.FireScroll => "fireScroll",
+                ItemType.LightningScroll => "lightningScroll",
+                ItemType.WarpScroll => "warpScroll",
+                _ => throw new ArgumentException("Unknown item type")
+            };
+        }
+        #endregion
     }
 }
 

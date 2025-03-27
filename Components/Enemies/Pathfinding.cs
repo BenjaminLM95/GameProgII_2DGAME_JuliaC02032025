@@ -9,9 +9,11 @@ using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
-{   // BETTER COMMENTS!!!
+{   
     internal class Pathfinding : Component
     {
+        private Globals globals;
+
         public PathNode[,] nodeMap;
         public List<PathNode> unexploredNodes = new List<PathNode>();
         public Point startingPoint, targetPoint;
@@ -20,7 +22,24 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
         public override void Start()
         {
+            globals = globals ?? Globals.Instance; // globals
+            if (globals == null)
+            {
+                Debug.WriteLine("Pathfinding: globals is NULL!");
+                throw new InvalidOperationException("Globals instance could not be initialized");
+            }
+
             Debug.WriteLine("Pathfinding: START");
+            tileMap = globals._mapSystem?.Tilemap;
+            tileMap = GameObject.FindObjectOfType<TileMap>();
+            if (tileMap == null)
+            {
+                Debug.WriteLine("Pathfinding: Could not find TileMap in the scene!");
+            }
+            else
+            {
+                Debug.WriteLine($"Pathfinding: Found TileMap. Map dimensions - Width: {tileMap.mapWidth}, Height: {tileMap.mapHeight}");
+            }
         }
         /// <summary>
         /// 
@@ -33,23 +52,44 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 Debug.WriteLine("Pathfinding: TileMap is NULL");
                 return;
             }
+
+            Debug.WriteLine($"Pathfinding: Initializing with map dimensions - Width: {tileMap.mapWidth}, Height: {tileMap.mapHeight}");
+
             nodeMap = new PathNode[tileMap.mapWidth, tileMap.mapHeight];
+
+            int walkableTiles = 0;
+            int nonWalkableTiles = 0;
 
             for (int x = 0; x < tileMap.mapWidth; x++)
             {
                 for (int y = 0; y < tileMap.mapHeight; y++)
                 {
                     var currentTile = tileMap.GetTileAt(x, y);
+                    if (currentTile == null)
+                    {
+                        Debug.WriteLine($"Pathfinding: Tile at ({x},{y}) is NULL!");
+                        continue;
+                    }
+
+                    bool isWalkable = currentTile != null && currentTile.Texture == tileMap.floorTexture;
 
                     nodeMap[x, y] = new PathNode
                     {
                         position = new Point(x, y),
-                        isWalkable = currentTile != null && currentTile.Texture == tileMap.floorTexture
+                        isWalkable = isWalkable
                     };
+
+                    if (isWalkable)
+                        walkableTiles++;
+                    else
+                        nonWalkableTiles++;
                 }
             }
 
-            Debug.WriteLine("Pathfinding: nodeMap initialized using TileMap");
+            Debug.WriteLine($"Pathfinding: Initialization Complete");
+            Debug.WriteLine($"Pathfinding: Total Tiles - Walkable: {walkableTiles}, Non-Walkable: {nonWalkableTiles}");
+            Debug.WriteLine($"Pathfinding: NodeMap is NULL: {nodeMap == null}");
+            Debug.WriteLine($"Pathfinding: NodeMap Dimensions - {nodeMap?.GetLength(0)}x{nodeMap?.GetLength(1)}");
         }
         /// <summary>
         /// 
@@ -59,7 +99,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         /// <returns></returns>
         public List<Point> FindPath(Point start, Point goal)
         {
-            
+            Debug.WriteLine("Pathfinding: FindPath method called");
 
             if (nodeMap == null)
             {
@@ -116,7 +156,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                     }
                 }
             }
-
+            Debug.WriteLine("Pathfinding: FindPath completed");
             return null; // Path not found
         }
         /// <summary>
@@ -175,14 +215,21 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         private List<PathNode> GetNeighbors(PathNode node)
         {
             List<PathNode> neighbors = new List<PathNode>();
-            Point[] directions = new Point[] { new Point(0, 1), new Point(0, -1), new Point(1, 0), new Point(-1, 0) };
+            Point[] directions = new Point[]
+            {
+                new Point(0, 1),   // Down
+                new Point(0, -1),  // Up
+                new Point(1, 0),   // Right
+                new Point(-1, 0)   // Left
+            };
 
             foreach (Point dir in directions)
             {
                 int checkX = node.position.X + dir.X;
                 int checkY = node.position.Y + dir.Y;
 
-                if (checkX >= 0 && checkX < nodeMap.GetLength(0) && checkY >= 0 && checkY < nodeMap.GetLength(1))
+                if (checkX >= 0 && checkX < nodeMap.GetLength(0) &&
+                    checkY >= 0 && checkY < nodeMap.GetLength(1))
                 {
                     neighbors.Add(nodeMap[checkX, checkY]);
                 }
