@@ -31,12 +31,6 @@ namespace GameProgII_2DGame_Julia_C02032025
 
         protected override void Initialize()
         {
-            // setting window size
-            _graphics.IsFullScreen = false;
-            _graphics.PreferredBackBufferWidth = 1920;
-            _graphics.PreferredBackBufferHeight = 1080;
-            //_graphics.ApplyChanges();
-
             base.Initialize();
         }
 

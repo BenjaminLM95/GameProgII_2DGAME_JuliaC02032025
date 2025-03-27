@@ -23,6 +23,7 @@ internal class Globals
     public static Globals _instance {  get; private set; }
     public static Globals Instance => _instance ??= new Globals();
 
+    public float GlobalScaleFactor { get; set; } = 2.0f;  // Default scale factor of 2
     public GraphicsDevice GraphicsDevice { get; set; }
 
     public static ContentManager content;
