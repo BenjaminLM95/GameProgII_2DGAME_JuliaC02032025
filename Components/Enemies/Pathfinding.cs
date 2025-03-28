@@ -45,15 +45,15 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         /// 
         /// </summary>
         /// <param name="map"></param>
-        public void InitializePathfinding(TileMap tileMap) // need to call this...
+        public void InitializePathfinding(TileMap tileMap, bool debug = false) 
         {
             if (tileMap == null)
             {
-                Debug.WriteLine("Pathfinding: TileMap is NULL");
+                if (debug) Debug.WriteLine("Pathfinding: TileMap is NULL");
                 return;
             }
 
-            Debug.WriteLine($"Pathfinding: Initializing with map dimensions - Width: {tileMap.mapWidth}, Height: {tileMap.mapHeight}");
+            if (debug) Debug.WriteLine($"Pathfinding: Initializing with map dimensions - Width: {tileMap.mapWidth}, Height: {tileMap.mapHeight}");
 
             nodeMap = new PathNode[tileMap.mapWidth, tileMap.mapHeight];
 
@@ -67,7 +67,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                     var currentTile = tileMap.GetTileAt(x, y);
                     if (currentTile == null)
                     {
-                        Debug.WriteLine($"Pathfinding: Tile at ({x},{y}) is NULL!");
+                        if (debug) Debug.WriteLine($"Pathfinding: Tile at ({x},{y}) is NULL!");
                         continue;
                     }
 
@@ -86,10 +86,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 }
             }
 
-            Debug.WriteLine($"Pathfinding: Initialization Complete");
-            Debug.WriteLine($"Pathfinding: Total Tiles - Walkable: {walkableTiles}, Non-Walkable: {nonWalkableTiles}");
-            Debug.WriteLine($"Pathfinding: NodeMap is NULL: {nodeMap == null}");
-            Debug.WriteLine($"Pathfinding: NodeMap Dimensions - {nodeMap?.GetLength(0)}x{nodeMap?.GetLength(1)}");
+            if (debug) Debug.WriteLine($"Pathfinding: Initialization Complete");
+            if (debug) Debug.WriteLine($"Pathfinding: Total Tiles - Walkable: {walkableTiles}, Non-Walkable: {nonWalkableTiles}");
+            if (debug) Debug.WriteLine($"Pathfinding: NodeMap is NULL: {nodeMap == null}");
+            if (debug) Debug.WriteLine($"Pathfinding: NodeMap Dimensions - {nodeMap?.GetLength(0)}x{nodeMap?.GetLength(1)}");
         }
         /// <summary>
         /// 
@@ -97,13 +97,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         /// <param name="start"></param>
         /// <param name="goal"></param>
         /// <returns></returns>
-        public List<Point> FindPath(Point start, Point goal)
+        public List<Point> FindPath(Point start, Point goal, bool debug = false)
         {
-            Debug.WriteLine("Pathfinding: FindPath method called");
+            if (debug) Debug.WriteLine("Pathfinding: FindPath method called");
 
             if (nodeMap == null)
             {
-                Debug.WriteLine("Pathfinding: nodeMap is NULL");
+                if (debug) Debug.WriteLine("Pathfinding: nodeMap is NULL");
                 return null;
             }
 
@@ -156,7 +156,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                     }
                 }
             }
-            Debug.WriteLine("Pathfinding: FindPath completed");
+            if (debug) Debug.WriteLine("Pathfinding: FindPath completed");
             return null; // Path not found
         }
         /// <summary>

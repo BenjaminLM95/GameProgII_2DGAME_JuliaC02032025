@@ -109,10 +109,12 @@ namespace GameProgII_2DGame_Julia_C02032025
             maxHealth: 100,
             type: HealthSystem.EntityType.Player
             );
+            Inventory inventory = new Inventory();
 
             playerObject.AddComponent(player);
             playerObject.AddComponent(playerSprite);
             playerObject.AddComponent(playerHealth);
+            playerObject.AddComponent(inventory);
             playerSprite.LoadSprite("player");
 
             Globals.Instance._player = player;
@@ -219,10 +221,15 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             itemObject.AddComponent(itemComponent);
             itemObject.AddComponent(itemSprite);
-
-            // Optional: You could add a method to the Items component to initialize with a specific type
-            itemComponent.InitializeItemType(itemType);
-
+            
+            if (Globals.Instance._mapSystem.LevelChanged)
+            {
+                itemComponent.ClearItems(); // clear all current items from scene
+                Debug.WriteLine("New level detected! Spawning new items...");
+                itemComponent.SpawnItems(5); // re-spawn items
+                Globals.Instance._mapSystem.ResetLevelFlag(); // Reset levelChanged flag
+            }
+            // add items to the scene
             Globals.Instance._scene.AddGameObject(itemObject);
         }
 

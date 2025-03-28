@@ -58,11 +58,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
         // Adds valid GameObjects through their components to a list of turn takers
-        private void AddTurnTaker(GameObject turnTakerObj)
+        private void AddTurnTaker(GameObject turnTakerObj, bool debug = false)
         {
             if (turnTakerObj == null)
             {
-                Debug.WriteLine("Combat: Attempted to add null GameObject to turn takers");
+                if (debug) Debug.WriteLine("Combat: Attempted to add null GameObject to turn takers");
                 return;
             }
 
@@ -72,7 +72,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (player == null && enemy == null)
             {
-                Debug.WriteLine("Combat: GameObject is not a Player or Enemy");
+                if (debug) Debug.WriteLine("Combat: GameObject is not a Player or Enemy");
                 return;
             }
 
@@ -80,14 +80,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (!turnTakers.Contains(turnTakerObj))
             {
                 turnTakers.Add(turnTakerObj);
-                Debug.WriteLine($"Combat: Added {(player != null ? "Player" : "Enemy")} to turn takers");
+                if (debug) Debug.WriteLine($"Combat: Added {(player != null ? "Player" : "Enemy")} to turn takers");
             }
             else {
-                Debug.WriteLine("Combat: GameObject already in turn takers list");
+                if (debug) Debug.WriteLine("Combat: GameObject already in turn takers list");
             }
         }
         // Adds player & enemy specifically to turn takers
-        private void InitializeTurnTakers()
+        private void InitializeTurnTakers(bool debug = false)
         {
             turnTakers.Clear();
 
@@ -97,7 +97,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 AddTurnTaker(globals._player.GameObject);
             }
             else {
-                Debug.WriteLine("Combat: Player is NOT properly initialized!");
+                if (debug) Debug.WriteLine("Combat: Player is NOT properly initialized!");
             }
 
             // Add Enemies
@@ -118,26 +118,26 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (turnTakers.Count == 0)
             {
-                Debug.WriteLine("Combat: NO TURN TAKERS FOUND - CHECK INITIALIZATION!");
+                if (debug) Debug.WriteLine("Combat: NO TURN TAKERS FOUND - CHECK INITIALIZATION!");
             }
             else {
-                Debug.WriteLine($"Combat: Initialized {turnTakers.Count} turn takers.");
+                if (debug) Debug.WriteLine($"Combat: Initialized {turnTakers.Count} turn takers.");
             }
         }
         // manages turn alternation by changing the index
         // and updating the current entity to decide which turn method to run
-        private void TurnManager()
+        private void TurnManager(bool debug = false)
         {
             if (turnTakers.Count == 0)
             {
-                Debug.WriteLine("Combat: No turn takers available. Reinitializing...");
+                if (debug) Debug.WriteLine("Combat: No turn takers available. Reinitializing...");
                 InitializeTurnTakers();
                 return;
             }
 
             if (currentTurnIndex >= turnTakers.Count)
             {
-                Debug.WriteLine($"Combat: Current turn index {currentTurnIndex} is out of bounds. Resetting.");
+                if (debug) Debug.WriteLine($"Combat: Current turn index {currentTurnIndex} is out of bounds. Resetting.");
                 currentTurnIndex = 0;
             }
 
@@ -148,7 +148,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (currentEntity == null)
             {
-                Debug.WriteLine("Combat: Invalid entity at turn index. Advancing to next turn.");
+                if (debug) Debug.WriteLine("Combat: Invalid entity at turn index. Advancing to next turn.");
                 AdvanceToNextTurn();
                 return;
             }
@@ -156,7 +156,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Update the isPlayerTurn flag based on the current entity
             isPlayerTurn = currentEntity is Player;
 
-            Debug.WriteLine($"Combat: {currentEntity.GetType().Name}'s turn.");
+            if (debug) Debug.WriteLine($"Combat: {currentEntity.GetType().Name}'s turn.");
 
             if (currentEntity is Player player)
             {
@@ -167,11 +167,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
         // cycles through turntakers in index, resets turns
-        public void AdvanceToNextTurn()
+        public void AdvanceToNextTurn(bool debug = false)
         {
             if (turnTakers == null || turnTakers.Count == 0)
             {
-                Debug.WriteLine("Combat: Cannot advance turn - no turn takers");
+                if (debug) Debug.WriteLine("Combat: Cannot advance turn - no turn takers");
                 return;
             }
 
@@ -183,19 +183,17 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 playerComponent.ResetTurn();
             }
 
-            Debug.WriteLine($"Combat: Advanced to turn index {currentTurnIndex}"); // !! not showing up
+            if (debug) Debug.WriteLine($"Combat: Advanced to turn index {currentTurnIndex}"); // !! not showing up
         }
 
-        private void PlayerTurn(Player player)
+        private void PlayerTurn(Player player, bool debug = false)
         {
-            Debug.WriteLine("Combat: PlayerTurn() called");
-            //TurnIndicator(player.GameObject.Position); // turn indicator
+            if (debug) Debug.WriteLine("Combat: PlayerTurn() called");
         }
 
-        private void EnemyTurn(Enemy enemy)
+        private void EnemyTurn(Enemy enemy, bool debug = false)
         {
-            Debug.WriteLine($"Combat: EnemyTurn called for enemy at {enemy.GameObject.Position}");
-            //TurnIndicator(enemy.GameObject.Position); // turn indicator
+            if (debug) Debug.WriteLine($"Combat: EnemyTurn called for enemy at {enemy.GameObject.Position}");
 
             Player player = globals._player;
             if (enemy.IsNextToPlayer(player))
@@ -209,10 +207,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             AdvanceToNextTurn();
         }
         // draw turn indicator
-        public void DrawTurnIndicator()
+        public void DrawTurnIndicator(bool debug = false)
         {
             if (turnIndicatorTexture == null) {
-                Debug.WriteLine("Combat: Turn indicator texture is NULL!");
+                if (debug) Debug.WriteLine("Combat: Turn indicator texture is NULL!");
                 return;
             }
 
@@ -224,11 +222,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     Vector2 position = currentTurnObject.Position;
 
                     // Debug logging
-                    Debug.WriteLine($"Turn Indicator - Object: {currentTurnObject.GetType().Name}");
-                    Debug.WriteLine($"Turn Indicator - Position: {position}");
-                    Debug.WriteLine($"Turn Indicator - Texture Size: {turnIndicatorTexture.Width}x{turnIndicatorTexture.Height}");
+                    if (debug)
+                    {
+                        Debug.WriteLine($"Turn Indicator - Object: {currentTurnObject.GetType().Name}");
+                        Debug.WriteLine($"Turn Indicator - Position: {position}");
+                        Debug.WriteLine($"Turn Indicator - Texture Size: {turnIndicatorTexture.Width}x{turnIndicatorTexture.Height}");
+                    }
 
-                    // Draw with more precise positioning
+                    // Draw with offset positioning
                     Globals.spriteBatch.Draw(
                         turnIndicatorTexture,
                         new Vector2(
@@ -240,7 +241,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 }
             }
             catch (Exception ex) {
-                Debug.WriteLine($"Combat: Detailed turn indicator error - {ex.Message}");
+                if (debug) Debug.WriteLine($"Combat: Detailed turn indicator error - {ex.Message}");
             }
         }
     }

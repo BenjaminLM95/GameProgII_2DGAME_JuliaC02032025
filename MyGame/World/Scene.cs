@@ -16,6 +16,11 @@ internal class Scene
     {
         _gameObjects.Add(gameObject);
     }
+    // Remove a gameobject from the scene.
+    public void RemoveGameObject(GameObject gameObject)
+    {
+        _gameObjects.Remove(gameObject);
+    }
 
     // Call Update on all GameObjects
     public void Update(GameTime gameTime)

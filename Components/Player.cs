@@ -19,6 +19,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private TileMap tileMap;
         private HealthSystem healthSystem;
         private Sprite playerSprite;
+        private Inventory inventory;
 
         // ---------- VARIABLES ---------- //
 
@@ -56,6 +57,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();  // mapsystem
             tileMap = globals._mapSystem?.Tilemap; // TileMap
 
+            inventory = GameObject.GetComponent<Inventory>(); // inventory
+            if (inventory == null)
+            {
+                //inventory = GameObject.AddComponent<Inventory>(); // !!! Add Inventory if missing
+                Debug.WriteLine("Player: Inventory component was missing, added dynamically.");
+            }
+
             Debug.WriteLine("Player: Waiting for map initialization and start position...");
             MoveToStartTile();
         }
@@ -70,7 +78,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 tileMap = globals._mapSystem?.Tilemap;
                 if (tileMap == null) return;
             }
-
+            #region player input
             // Input
             Vector2 currentPos = GameObject.Position;
             Vector2 targetPos = currentPos;
@@ -107,6 +115,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 moved = true;
                 movementDirection = Vector2.UnitX;
             }
+            #endregion
 
             if (moved && !hasMovedThisTurn)
             {
@@ -136,6 +145,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     // gen rand next level
                     globals._mapSystem.LoadNextLevel();
                     // Advance turn after moving to exit
+                    Combat.Instance.AdvanceToNextTurn();
+                }
+                if (IsItem(targetTilePos))
+                {
+                    GameObject.Position = targetPos;
+                    Debug.WriteLine($"Player: moved to ITEM position - {targetPos}");
+                    hasMovedThisTurn = true;
+                    inventory.PickUp(); // INVENTORY: pick up the item
                     Combat.Instance.AdvanceToNextTurn();
                 }
             }            
@@ -184,6 +201,32 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 }
             }
 
+            return false;
+        }
+
+        private bool IsItem(Point tileCoordinates)
+        {
+            if (tileMap == null) return false;
+
+            // Check for item tiles
+            Items itemsComponent = GameObject.FindObjectOfType<Items>();
+            if (itemsComponent == null) return false;
+
+            List<Item> items = itemsComponent.GetItems();
+            foreach (Item item in items)
+            {
+                if (item != null)
+                {
+                    Vector2 itemTile = item.Position / 32;
+                    Point itemTilePoint = new Point((int)itemTile.X, (int)itemTile.Y);
+
+                    if (itemTilePoint == tileCoordinates)
+                    {
+                        Debug.WriteLine($"Player: Item tile at {tileCoordinates.X}, {tileCoordinates.Y}!");
+                        return true;
+                    }
+                }
+            }
             return false;
         }
 

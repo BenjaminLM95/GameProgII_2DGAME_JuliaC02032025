@@ -28,6 +28,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         List<Vector2> emptyTiles = new List<Vector2>();
 
+        public bool LevelChanged { get; private set; } = false;
+
         // ---------- METHODS ---------- //
 
         public override void Start()
@@ -53,6 +55,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // resetting the player position, and generating a new map.
         public void LoadNextLevel()
         {
+            LevelChanged = true; // Indicate that a new level is loading
+
             Tilemap.ClearTiles();
 
             GenerateMap();
@@ -60,6 +64,17 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Vector2 startTile = GetRandomEmptyTile(); // Reset the player position to a random empty tile
 
             globals._player.MoveToStartTile();
+
+            // Respawn items when a new level is generated
+            Items itemsComponent = GameObject.FindObjectOfType<Items>();
+            if (itemsComponent != null)
+            {
+                itemsComponent.SpawnItems(4);
+            }
+            else
+            {
+                Debug.WriteLine("MapSystem: Items component not found! Items will not respawn.");
+            }
 
         }
 
@@ -240,6 +255,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             Debug.WriteLine("MapSystem: Could not find empty tile after multiple attempts!");
             return new Vector2(-1, -1);
+        }
+
+        public void ResetLevelFlag()
+        {
+            LevelChanged = false; // Reset flag after items have been re-spawned
         }
     }
 }

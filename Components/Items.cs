@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -34,7 +35,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     HealPlayer(player);
                     break;
                 case ItemType.FireScroll:
-                    //CastFireball(player, tileMap);
+                    CastFireball(player, tileMap);
                     break;
                 case ItemType.LightningScroll:
                     CastLightning(tileMap);
@@ -238,6 +239,16 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 }
             }
         }
+        public void ClearItems()
+        {
+            foreach (var item in spawnedItems)
+            {
+                globals._scene.RemoveGameObject(item);
+            }
+
+            spawnedItems.Clear();
+            Debug.WriteLine("Items: All items cleared from the scene.");
+        }
 
         public void UseItem(Player player, Item item)
         {
@@ -247,6 +258,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 spawnedItems.Remove(item);
             }
         }
+        // /*
+        public List<Item> GetItems()
+        {
+            // Remove any items with null GameObjects
+            spawnedItems.RemoveAll(e => e == null);
+            return spawnedItems;
+        }
+        // */
     }
 }
-// NOTE: items spawn randomly initially, but don't re-spawn randomly when going to next level.

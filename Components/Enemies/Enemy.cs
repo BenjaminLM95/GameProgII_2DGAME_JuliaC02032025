@@ -150,28 +150,28 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
         }
 
-        public bool IsNextToPlayer(Player player)
+        public bool IsNextToPlayer(Player player, bool debug = false)
         {
-            Debug.WriteLine("Enemy: checking if enemy is next to player");
+            if (debug) Debug.WriteLine("Enemy: checking if enemy is next to player");
             Vector2 playerPos = player.GameObject.Position;
             Vector2 enemyPos = GameObject.Position;
             return Math.Abs(playerPos.X - enemyPos.X) <= 32 && Math.Abs(playerPos.Y - enemyPos.Y) <= 32;
         }
 
         // Tilemap Movement
-        public void MoveTowardsPlayer(Player player)
+        public void MoveTowardsPlayer(Player player, bool debug = false)
         {
             pathfinding = GameObject.GetComponent<Pathfinding>();
             if (pathfinding == null)
             {
-                Debug.WriteLine("Enemy: Pathfinding component is NULL");
+                if (debug) Debug.WriteLine("Enemy: Pathfinding component is NULL");
                 return;
             }
 
             // Ensure nodeMap is initialized
             if (pathfinding.nodeMap == null)
             {
-                Debug.WriteLine("Enemy: Pathfinding nodeMap is NULL");
+                if (debug) Debug.WriteLine("Enemy: Pathfinding nodeMap is NULL");
                 return;
             }
 
@@ -181,19 +181,19 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Point enemyPoint = new Point((int)enemyPos.X, (int)enemyPos.Y);
             Point playerPoint = new Point((int)playerPos.X, (int)playerPos.Y);
 
-            Debug.WriteLine($"Enemy: position: {enemyPoint}, Player position: {playerPoint}");
+            if (debug) Debug.WriteLine($"Enemy: position: {enemyPoint}, Player position: {playerPoint}");
 
             List<Point> path = pathfinding.FindPath(enemyPoint, playerPoint);
 
             // Correct null and empty path checking
             if (path == null)
             {
-                Debug.WriteLine($"Enemy: Path finding completely failed.");
+                if (debug) Debug.WriteLine($"Enemy: Path finding completely failed.");
                 return;
             }
             if (path.Count <= 1)
             {
-                Debug.WriteLine($"Enemy: Path is too short. Path count: {path.Count}");
+                if (debug) Debug.WriteLine($"Enemy: Path is too short. Path count: {path.Count}");
                 return;
             }
 
@@ -204,20 +204,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             {
                 Vector2 newPosition = new Vector2(nextTile.X * 32, nextTile.Y * 32);
                 GameObject.Position = newPosition;
-                Debug.WriteLine($"Enemy moved to {newPosition}");
+                if (debug) Debug.WriteLine($"Enemy moved to {newPosition}");
             }
             else
             {
-                Debug.WriteLine($"Enemy: Next tile {nextTile} is not walkable!");
+                if (debug) Debug.WriteLine($"Enemy: Next tile {nextTile} is not walkable!");
             }
         }
-        private bool IsTileWalkable(Point tile)
+        private bool IsTileWalkable(Point tile, bool debug = false)
         {
             // Check if tile is a floor tile
             if (tileMap == null || tileMap.GetTileAt(tile.X, tile.Y) == null ||
                 tileMap.GetTileAt(tile.X, tile.Y).Texture != tileMap.floorTexture)
             {
-                Debug.WriteLine($"Tile {tile} is not a valid floor tile");
+                if (debug) Debug.WriteLine($"Tile {tile} is not a valid floor tile");
                 return false;
             }
 
@@ -228,7 +228,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 Vector2 playerTile = player.GameObject.Position / 32;
                 if (new Point((int)playerTile.X, (int)playerTile.Y) == tile)
                 {
-                    Debug.WriteLine($"Tile {tile} is occupied by player");
+                    if (debug) Debug.WriteLine($"Tile {tile} is occupied by player");
                     return false;
                 }
             }
@@ -242,7 +242,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                     Vector2 enemyTile = enemy.GameObject.Position / 32;
                     if (new Point((int)enemyTile.X, (int)enemyTile.Y) == tile)
                     {
-                        Debug.WriteLine($"Tile {tile} is occupied by another enemy");
+                        if (debug) Debug.WriteLine($"Tile {tile} is occupied by another enemy");
                         return false;
                     }
                 }
