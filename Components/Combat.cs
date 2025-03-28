@@ -189,65 +189,59 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private void PlayerTurn(Player player)
         {
             Debug.WriteLine("Combat: PlayerTurn() called");
-            TurnIndicator(player.GameObject.Position); // turn indicator
+            //TurnIndicator(player.GameObject.Position); // turn indicator
         }
 
         private void EnemyTurn(Enemy enemy)
         {
             Debug.WriteLine($"Combat: EnemyTurn called for enemy at {enemy.GameObject.Position}");
-            TurnIndicator(enemy.GameObject.Position); // turn indicator
+            //TurnIndicator(enemy.GameObject.Position); // turn indicator
 
             Player player = globals._player;
             if (enemy.IsNextToPlayer(player))
             {
                 enemy.Attack(player);
             }
-            else
-            {
+            else {
                 enemy.MoveTowardsPlayer(player);
             }
 
             AdvanceToNextTurn();
         }
         // draw turn indicator
-        private void TurnIndicator(Vector2 position) // not drawing?
+        public void DrawTurnIndicator()
         {
-            if (turnIndicatorTexture == null)
-            {
+            if (turnIndicatorTexture == null) {
                 Debug.WriteLine("Combat: Turn indicator texture is NULL!");
                 return;
             }
 
             try
             {
-                if (Globals.spriteBatch == null)
+                if (turnTakers.Count > 0 && currentTurnIndex < turnTakers.Count)
                 {
-                    Debug.WriteLine("Combat: SpriteBatch is NULL when trying to draw turn indicator!");
-                    return;
+                    GameObject currentTurnObject = turnTakers[currentTurnIndex];
+                    Vector2 position = currentTurnObject.Position;
+
+                    // Debug logging
+                    Debug.WriteLine($"Turn Indicator - Object: {currentTurnObject.GetType().Name}");
+                    Debug.WriteLine($"Turn Indicator - Position: {position}");
+                    Debug.WriteLine($"Turn Indicator - Texture Size: {turnIndicatorTexture.Width}x{turnIndicatorTexture.Height}");
+
+                    // Draw with more precise positioning
+                    Globals.spriteBatch.Draw(
+                        turnIndicatorTexture,
+                        new Vector2(
+                            position.X + (TILE_SIZE - turnIndicatorTexture.Width) / 2,
+                            position.Y - turnIndicatorTexture.Height
+                        ),
+                        Color.White
+                    );
                 }
-
-                Debug.WriteLine($"Combat: Attempting to draw turn indicator at {position}");
-
-                Globals.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                Globals.spriteBatch.Draw(
-                    turnIndicatorTexture,
-                    new Rectangle(
-                        (int)position.X,
-                        (int)position.Y - turnIndicatorTexture.Height,
-                        turnIndicatorTexture.Width,
-                        turnIndicatorTexture.Height
-                    ),
-                    Color.White
-                );
-                Globals.spriteBatch.End();
-
-                Debug.WriteLine("Combat: Turn indicator drawing completed successfully");
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Combat: Error drawing turn indicator - {ex.Message}");
+            catch (Exception ex) {
+                Debug.WriteLine($"Combat: Detailed turn indicator error - {ex.Message}");
             }
         }
     }
 }
-// NOTE: turnIndicator not working, says drawn sucessfully but not seeing it, move forward in draw?

@@ -31,6 +31,9 @@ namespace GameProgII_2DGame_Julia_C02032025
 
         protected override void Initialize()
         {
+            _graphics.PreferredBackBufferWidth = 1280; _graphics.PreferredBackBufferHeight = 720;
+            _graphics.ApplyChanges();
+
             base.Initialize();
         }
 
@@ -88,6 +91,8 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             // Draw all scene objects (including all GameObjects & thier Components)
             Globals.Instance._scene.Draw(Globals.spriteBatch);
+            // draw turn indicator
+            Globals.Instance._combat.DrawTurnIndicator();
 
             Globals.spriteBatch.End();
             base.Draw(gameTime);
@@ -126,14 +131,68 @@ namespace GameProgII_2DGame_Julia_C02032025
             Globals.Instance._scene.AddGameObject(mapObject);
         }
 
-        // ***** ENEMY ***** //           
+        // ***** ENEMY ***** //
         void AddEnemy()
         {
-            Enemy enemyComponent = new Enemy();
-            Globals.Instance._enemy = enemyComponent;
-            // Spawn enemies for the first level
-            enemyComponent.SpawnEnemies(5);
+            Enemy enemyComponent = Globals.Instance._enemy;
+            if (enemyComponent == null)
+            {
+                enemyComponent = new Enemy();
+                Globals.Instance._enemy = enemyComponent;
+            }
+
+            // Spawn a specific number of enemies
+            int level = 5; // You can adjust this as needed
+            int enemyCount = Math.Clamp(level, 2, 10);
+
+            for (int i = 0; i < enemyCount; i++)
+            {
+                // Create enemy game object
+                GameObject enemyObject = new GameObject();
+
+                // Create components
+                Enemy newEnemy = new Enemy();
+                Sprite enemySprite = new Sprite();
+                Pathfinding enemyPathfinding = new Pathfinding();
+                HealthSystem enemyHealth = new HealthSystem(
+                    maxHealth: 50,
+                    type: HealthSystem.EntityType.Enemy
+                );
+
+                // Add components to enemy game object
+                enemyObject.AddComponent(newEnemy);
+                enemyObject.AddComponent(enemySprite);
+                enemyObject.AddComponent(enemyPathfinding);
+                enemyObject.AddComponent(enemyHealth);
+
+                // Load sprite
+                enemySprite.LoadSprite("enemy");
+
+                // Get a random spawn tile
+                Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
+
+                if (randomTile != new Vector2(-1, -1))
+                {
+                    enemyObject.Position = randomTile;
+
+                    // Initialize pathfinding if tilemap exists
+                    TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
+                    if (tileMap != null)
+                    {
+                        enemyPathfinding.InitializePathfinding(tileMap);
+                        Debug.WriteLine($"Enemy: Spawned and initialized pathfinding at position - {randomTile}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Enemy: CRITICAL - Cannot initialize pathfinding, TileMap is NULL");
+                    }
+
+                    // Add to scene
+                    Globals.Instance._scene.AddGameObject(enemyObject);
+                }
+            }
         }
+        //*/
 
         // ***** COMBAT ***** //
         void AddCombat()

@@ -60,21 +60,22 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Debug.WriteLine("Items: Error HealthSystem component not found on player");
             }
         }
-        /*
+        // /*
         private void CastFireball(Player player, TileMap tileMap)
         {
             Vector2 direction = GetPlayerFacingDirection();
-            Vector2 projectilePosition = player.Position + direction * 32; // one tile in front of player
+            Vector2 projectilePosition = player.LastMovementDirection + direction * 32; // one tile in front of player
 
             // Check for enemy collision along the path
             while (IsValidTile(projectilePosition, tileMap))
             {
+                Debug.WriteLine("Items: found valid tile for CastFireball");
                 // check for enemy at this position and apply damage
                 // check the Enemies component
                 projectilePosition += direction * 32;
             }
         }
-        */
+        // */
         private void CastLightning(TileMap tileMap)
         {
             // find and damage all visible enemies
@@ -194,6 +195,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             for (int i = 0; i < amount; i++)
             {
                 // randomly select an item type
+                Debug.WriteLine($"Items: spawned");
                 Item itemToSpawn = itemPool[random.Next(itemPool.Count)];
                 PlaceItem(itemToSpawn);
             }

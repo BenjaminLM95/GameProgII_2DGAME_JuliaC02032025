@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
@@ -159,12 +160,30 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (tileMap == null) return false;
 
             Sprite targetTile = tileMap.GetTileAt(tileCoordinates.X, tileCoordinates.Y);
-
+            // check for floor & wall obstacles
             if (targetTile != null && targetTile.Texture == tileMap.obstacleTexture || targetTile.Texture == tileMap.wallTexture)
             {
                 Debug.WriteLine($"Player: Obstacle at {tileCoordinates.X}, {tileCoordinates.Y}!");
                 return true;
             }
+
+            // Check for enemy tiles
+            List<Enemy> enemies = GameObject.FindObjectOfType<Enemy>().GetEnemies();
+            foreach (Enemy enemy in enemies)
+            {
+                if (enemy.GameObject != null)
+                {
+                    Vector2 enemyTile = enemy.GameObject.Position / 32;
+                    Point enemyTilePoint = new Point((int)enemyTile.X, (int)enemyTile.Y);
+
+                    if (enemyTilePoint == tileCoordinates)
+                    {
+                        Debug.WriteLine($"Player: Enemy tile at {tileCoordinates.X}, {tileCoordinates.Y}!");
+                        return true;
+                    }
+                }
+            }
+
             return false;
         }
 

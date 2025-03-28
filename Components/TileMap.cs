@@ -77,7 +77,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 wallTexture = content.Load<Texture2D>("wall");
                 startTexture = content.Load<Texture2D>("start");
                 exitTexture = content.Load<Texture2D>("exit");
-                enemyGhostTexture = content.Load<Texture2D>("enemyGhost");
+                enemyGhostTexture = content.Load<Texture2D>("ghost");
                 enemyTexture = content.Load<Texture2D>("enemy");
                 playerTexture = content.Load<Texture2D>("player");
                 healthPotionTexture = content.Load<Texture2D>("healthPotion");
