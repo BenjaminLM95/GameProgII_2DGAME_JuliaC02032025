@@ -27,7 +27,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Position = position;
         }
 
-        // Loads a texture from the Content Manager.
+        // Loads a projSprite from the Content Manager.
         public virtual void LoadSprite(string textureName)
         {
             if (Globals.content == null)
@@ -50,9 +50,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 (int)(fixedSize * spriteScale));
 
                 spriteBatch.Draw(
-                Texture,              // The texture to draw
+                Texture,              // The projSprite to draw
                 destinationRectangle, // Destination rectangle (32x32 or scaled version)
-                null,                 // Source rectangle (null = use the entire texture)
+                null,                 // Source rectangle (null = use the entire projSprite)
                 Color.White,          // Color mask
                 0f,                   // Rotation
                 Vector2.Zero,         // Origin point

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
+using System.Numerics;
 using static System.Formats.Asn1.AsnWriter;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -56,21 +57,27 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             AddMap();
 
+            AddItems();
+
             AddPlayer();
 
             AddEnemy();
+            AddRangedEnemy();
+            AddGhostEnemy();
 
             AddCombat();
 
-            AddItem(ItemType.HealthPotion);
-            AddItem(ItemType.FireScroll);
-            AddItem(ItemType.LightningScroll);
-            AddItem(ItemType.WarpScroll);
-
             // ***** HUD ***** //
+            GameObject hudObj = new GameObject();
             GameHUD hud = new GameHUD();
-            hud.LoadContent();
-            hud.DrawHUD("Your text here");
+            Sprite hudSprite = new Sprite();
+
+            hudObj.AddComponent(hud);
+            hudObj.AddComponent(hudSprite);
+            hudSprite.LoadSprite("emptyInvTexture");
+
+            Globals.Instance._gameHUD = hud;
+            Globals.Instance._scene.AddGameObject(hudObj);
         }
 
         protected override void Update(GameTime gameTime)
@@ -91,8 +98,9 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             // Draw all scene objects (including all GameObjects & thier Components)
             Globals.Instance._scene.Draw(Globals.spriteBatch);
-            // draw turn indicator
-            Globals.Instance._combat.DrawTurnIndicator();
+            
+            Globals.Instance._combat.DrawTurnIndicator(); // draw turn indicator
+            Globals.Instance._gameHUD.DrawInventoryHUD(); // draw inventory slots HUD
 
             Globals.spriteBatch.End();
             base.Draw(gameTime);
@@ -133,8 +141,116 @@ namespace GameProgII_2DGame_Julia_C02032025
             Globals.Instance._scene.AddGameObject(mapObject);
         }
 
-        // ***** ENEMY ***** //
+        // ***** ENEMIES ***** //
+        void AddRangedEnemy()
+        {
+            RangedEnemy rangedEnemyComponent = Globals.Instance._rangedEnemy;
+            if (rangedEnemyComponent == null)
+            {
+                rangedEnemyComponent = new RangedEnemy();
+                Globals.Instance._rangedEnemy = rangedEnemyComponent;
+            }
+
+            // spawn a specific number of enemies
+            int level = 2; // amount of enemies
+            int enemyCount = Math.Clamp(level, 2, 5);
+
+            for (int i = 0; i < enemyCount; i++)
+            {
+                // create ranged enemy game object
+                GameObject rangedEnemyObg = new GameObject();
+
+                // create components
+                RangedEnemy newEnemy = new RangedEnemy();
+                Sprite enemySprite = new Sprite();
+                HealthSystem enemyHealth = new HealthSystem(
+                    maxHealth: 80,
+                    type: HealthSystem.EntityType.Enemy
+                );
+
+                // add components to enemy game object
+                rangedEnemyObg.AddComponent(newEnemy);
+                rangedEnemyObg.AddComponent(enemySprite);
+                rangedEnemyObg.AddComponent(enemyHealth);
+
+                // load sprite
+                enemySprite.LoadSprite("archer");
+
+                // get a random spawn tile
+                Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
+
+                if (randomTile != new Vector2(-1, -1))
+                {
+                    rangedEnemyObg.Position = randomTile;
+                    
+                    TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
+
+                    Globals.Instance._scene.AddGameObject(rangedEnemyObg);
+                }
+            }
+        }
+
         void AddEnemy()
+        {
+           Enemy enemyComponent = Globals.Instance._enemy;
+           if (enemyComponent == null)
+           {
+               enemyComponent = new Enemy();
+               Globals.Instance._enemy = enemyComponent;
+           }
+
+           // spawn a specific number of enemies
+           int level = 5; // amount of enemies
+           int enemyCount = Math.Clamp(level, 2, 10);
+
+           for (int i = 0; i < enemyCount; i++)
+           {
+               //create enemy game object
+               GameObject enemyObject = new GameObject();
+
+               // create components
+               Enemy newEnemy = new Enemy();
+               Sprite enemySprite = new Sprite();
+               Pathfinding enemyPathfinding = new Pathfinding();
+               HealthSystem enemyHealth = new HealthSystem(
+                   maxHealth: 50,
+                   type: HealthSystem.EntityType.Enemy
+               );
+
+               // add components to enemy game object
+               enemyObject.AddComponent(newEnemy);
+               enemyObject.AddComponent(enemySprite);
+               enemyObject.AddComponent(enemyPathfinding);
+               enemyObject.AddComponent(enemyHealth);
+
+               // load sprite
+               enemySprite.LoadSprite("enemy");
+
+               // get a random spawn tile
+               Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
+
+               if (randomTile != new Vector2(-1, -1))
+               {
+                   enemyObject.Position = randomTile;
+
+                   // initialize pathfinding if tilemap exists
+                   TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
+                   if (tileMap != null)
+                   {
+                       enemyPathfinding.InitializePathfinding(tileMap);
+                       Debug.WriteLine($"Enemy: Spawned and initialized pathfinding at position - {randomTile}");
+                   }
+                   else
+                   {
+                       Debug.WriteLine("Enemy: CRITICAL - Cannot initialize pathfinding, TileMap is NULL");
+                   }
+
+                   // add to scene
+                   Globals.Instance._scene.AddGameObject(enemyObject);
+               }
+           }
+        }
+        void AddGhostEnemy()
         {
             Enemy enemyComponent = Globals.Instance._enemy;
             if (enemyComponent == null)
@@ -143,58 +259,30 @@ namespace GameProgII_2DGame_Julia_C02032025
                 Globals.Instance._enemy = enemyComponent;
             }
 
-            // Spawn a specific number of enemies
-            int level = 5; // You can adjust this as needed
-            int enemyCount = Math.Clamp(level, 2, 10);
+            // spawn a specific number of enemies
+            int level = 3; // amount of enemies
+            int enemyCount = Math.Clamp(level, 2, 4);
 
             for (int i = 0; i < enemyCount; i++)
             {
-                // Create enemy game object
+                //create enemy game object
                 GameObject enemyObject = new GameObject();
 
-                // Create components
-                Enemy newEnemy = new Enemy();
+                // create components
+                GhostEnemy newEnemy = new GhostEnemy(); 
                 Sprite enemySprite = new Sprite();
-                Pathfinding enemyPathfinding = new Pathfinding();
-                HealthSystem enemyHealth = new HealthSystem(
-                    maxHealth: 50,
-                    type: HealthSystem.EntityType.Enemy
-                );
+                HealthSystem enemyHealth = new HealthSystem(30, HealthSystem.EntityType.Enemy);
 
-                // Add components to enemy game object
                 enemyObject.AddComponent(newEnemy);
                 enemyObject.AddComponent(enemySprite);
-                enemyObject.AddComponent(enemyPathfinding);
                 enemyObject.AddComponent(enemyHealth);
+                enemySprite.LoadSprite("ghost");
 
-                // Load sprite
-                enemySprite.LoadSprite("enemy");
-
-                // Get a random spawn tile
+                // get a random spawn tile
                 Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
-
-                if (randomTile != new Vector2(-1, -1))
-                {
-                    enemyObject.Position = randomTile;
-
-                    // Initialize pathfinding if tilemap exists
-                    TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
-                    if (tileMap != null)
-                    {
-                        enemyPathfinding.InitializePathfinding(tileMap);
-                        Debug.WriteLine($"Enemy: Spawned and initialized pathfinding at position - {randomTile}");
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Enemy: CRITICAL - Cannot initialize pathfinding, TileMap is NULL");
-                    }
-
-                    // Add to scene
-                    Globals.Instance._scene.AddGameObject(enemyObject);
-                }
+                Globals.Instance._scene.AddGameObject(enemyObject);
             }
         }
-        //*/
 
         // ***** COMBAT ***** //
         void AddCombat()
@@ -209,28 +297,21 @@ namespace GameProgII_2DGame_Julia_C02032025
         }
 
         // ***** ITEMS ***** //
-        void AddItem(ItemType itemType)
+        void AddItems()
         {
-            GameObject itemObject = new GameObject();
-            Items itemComponent = new Items();
-            Sprite itemSprite = new Sprite();
+            // single item GameObject to handle all item
+            GameObject itemsObject = new GameObject();
+            Items itemsComponent = new Items();
 
-            // Load sprite based on item type
-            string spriteName = GetSpriteNameForItemType(itemType);
-            itemSprite.LoadSprite(spriteName);
+            // Add the component to the game object
+            itemsObject.AddComponent(itemsComponent);
 
-            itemObject.AddComponent(itemComponent);
-            itemObject.AddComponent(itemSprite);
-            
-            if (Globals.Instance._mapSystem.LevelChanged)
-            {
-                itemComponent.ClearItems(); // clear all current items from scene
-                Debug.WriteLine("New level detected! Spawning new items...");
-                itemComponent.SpawnItems(5); // re-spawn items
-                Globals.Instance._mapSystem.ResetLevelFlag(); // Reset levelChanged flag
-            }
-            // add items to the scene
-            Globals.Instance._scene.AddGameObject(itemObject);
+            Globals.Instance._items = itemsComponent;
+
+            // Add the items manager to the scene
+            Globals.Instance._scene.AddGameObject(itemsObject);
+            // Items component handles spawning items after it starts
+            Debug.WriteLine("Game1: Items manager created and added to scene");
         }
 
         private string GetSpriteNameForItemType(ItemType itemType)

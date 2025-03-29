@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -47,7 +48,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         public void Update(GameTime gameTime)
         {
-            // Check if the player has reached the exit tile
+            // check if the player has reached the exit tile
             Player player = GameObject.FindObjectOfType<Player>();
         }
 
@@ -55,15 +56,25 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // resetting the player position, and generating a new map.
         public void LoadNextLevel()
         {
-            LevelChanged = true; // Indicate that a new level is loading
+            LevelChanged = true; // indicate that a new level is loading
 
             Tilemap.ClearTiles();
 
             GenerateMap();
             
-            Vector2 startTile = GetRandomEmptyTile(); // Reset the player position to a random empty tile
+            Vector2 startTile = GetRandomEmptyTile(); // reset the player position to a random empty tile
 
             globals._player.MoveToStartTile();
+            // make sure enemies respawn
+            Enemy enemyComponent = GameObject.FindObjectOfType<Enemy>();
+            if (enemyComponent != null)
+            {
+                enemyComponent.AddRangedEnemy(); // FIX !!!
+            }
+            else
+            {
+                Debug.WriteLine("MapSystem: enemies component not found! Enemies will not respawn.");
+            }
 
             // Respawn items when a new level is generated
             Items itemsComponent = GameObject.FindObjectOfType<Items>();
@@ -80,7 +91,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         // Generates a new random map, setting tile types for floors, obstacles, 
         // and designating random positions for start and exit tiles.
-        public void GenerateMap()
+        public void GenerateMap(bool debug = false)
         {
             Tilemap.Initialize();
 
@@ -140,14 +151,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Player player = GameObject.FindObjectOfType<Player>();
             if (player != null)
             {
-                Debug.WriteLine($"MapSystem: Player position set to {player.GameObject.Position.X}, {player.GameObject.Position.Y}.");
+                if(debug) Debug.WriteLine($"MapSystem: Player position set to {player.GameObject.Position.X}, {player.GameObject.Position.Y}.");
                 player.GameObject.Position = new Vector2(startTile.X, startTile.Y);
             }
             else if (player == null) {
-                Debug.WriteLine($"MapSystem: Player is NULL.");
+                if (debug) Debug.WriteLine($"MapSystem: Player is NULL.");
             }
 
-            Debug.WriteLine("MapSystem: Random map generated successfully.");
+            if (debug) Debug.WriteLine("MapSystem: Random map generated successfully.");
         }
         public override void Draw(SpriteBatch spriteBatch) // take out override?
         {
@@ -217,11 +228,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         #endregion
 
         // Finds a random empty tile (not an obstacle) on the map.
-        public Vector2 GetRandomEmptyTile(bool convertToPixelPosition = true)
+        public Vector2 GetRandomEmptyTile(bool convertToPixelPosition = true, bool debug = false)
         {
             if (Tilemap == null)
             {
-                Debug.WriteLine("MapSystem: Tilemap is null!");
+                if (debug) Debug.WriteLine("MapSystem: Tilemap is null!");
                 return new Vector2(-1, -1);
             }
 
@@ -236,12 +247,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
                 if (tile == null)
                 {
-                    Debug.WriteLine($"MapSystem: Tile at ({x},{y}) is null!");
+                    if (debug) Debug.WriteLine($"MapSystem: Tile at ({x},{y}) is null!");
                     attempts++;
                     continue;
                 }
 
-                // More robust null-safe texture check
+                // More robust null-safe projSprite check
                 if (tile.Texture != null && tile.Texture.Name == "floor")
                 {
                     if (convertToPixelPosition)
@@ -253,7 +264,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 attempts++;
             }
 
-            Debug.WriteLine("MapSystem: Could not find empty tile after multiple attempts!");
+            if (debug) Debug.WriteLine("MapSystem: Could not find empty tile after multiple attempts!");
             return new Vector2(-1, -1);
         }
 

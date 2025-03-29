@@ -27,7 +27,10 @@ internal class Scene
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        foreach (var gameObject in _gameObjects)
+        // Create a copy of the game objects list to safely iterate through (for when enemy GO get removed)
+        var gameObjectsToUpdate = new List<GameObject>(_gameObjects);
+
+        foreach (var gameObject in gameObjectsToUpdate)
         {
             gameObject.Update(deltaTime);
         }

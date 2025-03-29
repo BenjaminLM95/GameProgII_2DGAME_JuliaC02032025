@@ -37,6 +37,8 @@ internal class Globals
     public GameObject _gameObject;
     public TileMap _tileMap;
     public Enemy _enemy;
+    public RangedEnemy _rangedEnemy;
+    public GhostEnemy _ghostEnemy;
     public Combat _combat;
     public GameHUD _gameHUD;
     public Pathfinding _pathfinding;

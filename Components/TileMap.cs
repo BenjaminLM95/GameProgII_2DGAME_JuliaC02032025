@@ -34,6 +34,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public Texture2D warpScrollTexture { get; private set; }
         public Texture2D playerTexture { get; private set; }
         public Texture2D turnIndicatorTexture { get; private set; }
+        public Texture2D emptyInvTexture { get; private set; }
+        public Texture2D playerFireballProj { get; private set; }
+
 
         public TileMap() { }
         public TileMap(SpriteBatch spriteBatch)
@@ -42,7 +45,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         }
 
         // ---------- METHODS ---------- //
-
         public void ClearTiles()
         {
             _tileSprites.Clear();
@@ -85,6 +87,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 lightningScrollTexture = content.Load<Texture2D>("lightningScroll");
                 warpScrollTexture = content.Load<Texture2D>("warpScroll");
                 turnIndicatorTexture = content.Load<Texture2D>("turnindicator");
+                emptyInvTexture = content.Load<Texture2D>("emptyInvTexture");
+                playerFireballProj = content.Load<Texture2D>("player_FireballProj");
 
                 Debug.WriteLine("TileMap: Textures loaded successfully.");
             }
@@ -125,7 +129,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     if (checkY == 0 && checkX == 0) {
                         continue;
                     }
-                    // it's a neighbor of the current tile, get the tilemap tile texture of all these
+                    // it's a neighbor of the current tile, get the tilemap tile projSprite of all these
                 }
             }
             return null;
@@ -138,7 +142,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 if (tileSprite.Texture == null)
                 {
-                    Debug.WriteLine($"Warning: Tile at {tileSprite.Position} has no texture!");
+                    Debug.WriteLine($"Warning: Tile at {tileSprite.Position} has no projSprite!");
                     continue;
                 }
                 Globals.spriteBatch.Draw(tileSprite.Texture, tileSprite.Position, Color.White);

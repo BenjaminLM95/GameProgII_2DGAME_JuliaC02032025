@@ -1,12 +1,18 @@
-﻿using System;
+﻿using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Linq;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     internal class HealthSystem : Component
     {
         Globals globals;
+        Combat combat;
 
         // ---------- VARIABLES ---------- //
         // property Health
@@ -40,8 +46,28 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         public override void Start()
         {
+            globals = Globals.Instance;
+
+            if (globals == null)
+            {
+                Debug.WriteLine($"HealthSystem: Globals was NULL.");
+            }
+            combat = GameObject.GetComponent<Combat>();
+            if (combat == null)
+            {
+                Debug.WriteLine("Inventory: Combat was NULL.");
+            }
+
             CurrentHealth = MaxHealth; // Initialize health to full
             IsAlive = true;
+        }
+        public override void Update(float deltaTime)
+        {
+            if (combat == null) // if created later, iterate until it is found
+            {
+                combat = globals._combat;
+                if (combat == null) return;
+            }
         }
         public void TakeDamage(int damage)
         {
@@ -50,7 +76,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             CurrentHealth -= damage;
 
             // Show damage effect (can be customized)
-            ShowDamageEffect(damage);
+            combat.DrawDamageIndicator(damage);
 
             // Check if entity dies
             if (CurrentHealth <= 0)
@@ -66,7 +92,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             CurrentHealth = Math.Clamp(CurrentHealth + amount, 0, MaxHealth);
 
-            // Optional: trigger any health change events
             if (amount > 0)
             {
                 Debug.WriteLine($"{Type} healed for {amount}. Current Health: {CurrentHealth}");
@@ -93,16 +118,43 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         }
         private void HandlePlayerDeath()
         {
-            Debug.WriteLine("Game Over!");
+            Debug.WriteLine("HealthSystem: player died, Game Over! :(");
+            IsAlive = false;
             // player-specific death logic
             // game over screen, reset level
         }
 
         private void HandleEnemyDeath()
         {
-            Debug.WriteLine("Enemy defeated!");
+            Debug.WriteLine("HealthSystem: Enemy defeated!");
+            IsAlive = false;
             // enemy-specific death logic
-            // drop items, grant experience
+            Enemy enemyObj = GameObject.FindObjectOfType<Enemy>();
+
+            if (enemyObj != null)
+            {
+                // Get the list of enemies
+                List<Enemy> enemies = enemyObj.GetEnemies();
+
+                // Find the specific enemy with this HealthSystem component
+                Enemy enemyToRemove = enemies.FirstOrDefault(e => e.GameObject == this.GameObject);
+
+                if (enemyToRemove != null)
+                {
+                    enemies.Remove(enemyToRemove); // Remove the enemy from the list
+
+                    // Remove the enemy GameObject from the scene
+                    Globals.Instance._scene?.RemoveGameObject(enemyToRemove.GameObject);
+
+                    Debug.WriteLine($"HealthSystem: Enemy removed from the game at position {enemyToRemove.GameObject.Position}");
+                }
+                else {
+                    Debug.WriteLine("HealthSystem: Could not find enemy to remove");
+                }
+            }
+            else {
+                Debug.WriteLine("HealthSystem: Enemy manager not found");
+            }
         }
 
         private void ShowDamageEffect(int damage)

@@ -36,15 +36,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             {
                 Debug.WriteLine("Pathfinding: Could not find TileMap in the scene!");
             }
-            else
-            {
+            else {
                 Debug.WriteLine($"Pathfinding: Found TileMap. Map dimensions - Width: {tileMap.mapWidth}, Height: {tileMap.mapHeight}");
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="map"></param>
+        
+        
         public void InitializePathfinding(TileMap tileMap, bool debug = false) 
         {
             if (tileMap == null)
@@ -91,12 +88,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             if (debug) Debug.WriteLine($"Pathfinding: NodeMap is NULL: {nodeMap == null}");
             if (debug) Debug.WriteLine($"Pathfinding: NodeMap Dimensions - {nodeMap?.GetLength(0)}x{nodeMap?.GetLength(1)}");
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="goal"></param>
-        /// <returns></returns>
+        
+        
         public List<Point> FindPath(Point start, Point goal, bool debug = false)
         {
             if (debug) Debug.WriteLine("Pathfinding: FindPath method called");
@@ -159,12 +152,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             if (debug) Debug.WriteLine("Pathfinding: FindPath completed");
             return null; // Path not found
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="startNode"></param>
-        /// <param name="endNode"></param>
-        /// <returns></returns>
+        
+        
         private List<Point> RetracePath(PathNode startNode, PathNode endNode)
         {
             List<Point> path = new List<Point>();
@@ -178,23 +167,16 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             path.Reverse();
             return path;
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
+        
+        
         private int GetDistance(PathNode a, PathNode b)
         {
             int dx = Math.Abs(a.position.X - b.position.X);
             int dy = Math.Abs(a.position.Y - b.position.Y);
             return dx + dy;
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nodeList"></param>
-        /// <returns></returns>
+        
+        
         private PathNode GetLowestFCostNode(List<PathNode> nodeList)
         {
             PathNode lowestNode = nodeList[0];
@@ -207,11 +189,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
             return lowestNode;
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
+        
+       
         private List<PathNode> GetNeighbors(PathNode node)
         {
             List<PathNode> neighbors = new List<PathNode>();
@@ -231,7 +210,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 if (checkX >= 0 && checkX < nodeMap.GetLength(0) &&
                     checkY >= 0 && checkY < nodeMap.GetLength(1))
                 {
-                    neighbors.Add(nodeMap[checkX, checkY]);
+                    PathNode neighbor = nodeMap[checkX, checkY];
+
+                    // If ignoring obstacles, all tiles are valid
+                    if (neighbor.isWalkable)
+                    {
+                        neighbors.Add(neighbor);
+                    }
                 }
             }
             return neighbors;

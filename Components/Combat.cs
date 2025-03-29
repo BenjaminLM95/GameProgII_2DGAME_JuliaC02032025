@@ -30,21 +30,27 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private List<GameObject> turnTakers = new List<GameObject>();
         private int currentTurnIndex = 0;
 
+        // damage indicator
+        // Store the entity and how long to display the damage
+        private Dictionary<GameObject, float> damageIndicators = new Dictionary<GameObject, float>(); 
+        private const float dmgDisplayTime = 1.0f; // time in seconds to show damage
+        private SpriteFont damageFont; // font to display damage text
+
         // ---------- METHODS ---------- //
 
         public override void Start()
         {
-            Debug.WriteLine("Combat: START");
+            Debug.WriteLine("Combat: Start()");
             globals = Globals.Instance;
 
             if (Globals.content != null)
             {
                 try {
-                    turnIndicatorTexture = Globals.content.Load<Texture2D>("turnIndicator"); 
-                    //Texture2D turnIndicatorTexture = globals._tileMap.turnIndicatorTexture;
+                    turnIndicatorTexture = Globals.content.Load<Texture2D>("turnIndicator");
+                    damageFont = Globals.content.Load<SpriteFont>("DamageFont");
                 }
                 catch (Exception ex) {
-                    Debug.WriteLine($"Combat: Failed to load turn indicator texture - {ex.Message}");
+                    Debug.WriteLine($"Combat: Failed to load turn indicator projSprite - {ex.Message}");
                 }
             }
             InitializeTurnTakers();
@@ -55,6 +61,24 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (turnTakers.Count > 0) // only run turn manager if there are turn takers
             {
                 TurnManager();
+            }
+
+            // Update damage indicators
+            List<GameObject> toRemove = new List<GameObject>();
+            foreach (var kvp in damageIndicators)
+            {
+                damageIndicators[kvp.Key] -= deltaTime;
+
+                if (damageIndicators[kvp.Key] <= 0)
+                {
+                    toRemove.Add(kvp.Key); // Mark for removal once time is up
+                }
+            }
+
+            // Remove expired damage indicators
+            foreach (var target in toRemove)
+            {
+                damageIndicators.Remove(target);
             }
         }
         // Adds valid GameObjects through their components to a list of turn takers
@@ -210,7 +234,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public void DrawTurnIndicator(bool debug = false)
         {
             if (turnIndicatorTexture == null) {
-                if (debug) Debug.WriteLine("Combat: Turn indicator texture is NULL!");
+                if (debug) Debug.WriteLine("Combat: Turn indicator projSprite is NULL!");
                 return;
             }
 
@@ -242,6 +266,31 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
             catch (Exception ex) {
                 if (debug) Debug.WriteLine($"Combat: Detailed turn indicator error - {ex.Message}");
+            }
+        }
+
+        public void DisplayDamage(GameObject target, float damage)
+        {
+            if (!damageIndicators.ContainsKey(target))
+            {
+                damageIndicators.Add(target, dmgDisplayTime); // Set the display time for the damage text
+            }
+
+            // stores the damage amount if you want to display the exact amount ??
+            // damageValues[target] = damage;
+        }
+        public void DrawDamageIndicator(int damage)
+        {
+            foreach (var kvp in damageIndicators)
+            {
+                GameObject target = kvp.Key;
+                Vector2 position = target.Position;
+
+                Vector2 textPosition = new Vector2(position.X, position.Y - TILE_SIZE); // Slightly above the entity
+
+                //DisplayDamage(target, damage); // damage value passed from DisplayDamage()
+
+                Globals.spriteBatch.DrawString(damageFont, damage.ToString(), textPosition, Color.Red);
             }
         }
     }

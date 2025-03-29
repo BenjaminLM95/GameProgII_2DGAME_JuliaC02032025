@@ -11,7 +11,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
     public enum EnemyType
     {
         Slime,      // Basic enemy
-        Ghost       // Elite enemy
+        Ghost,      // Elite enemy
+        Archer      // Ranged enemy
     }
     public class EnemyConfig
     {
@@ -39,6 +40,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                     Damage = 10,
                     MovementSpeed = 1.5f
                 },
+                EnemyType.Archer => new EnemyConfig
+                {
+                    SpriteName = "archer",
+                    MaxHealth = 50,
+                    Damage = 10,
+                    MovementSpeed = 0f
+                },
                 _ => throw new ArgumentException("Unknown enemy type")
             };
         }
@@ -48,7 +56,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
     {
         // Configurable enemy properties
         public EnemyType Type { get; private set; }
-        private EnemyConfig config;
+        public EnemyConfig config { get; private set; }
         // Component references
         private Globals globals;
         private HealthSystem healthSystem;
@@ -90,7 +98,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             enemySprite = GameObject.GetComponent<Sprite>();
             if (enemySprite == null)
             {
-                Debug.WriteLine("Enemy: Sprite component is NULL!");
+                //Debug.WriteLine("Enemy: Sprite component is NULL!");
             }
             else
             {
@@ -263,17 +271,62 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         // Combat
         public void Attack(Player player)
         {
+            Debug.WriteLine("Enemy: Attacked player for 10 dmg");
             player.GameObject.GetComponent<HealthSystem>()?.TakeDamage(10);
         }
-        public void TakeDamage(int damage)
-        {
-            healthSystem.TakeDamage(damage);
-            isStunned = true;
-        }
-
+        
         public void RecoverFromStun()
         {
             isStunned = false;
-        }        
+        }
+
+
+        public void AddRangedEnemy()
+        {
+            RangedEnemy rangedEnemyComponent = Globals.Instance._rangedEnemy;
+            if (rangedEnemyComponent == null)
+            {
+                rangedEnemyComponent = new RangedEnemy();
+                Globals.Instance._rangedEnemy = rangedEnemyComponent;
+            }
+
+            // spawn a specific number of enemies
+            int level = 2; // amount of enemies
+            int enemyCount = Math.Clamp(level, 2, 5);
+
+            for (int i = 0; i < enemyCount; i++)
+            {
+                // create ranged enemy game object
+                GameObject rangedEnemyObg = new GameObject();
+
+                // create components
+                RangedEnemy newEnemy = new RangedEnemy();
+                Sprite enemySprite = new Sprite();
+                HealthSystem enemyHealth = new HealthSystem(
+                    maxHealth: 80,
+                    type: HealthSystem.EntityType.Enemy
+                );
+
+                // add components to enemy game object
+                rangedEnemyObg.AddComponent(newEnemy);
+                rangedEnemyObg.AddComponent(enemySprite);
+                rangedEnemyObg.AddComponent(enemyHealth);
+
+                // load sprite
+                enemySprite.LoadSprite("archer");
+
+                // get a random spawn tile
+                Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
+
+                if (randomTile != new Vector2(-1, -1))
+                {
+                    rangedEnemyObg.Position = randomTile;
+
+                    TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
+
+                    Globals.Instance._scene.AddGameObject(rangedEnemyObg);
+                }
+            }
+        }
     }
 }

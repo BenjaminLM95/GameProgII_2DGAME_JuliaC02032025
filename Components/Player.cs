@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
@@ -50,7 +51,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             playerSprite = GameObject.GetComponent<Sprite>(); // sprite
             if (playerSprite == null)
             {
-                Debug.WriteLine("Player: Sprite component is NULL!");
+                //Debug.WriteLine("Player: Sprite component is NULL!");
             }
 
             healthSystem = GameObject.GetComponent<HealthSystem>() ?? GameObject.FindObjectOfType<HealthSystem>(); // HealthSystem
@@ -60,7 +61,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             inventory = GameObject.GetComponent<Inventory>(); // inventory
             if (inventory == null)
             {
-                //inventory = GameObject.AddComponent<Inventory>(); // !!! Add Inventory if missing
+                Inventory newInventory = new Inventory();
+                GameObject.AddComponent(newInventory);
+                inventory = newInventory;
                 Debug.WriteLine("Player: Inventory component was missing, added dynamically.");
             }
 
@@ -78,7 +81,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 tileMap = globals._mapSystem?.Tilemap;
                 if (tileMap == null) return;
             }
-            #region player input
+            
+            ReadInput(); // WASD and 1,2,3,4,5, check tiles = Obstacle/Enemy/Item
+        }
+        private void ReadInput(bool debug = false)
+        {
             // Input
             Vector2 currentPos = GameObject.Position;
             Vector2 targetPos = currentPos;
@@ -89,33 +96,42 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (KeyboardState.IsKeyDown(Keys.W))
             {
-                //Debug.WriteLine($"Player: moving UP");
+                if(debug) Debug.WriteLine($"Player: moving UP");
                 targetPos.Y -= tileSize;
                 moved = true;
                 movementDirection = -Vector2.UnitY;
             }
             if (KeyboardState.IsKeyDown(Keys.A))
             {
-                //Debug.WriteLine($"Player: moving LEFT");
+                if (debug) Debug.WriteLine($"Player: moving LEFT");
                 targetPos.X -= tileSize;
                 moved = true;
                 movementDirection = -Vector2.UnitX;
             }
             if (KeyboardState.IsKeyDown(Keys.S))
             {
-                //Debug.WriteLine($"Player: moving DOWN");
+                if (debug) Debug.WriteLine($"Player: moving DOWN");
                 targetPos.Y += tileSize;
                 moved = true;
                 movementDirection = Vector2.UnitY;
             }
             if (KeyboardState.IsKeyDown(Keys.D))
             {
-                //Debug.WriteLine($"Player: moving RIGHT");
-                targetPos.X += tileSize; 
+                if (debug) Debug.WriteLine($"Player: moving RIGHT");
+                targetPos.X += tileSize;
                 moved = true;
                 movementDirection = Vector2.UnitX;
             }
-            #endregion
+            // Check if a number key (1-5) is pressed to use an item
+            for (int i = 0; i < 5; i++)
+            {
+                Keys key = (Keys)((int)Keys.D1 + i); // Maps 1-5 keys
+                if (KeyboardState.IsKeyDown(key))
+                {
+                    if (debug) Debug.WriteLine($"Player: reading keys 1-5"); // works
+                    inventory.UseInventoryItem(i);
+                }
+            }
 
             if (moved && !hasMovedThisTurn)
             {
@@ -131,14 +147,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 if (!IsObstacle(targetTilePos))
                 {
                     GameObject.Position = targetPos;
-                    Debug.WriteLine($"Player: moved to position - {targetPos}");
+                    if (debug) Debug.WriteLine($"Player: moved to position - {targetPos}");
                     hasMovedThisTurn = true;
                     // Combat
-                    CheckForEnemy(targetTilePos);
+                    //CheckForEnemy(targetTilePos); // change if test does not work !!!!!
                     // If the player successfully moves, advance the turn
                     Combat.Instance.AdvanceToNextTurn();
                 }
-                if (IsExit(targetTilePos))
+                if (IsExit(targetTilePos)) // if tile is exit, Load Next Level
                 {
                     GameObject.Position = targetPos;
                     hasMovedThisTurn = true;
@@ -147,15 +163,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     // Advance turn after moving to exit
                     Combat.Instance.AdvanceToNextTurn();
                 }
-                if (IsItem(targetTilePos))
+                if (IsItem(targetTilePos)) // if tile is an Item, add it to inventory
                 {
                     GameObject.Position = targetPos;
-                    Debug.WriteLine($"Player: moved to ITEM position - {targetPos}");
+                    if (debug) Debug.WriteLine($"Player: moved to ITEM position - {targetPos}");
                     hasMovedThisTurn = true;
-                    inventory.PickUp(); // INVENTORY: pick up the item
+
+                    // Pick up the item at this position
+                    PickUpItem(targetTilePos);
+
                     Combat.Instance.AdvanceToNextTurn();
+                    if (debug) Debug.WriteLine("Current Inventory: "
+                        + string.Join(", ", inventory.items.ConvertAll(i => i.Type.ToString())));
                 }
-            }            
+            }
         }
 
         // Convert world position to tile coordinates
@@ -185,44 +206,57 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
 
             // Check for enemy tiles
-            List<Enemy> enemies = GameObject.FindObjectOfType<Enemy>().GetEnemies();
-            foreach (Enemy enemy in enemies)
+            Enemy firstEnemy = GameObject.FindObjectOfType<Enemy>();
+            if (firstEnemy != null) // keeps from crashing when there are no enemies to check
             {
-                if (enemy.GameObject != null)
+                List<Enemy> enemies = GameObject.FindObjectOfType<Enemy>().GetEnemies();
+                foreach (Enemy enemy in enemies)
                 {
-                    Vector2 enemyTile = enemy.GameObject.Position / 32;
-                    Point enemyTilePoint = new Point((int)enemyTile.X, (int)enemyTile.Y);
-
-                    if (enemyTilePoint == tileCoordinates)
+                    if (enemy.GameObject != null)
                     {
-                        Debug.WriteLine($"Player: Enemy tile at {tileCoordinates.X}, {tileCoordinates.Y}!");
-                        return true;
+                        Vector2 enemyTile = enemy.GameObject.Position / 32;
+                        Point enemyTilePoint = new Point((int)enemyTile.X, (int)enemyTile.Y);
+
+                        if (enemyTilePoint == tileCoordinates)
+                        {
+                            Debug.WriteLine($"Player: Enemy tile at {tileCoordinates.X}, {tileCoordinates.Y}!");
+                            // integrate combat
+                            AttackEnemyAtPosition(enemyTilePoint);
+                            return true;
+                        }
                     }
                 }
             }
-
             return false;
         }
 
-        private bool IsItem(Point tileCoordinates)
+        private bool IsItem(Point tileCoordinates, bool debug = false)
         {
-            if (tileMap == null) return false;
-
-            // Check for item tiles
-            Items itemsComponent = GameObject.FindObjectOfType<Items>();
-            if (itemsComponent == null) return false;
+            // Get the Items component from globals
+            Items itemsComponent = Globals.Instance._items;
+            if (itemsComponent == null)
+            {
+                if(debug) Debug.WriteLine("Player: Cannot check for items, Items component is null");
+                return false;
+            }
 
             List<Item> items = itemsComponent.GetItems();
+            if (debug) Debug.WriteLine($"Player: Checking for items at {tileCoordinates.X}, {tileCoordinates.Y}. Found {items.Count} items in world.");
+
             foreach (Item item in items)
             {
                 if (item != null)
                 {
-                    Vector2 itemTile = item.Position / 32;
-                    Point itemTilePoint = new Point((int)itemTile.X, (int)itemTile.Y);
+                    // Convert item world position to tile coordinates
+                    int itemTileX = (int)(item.Position.X / tileSize);
+                    int itemTileY = (int)(item.Position.Y / tileSize);
+                    Point itemTilePoint = new Point(itemTileX, itemTileY);
 
-                    if (itemTilePoint == tileCoordinates)
+                    if (debug) Debug.WriteLine($"Player: Item {item.Type} is at tile {itemTilePoint.X}, {itemTilePoint.Y}");
+
+                    if (itemTilePoint.Equals(tileCoordinates))
                     {
-                        Debug.WriteLine($"Player: Item tile at {tileCoordinates.X}, {tileCoordinates.Y}!");
+                        if (debug) Debug.WriteLine($"Player: Found item {item.Type} at player's target position!");
                         return true;
                     }
                 }
@@ -264,24 +298,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
             Debug.WriteLine("Player: Start tile not found!");
         }
-
-        // Turn-based system
-        private bool CheckForEnemy(Point playerPosition) 
-        {
-            Debug.WriteLine($"Player: checking for enemy at {playerPosition.X}, {playerPosition.Y}");
-            if (tileMap == null) return false;
-
-            Sprite targetTile = tileMap.GetTileAt(playerPosition.X, playerPosition.Y); // change to surrounding 8 tiles
-
-            if (targetTile != null && targetTile.Texture == tileMap.enemyTexture) // changed from enemy to other for testing debug| enemyTexture
-            {
-                Debug.WriteLine($"Player: enemy found at {playerPosition.X}, {playerPosition.Y}!"); // worked with floortexture
-                playerMovedOntoEnemyTile = true;
-                return true;
-            }
-            Debug.WriteLine("Player: no enemy found");
-            return false;
-        }
+      
         public void ResetTurn()
         {
             // Reset movement state
@@ -293,12 +310,77 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public void TakeDamage(int damage) => healthSystem.TakeDamage(damage);
 
         // Combat
-        public void Attack(Enemy enemy)
+        private void AttackEnemyAtPosition(Point enemyTilePosition)
         {
-            if (enemy != null)
+            // Find the enemy at the given tile position
+            List<Enemy> enemies = GameObject.FindObjectOfType<Enemy>().GetEnemies();
+            foreach (Enemy enemy in enemies)
             {
-                enemy.TakeDamage(10);
+                Vector2 enemyTile = enemy.GameObject.Position / 32;
+                Point enemyTilePoint = new Point((int)enemyTile.X, (int)enemyTile.Y);
+
+                if (enemyTilePoint == enemyTilePosition)
+                {
+                    // Attack the enemy if found at the target position
+                    Attack(enemy, 10);
+                    break;
+                }
             }
-        }       
+        }
+        public void Attack(Enemy enemy, int amountdmg)
+        {
+            Debug.WriteLine("Player: Attacked enemy for 10 dmg");
+            if (enemy != null) {
+                enemy.GameObject.GetComponent<HealthSystem>()?.TakeDamage(amountdmg);
+            }
+        }
+
+        private void PickUpItem(Point targetTilePos, bool debug = false) // items/inventory
+        {
+            // Get the Items component from globals
+            Items itemsComponent = Globals.Instance._items;
+            if (itemsComponent == null)
+            {
+                if(debug) Debug.WriteLine("Player: Cannot pick up item, Items component is null");
+                return;
+            }
+
+            List<Item> items = itemsComponent.GetItems();
+            foreach (Item item in items)
+            {
+                if (item != null)
+                {
+                    // Convert item world position to tile coordinates
+                    int itemTileX = (int)(item.Position.X / tileSize);
+                    int itemTileY = (int)(item.Position.Y / tileSize);
+                    Point itemTilePoint = new Point(itemTileX, itemTileY);
+
+                    if (itemTilePoint.Equals(targetTilePos))
+                    {
+                        // Add item to inventory
+                        if (inventory != null)
+                        {
+                            // need to check if inv is full before removing item
+                            int previousCount = inventory.items.Count;
+                            inventory.AddItem(item);
+
+                            // Only remove the item if it was actually added to player's inventory
+                            if (inventory.items.Count > previousCount)
+                            {
+                                itemsComponent.GetItems().Remove(item);
+                                if (debug) Debug.WriteLine($"Player: Removed {item.Type} from world");
+                            }
+                            else {
+                                if (debug) Debug.WriteLine($"Player: Inventory full. {item.Type} remains in the world.");
+                            }
+                            break;
+                        }
+                        else {
+                            if (debug) Debug.WriteLine("Player: Cannot pick up item, inventory is null");
+                        }
+                    }
+                }
+            }
+        }
     }
 }

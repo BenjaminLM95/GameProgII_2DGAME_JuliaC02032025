@@ -41,7 +41,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     CastLightning(tileMap);
                     break;
                 case ItemType.WarpScroll:
-                    //WarpPlayer(player, tileMap);
+                    WarpPlayer(player, tileMap);
                     break;
             }
         }
@@ -55,59 +55,99 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 int healAmount = 20;
                 // Use the ModifyHealth method to heal the player
                 healthSystem.ModifyHealth(healAmount);
-                Debug.WriteLine($"Items: Player healed for {healAmount} HP");
+                Debug.WriteLine($"Items: HEALTHPOTION - Player healed for {healAmount} HP, current health: {healthSystem.CurrentHealth}");
             }
             else {
                 Debug.WriteLine("Items: Error HealthSystem component not found on player");
             }
         }
-        // /*
+        
         private void CastFireball(Player player, TileMap tileMap)
         {
-            Vector2 direction = GetPlayerFacingDirection();
-            Vector2 projectilePosition = player.LastMovementDirection + direction * 32; // one tile in front of player
+            Debug.WriteLine("Items: CastFireball() called");
 
-            // Check for enemy collision along the path
-            while (IsValidTile(projectilePosition, tileMap))
-            {
-                Debug.WriteLine("Items: found valid tile for CastFireball");
-                // check for enemy at this position and apply damage
-                // check the Enemies component
-                projectilePosition += direction * 32;
-            }
+            Vector2 direction = GetPlayerFacingDirection(player); // get the direction the player's facing 
+            Vector2 projectilePosition = player.GameObject.Position + direction * 32; // one tile in front of player
+
+            // create a new projectile GameObject
+            GameObject fireballObj = new GameObject();
+            fireballObj.Position = projectilePosition;
+
+            // add a sprite component with the fireball projSprite
+            Sprite fireballSprite = new Sprite();
+            fireballObj.AddComponent(fireballSprite);
+            fireballSprite.LoadSprite("player_FireballProj");
+
+            // add a movement component or script to handle the projectile movement
+            Projectile fireball = new Projectile(fireballSprite, direction, 200f, player, tileMap);
+            fireballObj.AddComponent(fireball);
+
+            // add the fireball to the scene
+            Globals.Instance._scene.AddGameObject(fireballObj);
+
+            Debug.WriteLine($"Items: FIREBALLSCROLL - Created fireball projectile moving in direction {direction}");
         }
-        // */
+        // find and damage all visible enemies
         private void CastLightning(TileMap tileMap)
         {
-            // find and damage all visible enemies
-            // access to the Enemies component
-            Debug.WriteLine("Items: Lightning Scroll: Damaging all visible enemies");
+            Debug.WriteLine("Items: CastLightning() called");
+            
+            // ensure there is at least one enemy before calling GetEnemies()
+            Enemy firstEnemy = GameObject.FindObjectOfType<Enemy>();
+            if (firstEnemy == null)
+            {
+                Debug.WriteLine("Items: LIGHTNINGSCROLL - No enemies found to damage");
+                return; // Exit early to prevent errors
+            }
+
+            // get all current enemies from the scene
+            List<Enemy> enemies = new List<Enemy>(firstEnemy.GetEnemies());
+
+            // attack each enemy in the list
+            if (enemies.Count > 0)
+            {
+                foreach (Enemy enemy in enemies)
+                {
+                    if (enemy != null && enemy.GameObject != null) // check if enemy is still valid in the scene
+                    {
+                        Globals.Instance._player.Attack(enemy, 50);
+                        Debug.WriteLine($"Items: LIGHTNINGSCROLL - Damaged enemy at position {enemy.GameObject.Position}");
+                    }
+                }
+                Debug.WriteLine($"Items: LIGHTNINGSCROLL - Damaged {enemies.Count} enemies");
+            }
+            else {
+                Debug.WriteLine("Items: LIGHTNINGSCROLL - No enemies found to damage");
+            }
         }
-        /*
+
+        // warps the player to any random floor tile
         private void WarpPlayer(Player player, TileMap tileMap)
         {
-            Vector2 randomEmptyTile = tileMap.GetRandomEmptyTile();
+            Vector2 randomEmptyTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
+
             if (randomEmptyTile != new Vector2(-1, -1))
             {
-                player.Position = randomEmptyTile;
+                player.GameObject.Position = randomEmptyTile;
                 Debug.WriteLine("Player warped to a new location");
             }
         }
-        */
+        
 
-        private Vector2 GetPlayerFacingDirection()
+        private Vector2 GetPlayerFacingDirection(Player player)
         {
-            // need specific logic for player movement/input system
-            // returns a direction based on last movement
-            return Vector2.UnitX; 
-        }
+            // get the player's last movement direction
+            Vector2 lastDirection = player.LastMovementDirection;
 
-        private bool IsValidTile(Vector2 position, TileMap tileMap)
-        {
-            int x = (int)position.X / 32;
-            int y = (int)position.Y / 32;
-            Sprite tile = tileMap.GetTileAt(x, y);
-            return tile != null && tile.Texture == tileMap.floorTexture;
+            // normalize to only allow cardinal directions (up, down, left, right)
+            if (Math.Abs(lastDirection.X) > Math.Abs(lastDirection.Y)) {
+                // horizontal movement
+                return lastDirection.X > 0 ? Vector2.UnitX : -Vector2.UnitX;
+            }
+            else {
+                // vertical movement
+                return lastDirection.Y > 0 ? Vector2.UnitY : -Vector2.UnitY;
+            }
         }
     }
 
@@ -118,38 +158,52 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public List<Item> itemPool = new List<Item>();
         public List<Item> spawnedItems = new List<Item>();
 
+        private bool initialized = false;
+        private int itemsToSpawn = 4;
+
         private ItemType currentItemType;
 
         public override void Start()
         {
             globals = Globals.Instance;
 
-            if (globals == null)
-            {
+            if (globals == null) {
                 Debug.WriteLine("Items: Globals is null in Items.Start()");
                 return;
             }
 
             tileMap = globals._mapSystem?.Tilemap;
+            // wait for update to recognize an existing tilemap before spawning items
+            Debug.WriteLine("Items: Component started, waiting for TileMap to be ready");
+        }
+        public override void Update(float deltaTime)
+        {
+            if (initialized) return; // If item is already initialized skip
 
-            if (tileMap == null)
+            if (tileMap == null) // Try to get the TileMap
             {
-                Debug.WriteLine("Items: TileMap is null in Items.Start()");
-                return;
+                tileMap = globals._mapSystem?.Tilemap;
+                
+                if (tileMap == null)
+                    return; // If TileMap is still null return and try again next frame
             }
 
+            // TileMap is now available
+            Debug.WriteLine("Items: TileMap is now available, initializing items");
             InitializeItemPool();
-
-            SpawnItems(4); // spawn 4 random items
+            SpawnItems(itemsToSpawn);
+            initialized = true;
         }
 
-        private void InitializeItemPool()
+        private void InitializeItemPool(bool debug = false)
         {
             if (tileMap == null)
             {
-                Debug.WriteLine("Items: TileMap is null during item pool initialization");
+                if(debug) Debug.WriteLine("Items: TileMap is null during item pool initialization");
                 return;
             }
+
+            if (debug) Debug.WriteLine("Items: Initializing item pool");
 
             // ensure textures are loaded before creating items
             Texture2D healthPotionTexture = tileMap.healthPotionTexture ?? LoadTexture("healthPotion");
@@ -157,84 +211,103 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Texture2D lightningScrollTexture = tileMap.lightningScrollTexture ?? LoadTexture("lightningScroll");
             Texture2D warpScrollTexture = tileMap.warpScrollTexture ?? LoadTexture("warpScroll");
 
+            // Debug the loaded textures
+            if (debug) Debug.WriteLine($"Items: Health potion projSprite loaded: {healthPotionTexture != null}");
+            if (debug) Debug.WriteLine($"Items: Fire scroll projSprite loaded: {fireScrollTexture != null}");
+            if (debug) Debug.WriteLine($"Items: Lightning scroll projSprite loaded: {lightningScrollTexture != null}");
+            if (debug) Debug.WriteLine($"Items: Warp scroll projSprite loaded: {warpScrollTexture != null}");
+
             itemPool.Clear(); // clear existing items if any
             itemPool.Add(new Item(ItemType.HealthPotion, healthPotionTexture));
             itemPool.Add(new Item(ItemType.FireScroll, fireScrollTexture));
             itemPool.Add(new Item(ItemType.LightningScroll, lightningScrollTexture));
             itemPool.Add(new Item(ItemType.WarpScroll, warpScrollTexture));
+            // check the initialized item pool
+            if (debug) Debug.WriteLine($"Items: Item pool initialized with {itemPool.Count} item types");
         }
 
-        // load texture if not already loaded
-        private Texture2D LoadTexture(string textureName)
+        // load projSprite if not already loaded
+        private Texture2D LoadTexture(string textureName, bool debug = false)
         {
-            try
-            {
+            try {
+                if (debug) Debug.WriteLine($"Items: Attempting to load projSprite '{textureName}'");
                 return Globals.content.Load<Texture2D>(textureName);
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Items: Failed to load texture {textureName}: {ex.Message}");
+            catch (Exception ex) {
+                if (debug) Debug.WriteLine($"Items: Failed to load projSprite {textureName}: {ex.Message}");
                 return null;
             }
         }
-        public void InitializeItemType(ItemType type)
+        
+        public void SpawnItems(int amount, bool debug = false)
         {
-            currentItemType = type;
-            // Optionally, you could initialize the specific item in the item pool
-            Item specificItem = itemPool.FirstOrDefault(i => i.Type == type);
-            if (specificItem != null)
+            if (tileMap == null)
             {
-                spawnedItems.Add(specificItem);
+                if (debug) Debug.WriteLine("Items: Cannot spawn items, TileMap is null");
+                itemsToSpawn = amount; // save for when TileMap is available
+                return;
             }
-        }
 
-        public void SpawnItems(int amount)
-        {
+            if (debug) Debug.WriteLine($"Items: Attempting to spawn {amount} items");
             spawnedItems.Clear();
             Random random = new Random();
 
             for (int i = 0; i < amount; i++)
             {
-                // randomly select an item type
-                Debug.WriteLine($"Items: spawned");
+                if (itemPool.Count == 0) // randomly select an item type
+                {
+                    if (debug) Debug.WriteLine("Items: Cannot spawn items, item pool is empty");
+                    return;
+                }
+
                 Item itemToSpawn = itemPool[random.Next(itemPool.Count)];
                 PlaceItem(itemToSpawn);
             }
+            if (debug) Debug.WriteLine($"Items: Successfully spawned {spawnedItems.Count} items");
         }
 
-        private void PlaceItem(Item item)
+        private void PlaceItem(Item item, bool debug = false)
         {
+            if (globals._mapSystem == null) {
+                if (debug) Debug.WriteLine("Items: Cannot place item, MapSystem is null");
+                return;
+            }
+
             Vector2 randomTile = globals._mapSystem.GetRandomEmptyTile();
             if (randomTile != new Vector2(-1, -1))
             {
-                item.Position = randomTile;
-                spawnedItems.Add(item);
-                Debug.WriteLine($"Items: Spawned {item.Type} at {randomTile}");
+                // create a clone of the item to avoid duplicates
+                Item newItem = new Item(item.Type, item.Texture);
+                newItem.Position = randomTile;
+                spawnedItems.Add(newItem);
+                if (debug) Debug.WriteLine($"Items: Spawned {item.Type} at {randomTile}");
+            }
+            else {
+                if (debug) Debug.WriteLine("Items: Failed to find empty tile for item placement");
             }
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (spriteBatch == null)
-            {
+            if (spriteBatch == null) {
                 Debug.WriteLine("SpriteBatch is null in Items.Draw()");
                 return;
             }
 
             foreach (var item in spawnedItems)
             {
-                if (item.Texture == null)
-                {
+                if (item == null)
+                    continue;
+
+                if (item.Texture == null) {
                     Debug.WriteLine($"Items: Texture is null for item of type {item.Type}");
                     continue;
                 }
 
-                try
-                {
+                try {
                     spriteBatch.Draw(item.Texture, item.Position, Color.White);
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
                     Debug.WriteLine($"Items: Error drawing item {item.Type}: {ex.Message}");
                 }
             }
@@ -243,28 +316,18 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             foreach (var item in spawnedItems)
             {
-                globals._scene.RemoveGameObject(item);
+                globals._scene?.RemoveGameObject(item);
             }
 
             spawnedItems.Clear();
             Debug.WriteLine("Items: All items cleared from the scene.");
         }
 
-        public void UseItem(Player player, Item item)
-        {
-            if (spawnedItems.Contains(item))
-            {
-                item.Use(player, tileMap);
-                spawnedItems.Remove(item);
-            }
-        }
-        // /*
         public List<Item> GetItems()
         {
             // Remove any items with null GameObjects
             spawnedItems.RemoveAll(e => e == null);
             return spawnedItems;
         }
-        // */
     }
 }
