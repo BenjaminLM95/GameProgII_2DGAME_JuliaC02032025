@@ -40,7 +40,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private SpriteFont damageFont; // font to display damage text
 
         // ---------- METHODS ---------- //
-
         public override void Start()
         {
             Debug.WriteLine("Combat: Start()");
@@ -72,15 +71,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 damageIndicators[kvp.Key] -= deltaTime;
 
-                if (damageIndicators[kvp.Key] <= 0)
-                {
+                if (damageIndicators[kvp.Key] <= 0) {
                     toRemove.Add(kvp.Key); // Mark for removal once time is up
                 }
             }
 
             // Remove expired damage indicators
-            foreach (var target in toRemove)
-            {
+            foreach (var target in toRemove) {
                 damageIndicators.Remove(target);
             }
         }
@@ -88,8 +85,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // Adds valid GameObjects through their components to a list of turn takers
         private void AddTurnTaker(GameObject turnTakerObj, bool debug = false)
         {
-            if (turnTakerObj == null)
-            {
+            if (turnTakerObj == null) {
                 if (debug) Debug.WriteLine("Combat: Attempted to add null GameObject to turn takers");
                 return;
             }
@@ -98,8 +94,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             var player = turnTakerObj.GetComponent<Player>();
             var enemy = turnTakerObj.GetComponent<Enemy>();
 
-            if (player == null && enemy == null)
-            {
+            if (player == null && enemy == null) {
                 if (debug) Debug.WriteLine("Combat: GameObject is not a Player or Enemy");
                 return;
             }
@@ -136,8 +131,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 {
                     foreach (var enemy in enemyList)
                     {
-                        if (enemy?.GameObject != null)
-                        {
+                        if (enemy?.GameObject != null) {
                             AddTurnTaker(enemy.GameObject);
                         }
                     }
@@ -214,8 +208,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (debug) Debug.WriteLine($"Combat: Advanced to turn index {currentTurnIndex}"); // !! not showing up
         }
 
-        private void PlayerTurn(Player player, bool debug = false)
-        {
+        private void PlayerTurn(Player player, bool debug = false) {
             if (debug) Debug.WriteLine("Combat: PlayerTurn() called");
         }
 

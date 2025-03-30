@@ -44,13 +44,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             if (direction == Vector2.Zero) return; 
 
+            // creating a projectile gameobject for enemies
             GameObject projectileObject = new GameObject();
             Sprite enemyProjSprite = new Sprite();
-            Projectile projectile = new Projectile(enemyProjSprite, direction, 150f, player, Globals.Instance._mapSystem.Tilemap);
+            Projectile projectile = new Projectile(
+                enemyProjSprite, // enemy projectile sprite
+                direction,       // direction the proj is going
+                150f,            // proj speed
+                player,          // ref. to the player
+                Globals.Instance._mapSystem.Tilemap, // ref. to the tilemap
+                ProjectileSource.Enemy);             // projectile's source is an enemy
 
             projectileObject.AddComponent(projectile);
             projectileObject.AddComponent(enemyProjSprite);
-            enemyProjSprite.LoadSprite("player_fireballproj");
+            enemyProjSprite.LoadSprite("archer_proj");
 
             projectileObject.Position = GameObject.Position;
 

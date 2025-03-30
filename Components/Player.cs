@@ -54,7 +54,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 //Debug.WriteLine("Player: Sprite component is NULL!");
             }
 
-            healthSystem = GameObject.GetComponent<HealthSystem>() ?? GameObject.FindObjectOfType<HealthSystem>(); // HealthSystem
+            healthSystem = GameObject.GetComponent<HealthSystem>(); // HealthSystem
+            if (healthSystem == null) {
+                Debug.WriteLine("Player: HealthSystem component is NULL!");
+            }
+            else {
+                globals._healthSystem = healthSystem;
+            }
+
             globals._mapSystem = GameObject.FindObjectOfType<MapSystem>();  // mapsystem
             tileMap = globals._mapSystem?.Tilemap; // TileMap
 
@@ -81,7 +88,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 tileMap = globals._mapSystem?.Tilemap;
                 if (tileMap == null) return;
             }
-            
+            if (healthSystem == null)
+            {
+                healthSystem = GameObject.GetComponent<HealthSystem>();
+                Debug.WriteLine("Player: Still trying to find HealthSystem component...");
+            }
             ReadInput(); // WASD and 1,2,3,4,5, check tiles = Obstacle/Enemy/Item
         }
         private void ReadInput(bool debug = false)
@@ -305,8 +316,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             playerMovedOntoEnemyTile = false;
 
             Debug.WriteLine("Player: Turn reset - ready to move again");
+            Debug.WriteLine($"Player: current health: {healthSystem.CurrentHealth}");
         }
-        public void TakeDamage(int damage) => healthSystem.TakeDamage(damage);
+        public void TakeDamage(int damage) => healthSystem.ModifyHealth(-damage);
 
         // Combat
         private void AttackEnemyAtPosition(Point enemyTilePosition)
@@ -330,7 +342,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             Debug.WriteLine("Player: Attacked enemy for 10 dmg");
             if (enemy != null) {
-                enemy.GameObject.GetComponent<HealthSystem>()?.TakeDamage(amountdmg);
+                enemy.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-amountdmg);
             }
         }
 

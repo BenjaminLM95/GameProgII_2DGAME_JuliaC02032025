@@ -259,6 +259,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         }
     }
 
+    // ========== PATH NODE CLASS ========== //
     // PathNode represents a single tile in the pathfinding system
     public class PathNode
     {

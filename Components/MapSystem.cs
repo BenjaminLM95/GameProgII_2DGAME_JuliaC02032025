@@ -66,15 +66,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             globals._player.MoveToStartTile();
             // make sure enemies respawn
-            Enemy enemyComponent = GameObject.FindObjectOfType<Enemy>();
-            if (enemyComponent != null)
-            {
-                enemyComponent.AddRangedEnemy(); // FIX !!!
-            }
-            else
-            {
-                Debug.WriteLine("MapSystem: enemies component not found! Enemies will not respawn.");
-            }
 
             // Respawn items when a new level is generated
             Items itemsComponent = GameObject.FindObjectOfType<Items>();

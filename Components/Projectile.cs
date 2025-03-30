@@ -11,6 +11,13 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
+    // enum to identify the source of the projectile
+    public enum ProjectileSource
+    {
+        Player,
+        Enemy
+    }
+
     internal class Projectile : Component
     {
         private Sprite projSprite;
@@ -21,14 +28,23 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private float lifetime = 3.0f; // Max lifetime in seconds
         private float elapsedTime = 0;
         private int damage = 25; // Projectile damage amount
+        private int enemyDamage = 15; // Enemy Projectile damage amount
+        private ProjectileSource source; // projectile is coming from an enemy or a player
 
-        public Projectile(Sprite texture, Vector2 direction, float speed, Player player, TileMap tileMap)
+        public Projectile( // constructor used when creating Projectile instance on gameobject
+            Sprite texture, 
+            Vector2 direction, 
+            float speed, 
+            Player player, 
+            TileMap tileMap, 
+            ProjectileSource source = ProjectileSource.Player)
         {
             this.projSprite = texture;
             this.direction = direction;
             this.speed = speed;
             this.player = player;
             this.tileMap = tileMap;
+            this.source = source;
         }
 
         public override void Update(float deltaTime)
@@ -46,7 +62,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
 
             // check for collisions with enemies
-            CheckEnemyCollision();
+            if (source == ProjectileSource.Player)
+            {
+                CheckEnemyCollision();
+            }
+            else // if the ProjectileSource is an Enemy
+            {
+                CheckPlayerCollision();
+            }
 
             // update lifetime and destroy if too old
             elapsedTime += deltaTime;
@@ -57,6 +80,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
 
+        // for player projectiles to check if it's hitting an enemy
         private void CheckEnemyCollision()
         {
             // get all enemies
@@ -83,6 +107,28 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                         Globals.Instance._scene.RemoveGameObject(GameObject);
                         return;
                     }
+                }
+            }
+        }
+
+        // for enemy projectiles to check if it's hitting a player
+        private void CheckPlayerCollision()
+        {
+            // Check collision with player
+            if (player != null)
+            {
+                float distance = Vector2.Distance(GameObject.Position, player.GameObject.Position);
+                if (distance < 32) // tile size 32
+                {
+                    // hit the player & apply damage
+                    HealthSystem playerHealth = player.GameObject.GetComponent<HealthSystem>();
+                    if (playerHealth != null)
+                    {
+                        playerHealth.ModifyHealth(-enemyDamage);
+                        Debug.WriteLine($"Projectile: Enemy projectile hit player for {enemyDamage} damage");
+                    }
+                    // destroy the projectile after hitting the player
+                    Globals.Instance._scene.RemoveGameObject(GameObject);
                 }
             }
         }

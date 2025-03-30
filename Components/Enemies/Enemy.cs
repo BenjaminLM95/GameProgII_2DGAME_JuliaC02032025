@@ -8,12 +8,14 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 {
+    // ========== ENUM ========== //
     public enum EnemyType
     {
         Slime,      // Basic enemy
         Ghost,      // Elite enemy
         Archer      // Ranged enemy
     }
+    // ========== HELPER CLASS ========== //
     public class EnemyConfig
     {
         public string SpriteName { get; set; }
@@ -52,11 +54,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         }
     }
 
+    // ========== COMPONENT CLASS ========== //
     internal class Enemy : Component
     {
         // Configurable enemy properties
         public EnemyType Type { get; private set; }
         public EnemyConfig config { get; private set; }
+
+        // ---------- REFERENCES ---------- //
         // Component references
         private Globals globals;
         private HealthSystem healthSystem;
@@ -84,25 +89,21 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         }
 
         // ---------- METHODS ---------- //
-
         public override void Start()
         {
             globals = globals ?? Globals.Instance; // globals
-            if (globals == null)
-            {
+            if (globals == null) {
                 Debug.WriteLine("Enemy: globals is NULL!");
                 throw new InvalidOperationException("Globals instance could not be initialized");
             }
 
             // Setup sprite
             enemySprite = GameObject.GetComponent<Sprite>();
-            if (enemySprite == null)
-            {
-                //Debug.WriteLine("Enemy: Sprite component is NULL!");
+            if (enemySprite == null) {
+                Debug.WriteLine("Enemy: sprite is NULL!");
             }
             else
             {
-                // Load specific sprite based on enemy type
                 enemySprite.LoadSprite(config.SpriteName);
             }
 
@@ -113,22 +114,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 ));
 
             tileMap = globals._mapSystem?.Tilemap;
-            if (tileMap == null)
-            {
+            if (tileMap == null) {
                 tileMap = GameObject.FindObjectOfType<TileMap>();
             }
-            if (tileMap == null)
-            {
+            if (tileMap == null) {
                 Debug.WriteLine("Enemy: CRITICAL - Could not find TileMap!");
             }
+
             pathfinding = GameObject.GetComponent<Pathfinding>();
             pathfinding = GameObject.FindObjectOfType<Pathfinding>();
             if (pathfinding != null && tileMap != null)
             {
                 Debug.WriteLine("Enemy: Attempting to reinitialize Pathfinding");
-                try
-                {
-                    pathfinding.InitializePathfinding(tileMap);
+                try {
+                    pathfinding.InitializePathfinding(tileMap); // PATFINDING: initialize
                 }
                 catch (Exception ex) {
                     Debug.WriteLine($"Enemy: Pathfinding initialization failed - {ex.Message}");
@@ -146,15 +145,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             if (player == null) return;
             Debug.WriteLine($"Enemy at {GameObject.Position} processing turn");
 
-            if (IsNextToPlayer(player))
-            {
+            if (IsNextToPlayer(player)) {
                 Debug.WriteLine("Enemy: Attacking player");
-                Attack(player);
+                Attack(player); // COMBAT: attack
             }
-            else
-            {
+            else {
                 Debug.WriteLine("Enemy: moving towards player");
-                MoveTowardsPlayer(player);
+                MoveTowardsPlayer(player); // COMBAT: move
             }
         }
 
@@ -170,15 +167,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         public void MoveTowardsPlayer(Player player, bool debug = false)
         {
             pathfinding = GameObject.GetComponent<Pathfinding>();
-            if (pathfinding == null)
-            {
+            if (pathfinding == null) {
                 if (debug) Debug.WriteLine("Enemy: Pathfinding component is NULL");
                 return;
             }
 
             // Ensure nodeMap is initialized
-            if (pathfinding.nodeMap == null)
-            {
+            if (pathfinding.nodeMap == null) {
                 if (debug) Debug.WriteLine("Enemy: Pathfinding nodeMap is NULL");
                 return;
             }
@@ -194,13 +189,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             List<Point> path = pathfinding.FindPath(enemyPoint, playerPoint);
 
             // Correct null and empty path checking
-            if (path == null)
-            {
+            if (path == null) {
                 if (debug) Debug.WriteLine($"Enemy: Path finding completely failed.");
                 return;
             }
-            if (path.Count <= 1)
-            {
+            if (path.Count <= 1) {
                 if (debug) Debug.WriteLine($"Enemy: Path is too short. Path count: {path.Count}");
                 return;
             }
@@ -214,11 +207,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 GameObject.Position = newPosition;
                 if (debug) Debug.WriteLine($"Enemy moved to {newPosition}");
             }
-            else
-            {
+            else {
                 if (debug) Debug.WriteLine($"Enemy: Next tile {nextTile} is not walkable!");
             }
         }
+
+        // enemies can only walk on floor tiles, not on the player or other enemies
         private bool IsTileWalkable(Point tile, bool debug = false)
         {
             // Check if tile is a floor tile
@@ -255,10 +249,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                     }
                 }
             }
-
             return true;
         }
-        public List<Enemy> GetEnemies() 
+        public List<Enemy> GetEnemies() // returns a list of all active enemies in the scene
         {
             // Remove any enemies with null GameObjects
             _enemies.RemoveAll(e => e == null || e.GameObject == null);
@@ -272,61 +265,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         public void Attack(Player player)
         {
             Debug.WriteLine("Enemy: Attacked player for 10 dmg");
-            player.GameObject.GetComponent<HealthSystem>()?.TakeDamage(10);
-        }
-        
-        public void RecoverFromStun()
-        {
-            isStunned = false;
-        }
-
-
-        public void AddRangedEnemy()
-        {
-            RangedEnemy rangedEnemyComponent = Globals.Instance._rangedEnemy;
-            if (rangedEnemyComponent == null)
-            {
-                rangedEnemyComponent = new RangedEnemy();
-                Globals.Instance._rangedEnemy = rangedEnemyComponent;
-            }
-
-            // spawn a specific number of enemies
-            int level = 2; // amount of enemies
-            int enemyCount = Math.Clamp(level, 2, 5);
-
-            for (int i = 0; i < enemyCount; i++)
-            {
-                // create ranged enemy game object
-                GameObject rangedEnemyObg = new GameObject();
-
-                // create components
-                RangedEnemy newEnemy = new RangedEnemy();
-                Sprite enemySprite = new Sprite();
-                HealthSystem enemyHealth = new HealthSystem(
-                    maxHealth: 80,
-                    type: HealthSystem.EntityType.Enemy
-                );
-
-                // add components to enemy game object
-                rangedEnemyObg.AddComponent(newEnemy);
-                rangedEnemyObg.AddComponent(enemySprite);
-                rangedEnemyObg.AddComponent(enemyHealth);
-
-                // load sprite
-                enemySprite.LoadSprite("archer");
-
-                // get a random spawn tile
-                Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
-
-                if (randomTile != new Vector2(-1, -1))
-                {
-                    rangedEnemyObg.Position = randomTile;
-
-                    TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
-
-                    Globals.Instance._scene.AddGameObject(rangedEnemyObg);
-                }
-            }
+            player.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-10);
         }
     }
 }

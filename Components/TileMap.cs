@@ -36,7 +36,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public Texture2D turnIndicatorTexture { get; private set; }
         public Texture2D emptyInvTexture { get; private set; }
         public Texture2D playerFireballProj { get; private set; }
-
+        public Texture2D archerProj { get; private set; }
 
         public TileMap() { }
         public TileMap(SpriteBatch spriteBatch)
@@ -89,6 +89,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 turnIndicatorTexture = content.Load<Texture2D>("turnindicator");
                 emptyInvTexture = content.Load<Texture2D>("emptyInvTexture");
                 playerFireballProj = content.Load<Texture2D>("player_FireballProj");
+                archerProj = content.Load<Texture2D>("archer_proj");
 
                 Debug.WriteLine("TileMap: Textures loaded successfully.");
             }

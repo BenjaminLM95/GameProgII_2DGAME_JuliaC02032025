@@ -14,6 +14,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private TileMap tileMap;
         private Globals globals;
         private GameHUD gameHUD;
+        private Combat combat;
 
         public override void Start()
         {
@@ -34,6 +35,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (gameHUD == null)
             {
                 Debug.WriteLine("Inventory: GameHUD was NULL.");
+            }
+
+            combat = GameObject.GetComponent<Combat>();
+            if (gameHUD == null)
+            {
+                Debug.WriteLine("Inventory: Combat was NULL.");
             }
         }
         public override void Update(float deltaTime)
@@ -82,6 +89,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 items.Remove(item); // Remove the item from inventory after use
                 Debug.WriteLine($"Inventory: item {type} used!");
                 gameHUD?.UpdateInventoryHUD(); // GAMEHUD: update inv slot UI
+                // combat: advance to next turn
+                //combat.AdvanceToNextTurn(); // !!! FIX
             }
             else {
                 Debug.WriteLine($"Inventory: Cannot use {type}. Item not in inventory.");

@@ -29,6 +29,9 @@ They check if next to player and attack, take damage, or recover from stun on tu
 MapSystem
 Obstacle dimensions are specified in GenerateMap()
 
+Enemy Types
+Ghosts can only be damaged with lightning scrolls
+
 ---------- TERMINAL ----------
 build game : dotnet build
 run game in VS Code : dotnet run

@@ -54,7 +54,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 int healAmount = 20;
                 // Use the ModifyHealth method to heal the player
-                healthSystem.ModifyHealth(healAmount);
+                healthSystem.ModifyHealth(+healAmount);
                 Debug.WriteLine($"Items: HEALTHPOTION - Player healed for {healAmount} HP, current health: {healthSystem.CurrentHealth}");
             }
             else {
@@ -121,7 +121,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
 
-        // warps the player to any random floor tile
+        // CUSTOM ITEM: warps the player to any random floor tile
         private void WarpPlayer(Player player, TileMap tileMap)
         {
             Vector2 randomEmptyTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
@@ -159,7 +159,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public List<Item> spawnedItems = new List<Item>();
 
         private bool initialized = false;
-        private int itemsToSpawn = 4;
+        private int itemsToSpawn = 6;
 
         private ItemType currentItemType;
 

@@ -86,19 +86,23 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Die();
             }
         }
+
+        // updates health when healed or damaged (when calling (-number) means damage)
         public void ModifyHealth(int amount)
         {
             if (!IsAlive) return;
 
-            CurrentHealth = Math.Clamp(CurrentHealth + amount, 0, MaxHealth);
+            //CurrentHealth = Math.Clamp(CurrentHealth + amount, 0, MaxHealth);
 
             if (amount > 0)
             {
                 Debug.WriteLine($"{Type} healed for {amount}. Current Health: {CurrentHealth}");
+                CurrentHealth = Math.Clamp(CurrentHealth + amount, 0, MaxHealth);
             }
             else if (amount < 0)
             {
                 Debug.WriteLine($"{Type} damaged for {Math.Abs(amount)}. Current Health: {CurrentHealth}");
+                TakeDamage(-amount);
             }
         }
         private void Die()
