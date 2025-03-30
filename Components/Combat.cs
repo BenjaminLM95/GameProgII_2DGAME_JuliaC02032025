@@ -12,6 +12,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     internal class Combat : Component
     {
+        // ---------- INSTANCE ---------- //
         public static Combat _instance { get; private set; }
         public static Combat Instance => _instance ??= new Combat();
         public Combat()
@@ -19,9 +20,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             _instance = this;
         }
 
+        // ---------- REFERENCES ---------- //
         private Globals globals;
         private Player player;
 
+        // ---------- VARIABLES ---------- //
         public bool isPlayerTurn { get; private set; } = true;
         private const int TILE_SIZE = 32;
 
@@ -81,6 +84,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 damageIndicators.Remove(target);
             }
         }
+
         // Adds valid GameObjects through their components to a list of turn takers
         private void AddTurnTaker(GameObject turnTakerObj, bool debug = false)
         {
@@ -222,10 +226,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Player player = globals._player;
             if (enemy.IsNextToPlayer(player))
             {
-                enemy.Attack(player);
+                enemy.Attack(player); // attack if next to player
             }
             else {
-                enemy.MoveTowardsPlayer(player);
+                enemy.MoveTowardsPlayer(player); // move if not next to player
             }
 
             AdvanceToNextTurn();
@@ -276,8 +280,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 damageIndicators.Add(target, dmgDisplayTime); // Set the display time for the damage text
             }
 
-            // stores the damage amount if you want to display the exact amount ??
-            // damageValues[target] = damage;
+            // damageValues[target] = damage; // for displaying unique value, still not working
         }
         public void DrawDamageIndicator(int damage)
         {

@@ -150,7 +150,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     if (debug) Debug.WriteLine($"Player: moved to position - {targetPos}");
                     hasMovedThisTurn = true;
                     // Combat
-                    //CheckForEnemy(targetTilePos); // change if test does not work !!!!!
                     // If the player successfully moves, advance the turn
                     Combat.Instance.AdvanceToNextTurn();
                 }
