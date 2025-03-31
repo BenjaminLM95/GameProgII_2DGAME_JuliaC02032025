@@ -13,7 +13,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // ---------- REFERENCES ---------- //
         Globals globals;
         Combat combat;
-        SpriteFont myFont;
+        SpriteFont MyFont;
         TileMap tileMap;
         Player player;
 
@@ -30,6 +30,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // ---------- METHODS ---------- //
         public override void Start()
         {
+            // load & draw the font like a texture
+
             Debug.WriteLine("GameHUD: Start()");
 
             globals = globals ?? Globals.Instance;
