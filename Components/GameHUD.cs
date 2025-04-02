@@ -174,7 +174,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             return text;
         }
 
-        private void DrawButton(Vector2 position)
+        private void DrawButton(Vector2 position, string text)
         {
             // draw single button, can put text on it. takes player's mouse position
             // add functionality to draw text on the button from here? 
@@ -186,7 +186,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             Vector2 textPos = new Vector2(buttonmidX, buttonmidY); // centering text on button
             // drawing text on the button
-            DrawFont("test", textPos);
+            DrawFont(text, textPos);
 
         }
 
@@ -196,10 +196,15 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // call this in Game1 Draw()
             // put font on button, draws menuBackground texture on the whole screen
             // make sure to center text position on the button
-            Vector2 buttonPos = new Vector2(100,100);
+            Vector2 buttonPos = new Vector2(375,100);
+            Vector2 button2Pos = new Vector2(375, 150);
 
-            DrawButton(buttonPos);
-            
+            DrawButton(buttonPos,"PLAY");
+            DrawButton(button2Pos, "QUIT");
+        }
+        private void ClearScreen()
+        {
+            // deactivates all the buttons and the menu screen background
         }
 
         public bool IsButtonPressed()
