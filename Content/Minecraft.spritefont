@@ -9,9 +9,9 @@ with.
   <Asset Type="Graphics:FontDescription">
 
     <!--
-    Modify this string to change the font that will be imported. // !!! DONT FORGET THIS
+    Modify this string to change the font that will be imported.
     -->
-    <FontName>MyFont</FontName>
+    <FontName>Minecraft.ttf</FontName>
 
     <!--
     Size is a float value, measured in points. Modify this value to change

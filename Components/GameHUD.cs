@@ -5,6 +5,9 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using GameProgII_2DGame_Julia_C02032025.Components.Enemies;
+using System.Reflection.Metadata;
+using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Xna.Framework.Input;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
@@ -13,7 +16,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // ---------- REFERENCES ---------- //
         Globals globals;
         Combat combat;
-        SpriteFont MyFont;
+        SpriteFont myFont; // FONT
         TileMap tileMap;
         Player player;
 
@@ -23,14 +26,23 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private Texture2D emptyInvTexture;
         private Inventory playerInventory;
 
+        private Texture2D blankButton;
+        private Texture2D pressedButton;
+        private Texture2D menuBackground;
+
+        private Vector2 textPosition; // FONT POS
         private Vector2 inventoryPosition;
         private int slotSize = 40; // Size of each inv slot
         private int spacing = 1;  // Space between inv slots
+        public bool isMenuActive = true; // start showing the menu
 
         // ---------- METHODS ---------- //
         public override void Start()
         {
             // load & draw the font like a texture
+            myFont = Globals.content.Load<SpriteFont>("Minecraft"); // loading font
+            blankButton = Globals.content.Load<Texture2D>("blankButton"); // loading blank button texutre
+            pressedButton = Globals.content.Load<Texture2D>("pressedButton"); // loading pressed button texutre
 
             Debug.WriteLine("GameHUD: Start()");
 
@@ -132,7 +144,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 // draw slot number above the slot
                 string slotNumber = (i + 1).ToString(); // number from 1 to 5
                 Vector2 numberPosition = new Vector2(position.X + slotSize / 2, position.Y - 20); // adjust position
-                //Globals.spriteBatch.DrawString(myFont, slotNumber, numberPosition, Color.White); // font not being recognized?
                 
                 if (debug) { // log the number being drawn
                     Debug.WriteLine($"Drawing slot number {slotNumber} at position: {numberPosition}");
@@ -154,6 +165,60 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 ItemType.WarpScroll => tileMap.warpScrollTexture,
                 _ => emptyInvTexture,
             };
+        }
+
+        private string DrawFont(string text, Vector2 position)
+        {
+            Globals.spriteBatch.DrawString(
+                        myFont, text, position, Color.White);
+            return text;
+        }
+
+        private void DrawButton(Vector2 position)
+        {
+            // draw single button, can put text on it. takes player's mouse position
+            // add functionality to draw text on the button from here? 
+            Globals.spriteBatch.Draw(
+                        blankButton, position, Color.White);
+
+            float buttonmidX = position.X + 16; // button sprite X is 64
+            float buttonmidY = position.Y + 8; // button sprite Y is 32
+
+            Vector2 textPos = new Vector2(buttonmidX, buttonmidY); // centering text on button
+            // drawing text on the button
+            DrawFont("test", textPos);
+
+        }
+
+        public void DrawScreen()
+        {
+            // set game time to timescale 0 to pause the gameplay
+            // call this in Game1 Draw()
+            // put font on button, draws menuBackground texture on the whole screen
+            // make sure to center text position on the button
+            Vector2 buttonPos = new Vector2(100,100);
+
+            DrawButton(buttonPos);
+            
+        }
+
+        public bool IsButtonPressed()
+        {
+            MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
+            Vector2 MousePos = new Vector2(mouseState.X, mouseState.Y);
+            // get player's mouse position on screen
+            /*
+                MouseState.X - 
+                Horizontal position of the mouse cursor 
+                in relation to the upper-left corner of the game window.
+
+                MouseState.Y - Vertical position of the mouse cursor 
+                in relation to the upper-left corner of the game window.
+            */
+            // if mouse position is button, switch sprite to pressed button and wait for left mouse click
+            // if clicked, set menu UI false and timescale to 1 and isMenuActive = false
+
+            return false;
         }
     }
 }

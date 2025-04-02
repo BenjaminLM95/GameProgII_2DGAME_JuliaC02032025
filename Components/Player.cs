@@ -81,6 +81,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // Updates the player's position based on input, checking for obstacles before moving.
         public override void Update(float deltaTime)
         {
+            // need to keep checking for button pressed
+
             if (hasMovedThisTurn || !Combat.Instance.isPlayerTurn) return;
 
             if (tileMap == null)  

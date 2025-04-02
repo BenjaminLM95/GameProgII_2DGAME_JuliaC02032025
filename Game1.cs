@@ -101,6 +101,7 @@ namespace GameProgII_2DGame_Julia_C02032025
             
             Globals.Instance._combat.DrawTurnIndicator(); // draw turn indicator
             Globals.Instance._gameHUD.DrawInventoryHUD(); // draw inventory slots HUD
+            Globals.Instance._gameHUD.DrawScreen();
 
             Globals.spriteBatch.End();
             base.Draw(gameTime);
