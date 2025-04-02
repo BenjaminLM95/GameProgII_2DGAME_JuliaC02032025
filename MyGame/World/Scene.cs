@@ -48,3 +48,4 @@ internal class Scene
         }
     }
 }
+// add scene management system?
