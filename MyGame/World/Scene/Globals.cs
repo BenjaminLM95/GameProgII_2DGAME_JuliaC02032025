@@ -29,6 +29,9 @@ internal class Globals
     public static ContentManager content;
     public static SpriteBatch spriteBatch;
 
+    public static float TimeScale { get; set; } = 0f; // set game pause/unpause
+    public static Game GameInstance { get; set; }
+
     public MapSystem _mapSystem { get;  set; }
     public Component _component;
     public HealthSystem _healthSystem;
@@ -40,6 +43,7 @@ internal class Globals
     public RangedEnemy _rangedEnemy;
     public GhostEnemy _ghostEnemy;
     public Combat _combat;
+    public TurnManager _turnManager;
     public GameHUD _gameHUD;
     public Pathfinding _pathfinding;
     public Inventory _inventory;

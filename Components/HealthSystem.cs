@@ -27,6 +27,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public EntityType Type { get; set; } = EntityType.Other;
 
         public bool IsAlive { get; private set; } = true; // State tracking
+        public bool IsDead { get; private set; } = false; // State tracking
 
         public Action OnDeath { get; set; } // custom death handling
 
@@ -76,7 +77,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             CurrentHealth -= damage;
 
             // Show damage effect (can be customized)
-            combat.DrawDamageIndicator(damage);
+            //combat.DrawDamageIndicator(damage); // fix null combat reference, change dmg ind to GameHUD?
+            Debug.WriteLine($"[HealthSystem] {Type} took {damage} damage. Current Health: {CurrentHealth}");
 
             // Check if entity dies
             if (CurrentHealth <= 0)
@@ -101,19 +103,46 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
             else if (amount < 0)
             {
-                Debug.WriteLine($"{Type} damaged for {Math.Abs(amount)}. Current Health: {CurrentHealth}");
                 TakeDamage(-amount);
             }
         }
         private void Die()
         {
+            Debug.WriteLine($"[HealthSystem] {Type}'s health is 0. {Type} died!");
+
+            if (Type == EntityType.Enemy)
+            {
+                // Try to find the Enemy component from the GameObject
+                Enemy enemyComponent = GameObject.GetComponent<Enemy>();
+                if (enemyComponent != null)
+                {
+                    // Remove from the _enemies list
+                    bool removed = Enemy._enemies.Remove(enemyComponent);
+                    if (removed)
+                    {
+                        Debug.WriteLine($"HealthSystem: Enemy removed from _enemies list at position {GameObject.Position}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"HealthSystem: Enemy could not be removed from _enemies (not found?)");
+                    }
+
+                    // Remove the GameObject from the scene
+                    Globals.Instance._scene.RemoveGameObject(GameObject);
+                }
+                else
+                {
+                    Debug.WriteLine("HealthSystem: Enemy component not found on GameObject.");
+                }
+            }
+
             switch (Type)
             {
                 case EntityType.Player:
                     HandlePlayerDeath();
                     break;
                 case EntityType.Enemy:
-                    HandleEnemyDeath();
+                    EnemyDeath();
                     break;
             }
 
@@ -128,6 +157,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // game over screen, reset level
         }
 
+        private void EnemyDeath()
+        {
+            if (Enemy.AllEnemies.Contains(GameObject))
+            {
+                Enemy.AllEnemies.Remove(GameObject);
+                Globals.Instance._scene?.RemoveGameObject(GameObject);
+
+                Debug.WriteLine($"HealthSystem: Enemy removed from the game at position {GameObject.Position}");
+            }
+            else
+            {
+                Debug.WriteLine("HealthSystem: Enemy not found in enemy list.");
+            }
+        }
         private void HandleEnemyDeath()
         {
             Debug.WriteLine("HealthSystem: Enemy defeated!");

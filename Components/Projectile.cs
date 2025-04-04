@@ -100,7 +100,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                         if (enemyHealth != null)
                         {
                             enemyHealth.ModifyHealth(-damage);
-                            Debug.WriteLine($"Projectile: projectile hit enemy for {damage} damage");
                         }
 
                         // destroy the projectile after hitting an enemy
@@ -125,7 +124,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     if (playerHealth != null)
                     {
                         playerHealth.ModifyHealth(-enemyDamage);
-                        Debug.WriteLine($"Projectile: Enemy projectile hit player for {enemyDamage} damage");
                     }
                     // destroy the projectile after hitting the player
                     Globals.Instance._scene.RemoveGameObject(GameObject);

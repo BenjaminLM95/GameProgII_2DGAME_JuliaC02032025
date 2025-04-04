@@ -35,6 +35,8 @@ namespace GameProgII_2DGame_Julia_C02032025
             _graphics.PreferredBackBufferWidth = 1280; _graphics.PreferredBackBufferHeight = 720;
             _graphics.ApplyChanges();
 
+            Globals.GameInstance = this;
+
             base.Initialize();
         }
 
@@ -60,12 +62,19 @@ namespace GameProgII_2DGame_Julia_C02032025
             AddItems();
 
             AddPlayer();
-
-            AddEnemy();
+            // add logic here to track mapSystem's levelNumver int variable, every time it goes up respawn
+            //AddEnemy();
+            EnemySpawner.RespawnEnemies(Globals.Instance._mapSystem.levelNumber);
             AddRangedEnemy();
             AddGhostEnemy();
 
             AddCombat();
+            // ***** TURN MANAGER ***** //
+            //GameObject turnManagerObj = new GameObject();
+            //TurnManager turnManager = new TurnManager();
+            //turnManagerObj.AddComponent(turnManager);
+            //Globals.Instance._turnManager = turnManager;
+            //Globals.Instance._scene.AddGameObject(turnManagerObj);
 
             // ***** HUD ***** //
             GameObject hudObj = new GameObject();
@@ -85,6 +94,11 @@ namespace GameProgII_2DGame_Julia_C02032025
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            float time = Globals.TimeScale;
+            if(time == 0)
+            {
+                Globals.Instance._gameHUD.Update(time);
+            }
             Globals.Instance._scene.Update(gameTime);
 
             base.Update(gameTime);
@@ -101,6 +115,11 @@ namespace GameProgII_2DGame_Julia_C02032025
             
             Globals.Instance._combat.DrawTurnIndicator(); // draw turn indicator
             Globals.Instance._gameHUD.DrawInventoryHUD(); // draw inventory slots HUD
+            Vector2 levelPos = new Vector2(640, 10);
+            Globals.Instance._gameHUD.DrawLevelFont(levelPos);
+            Vector2 healthPos = new Vector2(640, 700);
+            Globals.Instance._gameHUD.DrawHealth(healthPos);
+
             Globals.Instance._gameHUD.DrawScreen();
 
             Globals.spriteBatch.End();
@@ -118,12 +137,12 @@ namespace GameProgII_2DGame_Julia_C02032025
             maxHealth: 100,
             type: HealthSystem.EntityType.Player
             );
-            Inventory inventory = new Inventory();
+            //Inventory inventory = new Inventory();
 
             playerObject.AddComponent(player);
             playerObject.AddComponent(playerSprite);
             playerObject.AddComponent(playerHealth);
-            playerObject.AddComponent(inventory);
+            //playerObject.AddComponent(inventory);
             playerSprite.LoadSprite("player");
 
             Globals.Instance._player = player;
@@ -189,68 +208,7 @@ namespace GameProgII_2DGame_Julia_C02032025
                     Globals.Instance._scene.AddGameObject(rangedEnemyObg);
                 }
             }
-        }
-
-        void AddEnemy()
-        {
-           Enemy enemyComponent = Globals.Instance._enemy;
-           if (enemyComponent == null)
-           {
-               enemyComponent = new Enemy();
-               Globals.Instance._enemy = enemyComponent;
-           }
-
-           // spawn a specific number of enemies
-           int level = 5; // amount of enemies
-           int enemyCount = Math.Clamp(level, 2, 10);
-
-           for (int i = 0; i < enemyCount; i++)
-           {
-               //create enemy game object
-               GameObject enemyObject = new GameObject();
-
-               // create components
-               Enemy newEnemy = new Enemy();
-               Sprite enemySprite = new Sprite();
-               Pathfinding enemyPathfinding = new Pathfinding();
-               HealthSystem enemyHealth = new HealthSystem(
-                   maxHealth: 50,
-                   type: HealthSystem.EntityType.Enemy
-               );
-
-               // add components to enemy game object
-               enemyObject.AddComponent(newEnemy);
-               enemyObject.AddComponent(enemySprite);
-               enemyObject.AddComponent(enemyPathfinding);
-               enemyObject.AddComponent(enemyHealth);
-
-               // load sprite
-               enemySprite.LoadSprite("enemy");
-
-               // get a random spawn tile
-               Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
-
-               if (randomTile != new Vector2(-1, -1))
-               {
-                   enemyObject.Position = randomTile;
-
-                   // initialize pathfinding if tilemap exists
-                   TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
-                   if (tileMap != null)
-                   {
-                       enemyPathfinding.InitializePathfinding(tileMap);
-                       Debug.WriteLine($"Enemy: Spawned and initialized pathfinding at position - {randomTile}");
-                   }
-                   else
-                   {
-                       Debug.WriteLine("Enemy: CRITICAL - Cannot initialize pathfinding, TileMap is NULL");
-                   }
-
-                   // add to scene
-                   Globals.Instance._scene.AddGameObject(enemyObject);
-               }
-           }
-        }
+        }       
         void AddGhostEnemy()
         {
             Enemy enemyComponent = Globals.Instance._enemy;
@@ -289,7 +247,7 @@ namespace GameProgII_2DGame_Julia_C02032025
         void AddCombat()
         {
             GameObject combatObj = new GameObject();
-            Combat combat = Combat.Instance;
+            Combat combat = new Combat();
             combatObj.AddComponent(combat);
 
             Globals.Instance._combat = combat;

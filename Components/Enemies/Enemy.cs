@@ -72,8 +72,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         // ---------- VARIABLES ---------- //
         private int minEnemyCount = 2;
         private int maxEnemyCount = 10;
+
         // Static list of all enemies
-        private static List<Enemy> _enemies = new List<Enemy>();
+        public static List<GameObject> AllEnemies = new(); // tracks gameobjects
+        public static List<Enemy> _enemies = new List<Enemy>(); // tracks this component
 
         // State variables
         private bool isStunned = false;
@@ -108,11 +110,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
 
             healthSystem = GameObject.GetComponent<HealthSystem>() ?? GameObject.FindObjectOfType<HealthSystem>();
-            GameObject.AddComponent(new HealthSystem(
-                    maxHealth: config.MaxHealth,
-                    type: HealthSystem.EntityType.Enemy
-                ));
-
+            
             tileMap = globals._mapSystem?.Tilemap;
             if (tileMap == null) {
                 tileMap = GameObject.FindObjectOfType<TileMap>();
@@ -144,15 +142,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Player player = GameObject.FindObjectOfType<Player>();
             if (player == null) return;
             Debug.WriteLine($"Enemy at {GameObject.Position} processing turn");
-
-            if (IsNextToPlayer(player)) {
-                Debug.WriteLine("Enemy: Attacking player");
-                Attack(player); // COMBAT: attack
-            }
-            else {
-                Debug.WriteLine("Enemy: moving towards player");
-                MoveTowardsPlayer(player); // COMBAT: move
-            }
         }
 
         public bool IsNextToPlayer(Player player, bool debug = false)
@@ -213,7 +202,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         }
 
         // enemies can only walk on floor tiles, not on the player or other enemies
-        private bool IsTileWalkable(Point tile, bool debug = false)
+        public bool IsTileWalkable(Point tile, bool debug = false)
         {
             // Check if tile is a floor tile
             if (tileMap == null || tileMap.GetTileAt(tile.X, tile.Y) == null ||
@@ -257,15 +246,83 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             _enemies.RemoveAll(e => e == null || e.GameObject == null);
             return _enemies;
         }
-        public void OnDestroy() // remove an enemy when it's destroyed
-        {
-            _enemies.Remove(this);
+        public override void OnDestroy() // remove an enemy when it's destroyed,
+                                // but they still exist rn according to turn indicator
+        { // method is ref component.OnDestroy() right now
+            AllEnemies.Remove(GameObject);
+            // need to destroy gameobject as well
         }
         // Combat
         public void Attack(Player player)
         {
-            Debug.WriteLine("Enemy: Attacked player for 10 dmg");
             player.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-10);
         }
     }
+
+    public static class EnemySpawner
+    {
+        public static void RespawnEnemies(int level)
+        {
+            // Clean up old enemies
+            foreach (GameObject enemy in Enemy.AllEnemies)
+            {
+                Globals.Instance._scene.RemoveGameObject(enemy);
+            }
+            Enemy.AllEnemies.Clear();
+            Enemy._enemies.Clear();
+
+            // Clamp enemy count and spawn
+            int enemyCount = Math.Clamp(level, 2, 10);
+
+            for (int i = 0; i < enemyCount; i++)
+            {
+                GameObject enemyObject = new GameObject();
+
+                // Create components
+                Enemy newEnemy = new Enemy(); // defaults to Slime
+                Sprite enemySprite = new Sprite();
+                Pathfinding enemyPathfinding = new Pathfinding();
+                HealthSystem enemyHealth = new HealthSystem(
+                    maxHealth: newEnemy.config.MaxHealth,
+                    type: HealthSystem.EntityType.Enemy
+                );
+
+                // Add components
+                enemyObject.AddComponent(newEnemy);
+                enemyObject.AddComponent(enemySprite);
+                enemyObject.AddComponent(enemyPathfinding);
+                enemyObject.AddComponent(enemyHealth);
+
+                // Load sprite
+                enemySprite.LoadSprite(newEnemy.config.SpriteName);
+
+                // Get a valid tile
+                Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
+                if (randomTile == new Vector2(-1, -1))
+                {
+                    Debug.WriteLine("EnemySpawner: No valid spawn tile found!");
+                    continue;
+                }
+
+                enemyObject.Position = randomTile;
+
+                // Initialize pathfinding
+                TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
+                if (tileMap != null)
+                {
+                    enemyPathfinding.InitializePathfinding(tileMap);
+                    Debug.WriteLine($"EnemySpawner: Spawned enemy at {randomTile}");
+                }
+                else
+                {
+                    Debug.WriteLine("EnemySpawner: Cannot initialize pathfinding - TileMap is NULL");
+                }
+
+                // Track and add to scene
+                Enemy.AllEnemies.Add(enemyObject);
+                Globals.Instance._scene.AddGameObject(enemyObject);
+            }
+        }
+    }
 }
+// enemies not respawning in each floor, once they are all killed there are none on the next floor

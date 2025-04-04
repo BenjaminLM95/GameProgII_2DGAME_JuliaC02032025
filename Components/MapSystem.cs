@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using static System.Net.Mime.MediaTypeNames;
 using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -30,6 +31,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         List<Vector2> emptyTiles = new List<Vector2>();
 
         public bool LevelChanged { get; private set; } = false;
+        public int levelNumber = 1;
 
         // ---------- METHODS ---------- //
 
@@ -42,7 +44,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Tilemap.Initialize();
 
             // ------ MAP GENERATION ------ //
-            Debug.WriteLine("MapSystem: Generating random map.");
+            //Debug.WriteLine("MapSystem: Generating random map.");
             GenerateMap();  // Random map generation
         }
 
@@ -60,12 +62,18 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             Tilemap.ClearTiles();
 
+            // clearing lists of enemies
+            Enemy._enemies.Clear();
+            Enemy.AllEnemies.Clear();
+            EnemySpawner.RespawnEnemies(levelNumber); // respawning TEST
+
             GenerateMap();
-            
+            levelNumber++; // next level
+            Debug.WriteLine($"MapSystem: level number: {levelNumber}");
+
             Vector2 startTile = GetRandomEmptyTile(); // reset the player position to a random empty tile
 
             globals._player.MoveToStartTile();
-            // make sure enemies respawn
 
             // Respawn items when a new level is generated
             Items itemsComponent = GameObject.FindObjectOfType<Items>();
@@ -76,8 +84,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             else
             {
                 Debug.WriteLine("MapSystem: Items component not found! Items will not respawn.");
-            }
-
+            }           
         }
 
         // Generates a new random map, setting tile types for floors, obstacles, 

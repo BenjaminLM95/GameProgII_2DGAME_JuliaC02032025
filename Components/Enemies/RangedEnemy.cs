@@ -33,15 +33,57 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             if (timeSinceLastAttack >= attackCooldown)
             {
-                ShootProjectile(player);
-                timeSinceLastAttack = 0f;
+                Vector2 shootDirection;
+                if (HasLineOfSightToPlayer(player, out shootDirection))
+                {
+                    ShootProjectile(shootDirection, player);
+                    timeSinceLastAttack = 0f;
+                }
+                else
+                {
+                    MoveTowardsPlayer(player);
+                }
             }
         }
 
-        private void ShootProjectile(Player player)
+        private bool HasLineOfSightToPlayer(Player player, out Vector2 direction)
         {
-            Vector2 direction = Vector2.Normalize(player.GameObject.Position - GameObject.Position);
+            direction = Vector2.Zero;
 
+            Vector2 playerPos = player.GameObject.Position;
+            Vector2 enemyPos = GameObject.Position;
+
+            // only straight lines of sight (same X or same Y)
+            if (Math.Abs(playerPos.X - enemyPos.X) < 1f)
+            {
+                direction = playerPos.Y > enemyPos.Y ? Vector2.UnitY : -Vector2.UnitY;
+            }
+            else if (Math.Abs(playerPos.Y - enemyPos.Y) < 1f)
+            {
+                direction = playerPos.X > enemyPos.X ? Vector2.UnitX : -Vector2.UnitX;
+            }
+            else {
+                return false; // no diagonal
+            }
+
+            Vector2 checkPos = enemyPos + direction;
+            while (Vector2.DistanceSquared(checkPos, playerPos) >= 1f)
+            {
+                // convert world position to tile coordinate
+                Point tileToCheck = new Point((int)(checkPos.X / 32), (int)(checkPos.Y / 32));
+
+                if (!IsTileWalkable(tileToCheck))
+                {
+                    return false; // obstacle blocks line of sight
+                }
+                checkPos += direction;
+            }
+
+            return true;
+        }
+
+        private void ShootProjectile(Vector2 direction, Player player)
+        {
             if (direction == Vector2.Zero) return; 
 
             // creating a projectile gameobject for enemies
@@ -67,3 +109,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
     }
 }
 
+// needs to move if they dont have a clear shot / sight line of the player.
+// either shoot or move on their turn
+// projectiles cannot go diagonally

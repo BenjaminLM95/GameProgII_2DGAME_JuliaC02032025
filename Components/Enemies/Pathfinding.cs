@@ -124,7 +124,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             foreach (var node in nodeMap) // Reset all nodes in the map
             {
-                node.Reset();
+                node.Reset(); // when entering new level, node becomes null
             }
 
             // Get the start and goal nodes

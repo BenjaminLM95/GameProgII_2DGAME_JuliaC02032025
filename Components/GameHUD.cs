@@ -18,6 +18,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         Combat combat;
         SpriteFont myFont; // FONT
         TileMap tileMap;
+        HealthSystem healthSystem;
         Player player;
 
         // ---------- VARIABLES ---------- //
@@ -36,11 +37,22 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private int spacing = 1;  // Space between inv slots
         public bool isMenuActive = true; // start showing the menu
 
+        // button pos and activation state
+        private Rectangle playButtonBounds;
+        private Rectangle quitButtonBounds;
+        private bool playButtonActive = true;
+        private bool quitButtonActive = true;
+        private bool buttonWasReleased = true;
+
         // ---------- METHODS ---------- //
         public override void Start()
         {
+            Globals.Instance._gameHUD = this;
+
             // load & draw the font like a texture
             myFont = Globals.content.Load<SpriteFont>("Minecraft"); // loading font
+
+            menuBackground = Globals.content.Load<Texture2D>("background");
             blankButton = Globals.content.Load<Texture2D>("blankButton"); // loading blank button texutre
             pressedButton = Globals.content.Load<Texture2D>("pressedButton"); // loading pressed button texutre
 
@@ -72,6 +84,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (tileMap == null) {
                 Debug.WriteLine("GameHUD: TileMap reference is NULL!");
             }
+            // Get HealthSystem reference
+            healthSystem = globals._healthSystem;
+            if (healthSystem == null)
+            {
+                Debug.WriteLine("GameHUD: healthSystem reference is NULL!");
+            }
 
             // Initialize the empty inventory projSprite
             if (emptyInvTexture == null)
@@ -89,9 +107,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             for (int i = 0; i < 5; i++) {
                 itemSlotSprites.Add(new Sprite { Texture = emptyInvTexture });
             }
+
+            // Initialize button bounds
+            playButtonBounds = new Rectangle(375, 100, 200, 50);
+            quitButtonBounds = new Rectangle(375, 150, 200, 50);
         }
-        public override void Update(float deltaTime) {                       
+        public override void Update(float deltaTime) 
+        {                       
             UpdateInventoryHUD();
+
+            if (isMenuActive)
+            {
+                Globals.TimeScale = 0f;
+                HandleButtonInteractions();
+            }
         }
 
         // checks the player's inventory for items, fills with matching item texture when called, empty if used
@@ -167,11 +196,25 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             };
         }
 
-        private string DrawFont(string text, Vector2 position)
+        public string DrawFont(string text, Vector2 position)
         {
             Globals.spriteBatch.DrawString(
                         myFont, text, position, Color.White);
             return text;
+        }
+        public void DrawLevelFont(Vector2 position)
+        {
+            //levelNumber
+            int level = Globals.Instance._mapSystem.levelNumber;
+            DrawFont("Level: "+level, position);
+        }
+        public void DrawHealth(Vector2 position) // (add playerObject?)
+        {
+            //health 
+            //player.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-10);
+            //int health = healthSystem.CurrentHealth;
+            int health = 100;
+            DrawFont("Player Health: " + health, position);
         }
 
         private void DrawButton(Vector2 position, string text)
@@ -192,38 +235,95 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         public void DrawScreen()
         {
-            // set game time to timescale 0 to pause the gameplay
-            // call this in Game1 Draw()
-            // put font on button, draws menuBackground texture on the whole screen
-            // make sure to center text position on the button
-            Vector2 buttonPos = new Vector2(375,100);
-            Vector2 button2Pos = new Vector2(375, 150);
+            // only draw buttons if they're active
+            if (isMenuActive)
+            {
+                Globals.spriteBatch.Draw(menuBackground, Vector2.Zero, Color.White);
 
-            DrawButton(buttonPos,"PLAY");
-            DrawButton(button2Pos, "QUIT");
+                Vector2 playButtonPos = new Vector2(playButtonBounds.X, playButtonBounds.Y);
+                Vector2 quitButtonPos = new Vector2(quitButtonBounds.X, quitButtonBounds.Y);
+
+                // only draw buttons if they're active
+                if (playButtonActive)
+                {
+                    MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
+                    Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
+
+                    if (playButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        // draw pressed texture for Play
+                        Globals.spriteBatch.Draw(pressedButton, playButtonPos, Color.White);
+                    }
+                    else {
+                        DrawButton(playButtonPos, "PLAY"); // draw Play
+                    }
+                }
+
+                if (quitButtonActive)
+                {
+                    MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
+                    Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
+
+                    if (quitButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        // draw pressed texture for Quit
+                        Globals.spriteBatch.Draw(pressedButton, quitButtonPos, Color.White);
+                    }
+                    else {
+                        DrawButton(quitButtonPos, "QUIT"); // draw Quit
+                    }
+                }
+            }
         }
         private void ClearScreen()
         {
-            // deactivates all the buttons and the menu screen background
+            // Deactivate all the buttons and the menu screen background
+            playButtonActive = false;
+            quitButtonActive = false;
+            isMenuActive = false;
         }
 
-        public bool IsButtonPressed()
+        private void HandleButtonInteractions()
         {
             MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
-            Vector2 MousePos = new Vector2(mouseState.X, mouseState.Y);
-            // get player's mouse position on screen
-            /*
-                MouseState.X - 
-                Horizontal position of the mouse cursor 
-                in relation to the upper-left corner of the game window.
+            Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
+            bool isLeftButtonPressed = mouseState.LeftButton == ButtonState.Pressed;
+            bool isLeftButtonReleased = mouseState.LeftButton == ButtonState.Released;
 
-                MouseState.Y - Vertical position of the mouse cursor 
-                in relation to the upper-left corner of the game window.
-            */
-            // if mouse position is button, switch sprite to pressed button and wait for left mouse click
-            // if clicked, set menu UI false and timescale to 1 and isMenuActive = false
+            // Reset button released state when mouse button is released
+            if (isLeftButtonReleased)
+            {
+                buttonWasReleased = true;
+            }
 
-            return false;
+            // Check Play button
+            if (playButtonActive && playButtonBounds.Contains(mousePos))
+            {
+                if (isLeftButtonPressed && buttonWasReleased)
+                {
+                    // Play button pressed
+                    isMenuActive = false;
+                    playButtonActive = false;
+                    buttonWasReleased = false;
+                    Debug.WriteLine("GameHUD: Play button pressed!");
+                    
+                    Globals.TimeScale = 1f; // unpauses the game
+                }
+            }
+
+            // Check Quit button
+            if (quitButtonActive && quitButtonBounds.Contains(mousePos))
+            {
+                if (isLeftButtonPressed && buttonWasReleased)
+                {
+                    // Quit button pressed
+                    quitButtonActive = false;
+                    buttonWasReleased = false;
+                    Debug.WriteLine("GameHUD: Quit button pressed!");
+
+                    Globals.GameInstance.Exit(); // exit the game
+                }
+            }
         }
     }
 }

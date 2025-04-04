@@ -13,4 +13,5 @@ internal class Component // Abstract
 
     public virtual void Draw(SpriteBatch spriteBatch) { }
     public virtual void LoadContent() { }
+    public virtual void OnDestroy() { }
 }

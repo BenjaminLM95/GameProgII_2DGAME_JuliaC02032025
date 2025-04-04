@@ -10,6 +10,7 @@ internal class GameObject
     public Vector2 Position { get; set; } = new Vector2(100, 100);
     private float rotation = 50f;
     private bool hasComponent { get; set; }
+    public bool IsDestroyed { get; set; } = false;
 
     public List<Component> _components = new List<Component>();
 

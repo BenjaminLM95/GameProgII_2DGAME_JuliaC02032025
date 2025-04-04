@@ -151,3 +151,65 @@ was in Pathfinding.cs
 
 // when checking neoghbors, only read neighbors if X, Y are one of them 0
 // like if X != 0 && Y != 0 continue;
+
+old AddEnemy() that Game1 would initlalize
+ void AddEnemy()
+        {
+           Enemy enemyComponent = Globals.Instance._enemy;
+           if (enemyComponent == null)
+           {
+               enemyComponent = new Enemy();
+               Globals.Instance._enemy = enemyComponent;
+           }
+
+           // spawn a specific number of enemies
+           int level = 5; // amount of enemies
+           int enemyCount = Math.Clamp(level, 2, 10);
+
+           for (int i = 0; i < enemyCount; i++)
+           {
+               //create enemy game object
+               GameObject enemyObject = new GameObject();
+
+               // create components
+               Enemy newEnemy = new Enemy();
+               Sprite enemySprite = new Sprite();
+               Pathfinding enemyPathfinding = new Pathfinding();
+               HealthSystem enemyHealth = new HealthSystem(
+                   maxHealth: 50,
+                   type: HealthSystem.EntityType.Enemy
+               );
+
+               // add components to enemy game object
+               enemyObject.AddComponent(newEnemy);
+               enemyObject.AddComponent(enemySprite);
+               enemyObject.AddComponent(enemyPathfinding);
+               enemyObject.AddComponent(enemyHealth);
+
+               // load sprite
+               enemySprite.LoadSprite("enemy");
+
+               // get a random spawn tile
+               Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
+
+               if (randomTile != new Vector2(-1, -1))
+               {
+                   enemyObject.Position = randomTile;
+
+                   // initialize pathfinding if tilemap exists
+                   TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
+                   if (tileMap != null)
+                   {
+                       enemyPathfinding.InitializePathfinding(tileMap);
+                       Debug.WriteLine($"Enemy: Spawned and initialized pathfinding at position - {randomTile}");
+                   }
+                   else
+                   {
+                       Debug.WriteLine("Enemy: CRITICAL - Cannot initialize pathfinding, TileMap is NULL");
+                   }
+
+                   // add to scene
+                   Globals.Instance._scene.AddGameObject(enemyObject);
+               }
+           }
+        }
