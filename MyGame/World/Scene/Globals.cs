@@ -42,7 +42,6 @@ internal class Globals
     public Enemy _enemy;
     public RangedEnemy _rangedEnemy;
     public GhostEnemy _ghostEnemy;
-    public Combat _combat;
     public TurnManager _turnManager;
     public GameHUD _gameHUD;
     public Pathfinding _pathfinding;
@@ -55,5 +54,6 @@ internal class Globals
         _instance = this;
         _scene = new Scene();
         _gameObject = new GameObject();
+        _turnManager = new TurnManager();
     }   
 }

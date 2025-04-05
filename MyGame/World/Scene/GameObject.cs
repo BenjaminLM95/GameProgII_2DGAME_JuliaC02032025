@@ -20,7 +20,8 @@ internal class GameObject
     public void AddComponent(Component component)
     {
         component.GameObject = this;
-        _components.Add(component); 
+        _components.Add(component);
+        component.OnAddedToGameObject(); 
         component.Start();
     }
 
@@ -85,5 +86,22 @@ internal class GameObject
             }
         }
         return null;
+    }
+
+    // returns all components of a given type T across all GameObjects in the scene
+    public static List<T> GetAllComponents<T>()
+    {
+        List<T> components = new List<T>();
+
+        foreach (GameObject obj in Globals.Instance._scene._gameObjects)
+        {
+            foreach (var component in obj._components)
+            {
+                if (component is T t)
+                    components.Add(t);
+            }
+        }
+
+        return components;
     }
 }

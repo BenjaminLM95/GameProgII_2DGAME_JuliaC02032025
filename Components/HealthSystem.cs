@@ -12,10 +12,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
     internal class HealthSystem : Component
     {
         Globals globals;
-        Combat combat;
 
         // ---------- VARIABLES ---------- //
-        // property Health
         public int CurrentHealth { get; private set; }
         public int MaxHealth { get; private set; } = 100;
         public enum EntityType
@@ -53,22 +51,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 Debug.WriteLine($"HealthSystem: Globals was NULL.");
             }
-            combat = GameObject.GetComponent<Combat>();
-            if (combat == null)
-            {
-                Debug.WriteLine("Inventory: Combat was NULL.");
-            }
-
+            
             CurrentHealth = MaxHealth; // Initialize health to full
             IsAlive = true;
         }
         public override void Update(float deltaTime)
         {
-            if (combat == null) // if created later, iterate until it is found
-            {
-                combat = globals._combat;
-                if (combat == null) return;
-            }
+            base.Update(deltaTime);
         }
         public void TakeDamage(int damage)
         {
@@ -76,8 +65,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             CurrentHealth -= damage;
 
-            // Show damage effect (can be customized)
-            //combat.DrawDamageIndicator(damage); // fix null combat reference, change dmg ind to GameHUD?
             Debug.WriteLine($"[HealthSystem] {Type} took {damage} damage. Current Health: {CurrentHealth}");
 
             // Check if entity dies
@@ -85,6 +72,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 CurrentHealth = 0;
                 IsAlive = false;
+                // Destroy the GameObject if it's an enemy
+                if (Type == EntityType.Enemy && GameObject != null)
+                {
+                    EnemyDeath();
+                }
                 Die();
             }
         }

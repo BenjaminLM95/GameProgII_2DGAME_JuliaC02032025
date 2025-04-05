@@ -9,9 +9,10 @@ using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
-{   
+{  
     internal class Pathfinding : Component
     {
+        /* 
         // ---------- REFERENCES ---------- //
         private Globals globals;
         private TileMap tileMap;
@@ -280,5 +281,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             FCost = int.MaxValue;
             exploredFrom = Point.Zero;
         }
+    */
+
     }
 }

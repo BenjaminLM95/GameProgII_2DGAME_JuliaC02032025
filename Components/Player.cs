@@ -14,13 +14,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
     /// <summary>
     /// Handles player input, movement, and interactions with the map (e.g., obstacles, exit).
     /// </summary>
-    internal class Player : Component
+    internal class Player : Component, ITurnTaker
     {
         Globals globals;
         private TileMap tileMap;
         private HealthSystem healthSystem;
         private Sprite playerSprite;
         private Inventory inventory;
+        private TurnManager turnManager; 
 
         // ---------- VARIABLES ---------- //
 
@@ -29,10 +30,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private int spriteScale = 1;
 
         // Turn based combat
+        private bool canMove = false;
         public bool hasMovedThisTurn = false;
         public bool playerMovedOntoEnemyTile { get; private set; }
 
         public Vector2 LastMovementDirection { get; private set; } = Vector2.UnitX; // Default facing right
+        private KeyboardState previousKeyboardState;
 
         public Player() { }
         public Player(TileMap tileMap)
@@ -45,6 +48,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // Initializes the player by finding the map system and tile map.
         public override void Start()
         {
+            Debug.WriteLine("Player: START()");
             // null checks & component assignment
             globals = Globals.Instance; // globals
             
@@ -76,14 +80,36 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             Debug.WriteLine("Player: Waiting for map initialization and start position...");
             MoveToStartTile();
+            StartTurn(turnManager);
         }
-
-        // Updates the player's position based on input, checking for obstacles before moving.
+        public void StartTurn(TurnManager manager)
+        {
+            canMove = true;
+            turnManager = manager;
+            Debug.WriteLine("Player: Turn started.");
+        }
+        public void ResetTurn()
+        {
+            canMove = false;
+            hasMovedThisTurn = false;
+            Debug.WriteLine("Player: Turn reset.");
+        }
+        public void EndPlayerTurn()
+        {
+            canMove = false;
+            if (turnManager != null)
+            {
+                turnManager.EndTurn();
+                Debug.WriteLine("Player: Turn ended.");
+            }
+        }
+        
         public override void Update(float deltaTime)
         {
-            // need to keep checking for button pressed
+            if (!canMove || hasMovedThisTurn)
+                return; // Disallow movement if it's not player's turn or they've already moved
 
-            if (hasMovedThisTurn || !Combat.Instance.isPlayerTurn) return;
+            if (hasMovedThisTurn || turnManager == null) return;
 
             if (tileMap == null)  
             {
@@ -96,8 +122,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Debug.WriteLine("Player: Still trying to find HealthSystem component...");
             }
             ReadInput(); // WASD and 1,2,3,4,5, check tiles = Obstacle/Enemy/Item
+            previousKeyboardState = Keyboard.GetState();
         }
-        private void ReadInput(bool debug = false)
+        private void ReadInput(bool debug = true)
         {
             // Input
             Vector2 currentPos = GameObject.Position;
@@ -105,90 +132,111 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             bool moved = false;
             Vector2 movementDirection = Vector2.Zero;
 
-            KeyboardState KeyboardState = Keyboard.GetState();
+            KeyboardState currentKeyboardState = Keyboard.GetState();
 
-            if (KeyboardState.IsKeyDown(Keys.W))
+            if (IsNewKeyPress(currentKeyboardState, previousKeyboardState, Keys.W))
             {
                 if(debug) Debug.WriteLine($"Player: moving UP");
                 targetPos.Y -= tileSize;
                 moved = true;
                 movementDirection = -Vector2.UnitY;
             }
-            if (KeyboardState.IsKeyDown(Keys.A))
+            if (IsNewKeyPress(currentKeyboardState, previousKeyboardState, Keys.A))
             {
                 if (debug) Debug.WriteLine($"Player: moving LEFT");
                 targetPos.X -= tileSize;
                 moved = true;
                 movementDirection = -Vector2.UnitX;
             }
-            if (KeyboardState.IsKeyDown(Keys.S))
+            if (IsNewKeyPress(currentKeyboardState, previousKeyboardState, Keys.S))
             {
                 if (debug) Debug.WriteLine($"Player: moving DOWN");
                 targetPos.Y += tileSize;
                 moved = true;
                 movementDirection = Vector2.UnitY;
             }
-            if (KeyboardState.IsKeyDown(Keys.D))
+            if (IsNewKeyPress(currentKeyboardState, previousKeyboardState, Keys.D))
             {
                 if (debug) Debug.WriteLine($"Player: moving RIGHT");
                 targetPos.X += tileSize;
                 moved = true;
                 movementDirection = Vector2.UnitX;
             }
-            // Check if a number key (1-5) is pressed to use an item
-            for (int i = 0; i < 5; i++)
+            
+            for (int i = 0; i < 5; i++) // Check if a number key (1-5) is pressed to use an item
             {
                 Keys key = (Keys)((int)Keys.D1 + i); // Maps 1-5 keys
-                if (KeyboardState.IsKeyDown(key))
+
+                if (IsNewKeyPress(currentKeyboardState, previousKeyboardState, key))
                 {
-                    if (debug) Debug.WriteLine($"Player: reading keys 1-5"); // works
+                    if (debug) Debug.WriteLine($"Player: reading keys 1-5"); 
                     inventory.UseInventoryItem(i);
                 }
             }
 
-            if (moved && !hasMovedThisTurn)
+            if (moved) 
             {
-                // Update last movement direction
-                if (movementDirection != Vector2.Zero)
+                // Prevent illegal movement more than 32 pixels
+                Vector2 difference = targetPos - currentPos;
+                if (Math.Abs(difference.X) > tileSize || Math.Abs(difference.Y) > tileSize)
+                {
+                    Debug.WriteLine("Player: THAT'S ILLEGAL! Only 1 tile (32px) allowed per turn.");
+                    return;
+                }
+                if (difference.X != 0 && difference.Y != 0)
+                {
+                    Debug.WriteLine("Player: Diagonal movement not allowed.");
+                    return;
+                }
+                if (movementDirection != Vector2.Zero) // Update last movement direction
                 {
                     LastMovementDirection = movementDirection;
                 }
                 // Convert target position to tile coordinates
                 Point targetTilePos = GetTileCoordinates(targetPos);
 
-                // Check if target tile is an obstacle before moving
-                if (!IsObstacle(targetTilePos))
+                // Check obstacle
+                if (IsObstacle(targetTilePos))
                 {
-                    GameObject.Position = targetPos;
-                    if (debug) Debug.WriteLine($"Player: moved to position - {targetPos}");
-                    hasMovedThisTurn = true;
-                    // Combat
-                    // If the player successfully moves, advance the turn
-                    Combat.Instance.AdvanceToNextTurn();
+                    Debug.WriteLine("Player: Can't move, tile is an obstacle.");
+                    return;
                 }
+
                 if (IsExit(targetTilePos)) // if tile is exit, Load Next Level
                 {
                     GameObject.Position = targetPos;
                     hasMovedThisTurn = true;
-                    // gen rand next level
-                    globals._mapSystem.LoadNextLevel();
-                    // Advance turn after moving to exit
-                    Combat.Instance.AdvanceToNextTurn();
+                    
+                    globals._mapSystem.LoadNextLevel(); // gen rand next level
+                    
+                    EndPlayerTurn(); // Advance turn after moving to exit
+                    return;
                 }
+
                 if (IsItem(targetTilePos)) // if tile is an Item, add it to inventory
                 {
                     GameObject.Position = targetPos;
                     if (debug) Debug.WriteLine($"Player: moved to ITEM position - {targetPos}");
                     hasMovedThisTurn = true;
 
-                    // Pick up the item at this position
-                    PickUpItem(targetTilePos);
+                    PickUpItem(targetTilePos); // Pick up the item at this position
 
-                    Combat.Instance.AdvanceToNextTurn();
+                    EndPlayerTurn();
                     if (debug) Debug.WriteLine("Current Inventory: "
                         + string.Join(", ", inventory.items.ConvertAll(i => i.Type.ToString())));
+                    return;
                 }
+
+                // Normal move
+                GameObject.Position = targetPos;
+                if (debug) Debug.WriteLine($"Player: moved to position - {targetPos}");
+                hasMovedThisTurn = true;
+                EndPlayerTurn();
             }
+        }
+        private bool IsNewKeyPress(KeyboardState current, KeyboardState previous, Keys key)
+        {
+            return current.IsKeyDown(key) && previous.IsKeyUp(key);
         }
 
         // Convert world position to tile coordinates
@@ -310,17 +358,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
             Debug.WriteLine("Player: Start tile not found!");
         }
-      
-        public void ResetTurn()
-        {
-            // Reset movement state
-            hasMovedThisTurn = false;
-            playerMovedOntoEnemyTile = false;
-
-            Debug.WriteLine("Player: Turn reset - ready to move again");
-            Debug.WriteLine($"Player: current health: {healthSystem.CurrentHealth}");
-        }
-        public void TakeDamage(int damage) => healthSystem.ModifyHealth(-damage);
 
         // Combat
         private void AttackEnemyAtPosition(Point enemyTilePosition)
@@ -336,13 +373,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 {
                     // Attack the enemy if found at the target position
                     Attack(enemy, 10);
+                    EndPlayerTurn();
                     break;
                 }
             }
         }
         public void Attack(Enemy enemy, int amountdmg)
         {
-            Debug.WriteLine("Player: Attacked enemy for 10 dmg");
+            Debug.WriteLine($"Player: Attacked enemy for {amountdmg} dmg");
             if (enemy != null) {
                 enemy.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-amountdmg);
             }

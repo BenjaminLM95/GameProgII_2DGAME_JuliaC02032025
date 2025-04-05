@@ -37,6 +37,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public Texture2D emptyInvTexture { get; private set; }
         public Texture2D playerFireballProj { get; private set; }
         public Texture2D archerProj { get; private set; }
+        public Texture2D bossTexture { get; private set; }
+        public Texture2D bossProj { get; private set; }
 
         public TileMap() { }
         public TileMap(SpriteBatch spriteBatch)
@@ -90,6 +92,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 emptyInvTexture = content.Load<Texture2D>("emptyInvTexture");
                 playerFireballProj = content.Load<Texture2D>("player_FireballProj");
                 archerProj = content.Load<Texture2D>("archer_proj");
+                bossTexture = content.Load<Texture2D>("boss");
+                bossProj = content.Load<Texture2D>("boss_proj");
 
                 Debug.WriteLine("TileMap: Textures loaded successfully.");
             }

@@ -65,7 +65,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // clearing lists of enemies
             Enemy._enemies.Clear();
             Enemy.AllEnemies.Clear();
-            EnemySpawner.RespawnEnemies(levelNumber); // respawning TEST
+            EnemySpawner.RespawnEnemies(5); // respawning TEST
+            // implement boss levels, no other enemies spawn
+
 
             GenerateMap();
             levelNumber++; // next level

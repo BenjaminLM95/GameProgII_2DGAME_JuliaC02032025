@@ -63,18 +63,17 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             AddPlayer();
             // add logic here to track mapSystem's levelNumver int variable, every time it goes up respawn
-            //AddEnemy();
             EnemySpawner.RespawnEnemies(Globals.Instance._mapSystem.levelNumber);
-            AddRangedEnemy();
-            AddGhostEnemy();
 
-            AddCombat();
+            //AddCombat();
             // ***** TURN MANAGER ***** //
-            //GameObject turnManagerObj = new GameObject();
-            //TurnManager turnManager = new TurnManager();
-            //turnManagerObj.AddComponent(turnManager);
-            //Globals.Instance._turnManager = turnManager;
-            //Globals.Instance._scene.AddGameObject(turnManagerObj);
+            GameObject turnManagerObj = new GameObject();
+            TurnManager turnManager = new TurnManager();
+
+            Globals.Instance._turnManager = turnManager;
+            turnManagerObj.AddComponent(turnManager);
+
+            Globals.Instance._scene.AddGameObject(turnManagerObj);
 
             // ***** HUD ***** //
             GameObject hudObj = new GameObject();
@@ -113,7 +112,7 @@ namespace GameProgII_2DGame_Julia_C02032025
             // Draw all scene objects (including all GameObjects & thier Components)
             Globals.Instance._scene.Draw(Globals.spriteBatch);
             
-            Globals.Instance._combat.DrawTurnIndicator(); // draw turn indicator
+            //Globals.Instance._combat.DrawTurnIndicator(); // draw turn indicator
             Globals.Instance._gameHUD.DrawInventoryHUD(); // draw inventory slots HUD
             Vector2 levelPos = new Vector2(640, 10);
             Globals.Instance._gameHUD.DrawLevelFont(levelPos);
@@ -137,16 +136,16 @@ namespace GameProgII_2DGame_Julia_C02032025
             maxHealth: 100,
             type: HealthSystem.EntityType.Player
             );
-            //Inventory inventory = new Inventory();
 
             playerObject.AddComponent(player);
             playerObject.AddComponent(playerSprite);
             playerObject.AddComponent(playerHealth);
-            //playerObject.AddComponent(inventory);
             playerSprite.LoadSprite("player");
 
             Globals.Instance._player = player;
             Globals.Instance._scene.AddGameObject(playerObject);
+
+            //Globals.Instance._turnManager.AddTurnTaker(player); // Add player to the turn queue
         }
 
         // ***** MAP ***** //
@@ -159,100 +158,6 @@ namespace GameProgII_2DGame_Julia_C02032025
             mapObject.AddComponent(mapSystem);
             // Add created GameObject to the scene
             Globals.Instance._scene.AddGameObject(mapObject);
-        }
-
-        // ***** ENEMIES ***** //
-        void AddRangedEnemy()
-        {
-            RangedEnemy rangedEnemyComponent = Globals.Instance._rangedEnemy;
-            if (rangedEnemyComponent == null)
-            {
-                rangedEnemyComponent = new RangedEnemy();
-                Globals.Instance._rangedEnemy = rangedEnemyComponent;
-            }
-
-            // spawn a specific number of enemies
-            int level = 2; // amount of enemies
-            int enemyCount = Math.Clamp(level, 2, 5);
-
-            for (int i = 0; i < enemyCount; i++)
-            {
-                // create ranged enemy game object
-                GameObject rangedEnemyObg = new GameObject();
-
-                // create components
-                RangedEnemy newEnemy = new RangedEnemy();
-                Sprite enemySprite = new Sprite();
-                HealthSystem enemyHealth = new HealthSystem(
-                    maxHealth: 80,
-                    type: HealthSystem.EntityType.Enemy
-                );
-
-                // add components to enemy game object
-                rangedEnemyObg.AddComponent(newEnemy);
-                rangedEnemyObg.AddComponent(enemySprite);
-                rangedEnemyObg.AddComponent(enemyHealth);
-
-                // load sprite
-                enemySprite.LoadSprite("archer");
-
-                // get a random spawn tile
-                Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
-
-                if (randomTile != new Vector2(-1, -1))
-                {
-                    rangedEnemyObg.Position = randomTile;
-                    
-                    TileMap tileMap = Globals.Instance._mapSystem.Tilemap;
-
-                    Globals.Instance._scene.AddGameObject(rangedEnemyObg);
-                }
-            }
-        }       
-        void AddGhostEnemy()
-        {
-            Enemy enemyComponent = Globals.Instance._enemy;
-            if (enemyComponent == null)
-            {
-                enemyComponent = new Enemy();
-                Globals.Instance._enemy = enemyComponent;
-            }
-
-            // spawn a specific number of enemies
-            int level = 3; // amount of enemies
-            int enemyCount = Math.Clamp(level, 2, 4);
-
-            for (int i = 0; i < enemyCount; i++)
-            {
-                //create enemy game object
-                GameObject enemyObject = new GameObject();
-
-                // create components
-                GhostEnemy newEnemy = new GhostEnemy(); 
-                Sprite enemySprite = new Sprite();
-                HealthSystem enemyHealth = new HealthSystem(30, HealthSystem.EntityType.Enemy);
-
-                enemyObject.AddComponent(newEnemy);
-                enemyObject.AddComponent(enemySprite);
-                enemyObject.AddComponent(enemyHealth);
-                enemySprite.LoadSprite("ghost");
-
-                // get a random spawn tile
-                Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
-                Globals.Instance._scene.AddGameObject(enemyObject);
-            }
-        }
-
-        // ***** COMBAT ***** //
-        void AddCombat()
-        {
-            GameObject combatObj = new GameObject();
-            Combat combat = new Combat();
-            combatObj.AddComponent(combat);
-
-            Globals.Instance._combat = combat;
-            Globals.Instance._scene.AddGameObject(combatObj);
-            combat.Start();
         }
 
         // ***** ITEMS ***** //

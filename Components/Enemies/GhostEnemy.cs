@@ -13,9 +13,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 {
     internal class GhostEnemy : Enemy
     {
-        Globals globals;
-        TileMap tileMap;
-        Pathfinding pathfinding;
         public GhostEnemy() : base(EnemyType.Ghost)
         {
             config.SpriteName = "ghost";
@@ -29,18 +26,45 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Player player = GameObject.FindObjectOfType<Player>();
             if (player == null) return;
 
-            // get the position of the player
-            Vector2 targetPosition = player.GameObject.Position;
-            Vector2 direction = targetPosition - GameObject.Position;
-
-            // normalize the direction to ensure consistent speed
-            if (direction.Length() > 0)
+            if (IsNextToPlayer(player))
             {
-                direction.Normalize();
+                Attack(player);
+            }
+            else
+            {
+                MoveTowardsPlayer(player, debug: true);
+            }
+        }
+
+        public override void MoveTowardsPlayer(Player player, bool debug = false)
+        {
+            // basic movement logic - move one tile towards the player
+            Vector2 playerPos = player.GameObject.Position;
+            Vector2 enemyPos = GameObject.Position;
+
+            // calculate direction to player
+            Vector2 direction = playerPos - enemyPos;
+
+            // normalize to get the primary direction
+            if (Math.Abs(direction.X) > Math.Abs(direction.Y))
+            {
+                // move horizontally
+                direction.Y = 0;
+                direction.X = direction.X > 0 ? 32 : -32;
+            }
+            else
+            {
+                // move vertically
+                direction.X = 0;
+                direction.Y = direction.Y > 0 ? 32 : -32;
             }
 
-            // move the ghost towards the player by a certain speed
-            GameObject.Position += direction * config.MovementSpeed * deltaTime;
+            // calculate target position
+            Vector2 targetPos = enemyPos + direction;
+            Point targetTile = new Point((int)targetPos.X / 32, (int)targetPos.Y / 32);
+            // no tile walkable check
+            GameObject.Position = targetPos;
+            hasMoved = true;
         }
     }
 }
