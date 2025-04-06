@@ -40,14 +40,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 EnemyType.Ghost => new EnemyConfig
                 {
                     SpriteName = "ghost",
-                    MaxHealth = 50,
-                    Damage = 10,
+                    MaxHealth = 20,
+                    Damage = 8,
                     MovementSpeed = 1.5f
                 },
                 EnemyType.Archer => new EnemyConfig
                 {
                     SpriteName = "archer",
-                    MaxHealth = 50,
+                    MaxHealth = 40,
                     Damage = 10,
                     MovementSpeed = 1f
                 },
@@ -326,7 +326,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             player.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-10);
         }
     }
-
+    // ========== SPAWNING CLASS ========== //
     public static class EnemySpawner
     {
         public static void RespawnEnemies(int level)
@@ -334,7 +334,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             // Clean up old enemies
             foreach (GameObject enemy in Enemy.AllEnemies.ToList())
             {
-                Globals.Instance._scene.RemoveGameObject(enemy);
+                enemy.Destroy();
             }
             Enemy.AllEnemies.Clear();
             Enemy._enemies.Clear();
@@ -347,12 +347,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             int ghostCount = Math.Max(1, enemyCount / 2);
             int archerCount = Math.Max(2, enemyCount - slimeCount - ghostCount);
 
-            int bossCount = Math.Max(1, enemyCount / 2);
-            // spawn boss
-            for (int i = 0; i < slimeCount; i++)
-            {
-                SpawnEnemy(new BossEnemy());
-            }
+            //spawn boss
+            SpawnEnemy(new BossEnemy());
 
             // Spawn slimes
             for (int i = 0; i < slimeCount; i++)
@@ -373,6 +369,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
         }
 
+        public static void SpawnBoss(bool debug = false)
+        {
+            Debug.WriteLine("EnemySpawner: Explicitly spawning BOSS");
+            // Clean up old enemies
+            foreach (GameObject enemy in Enemy.AllEnemies.ToList())
+            {
+                enemy.Destroy();
+            }
+            Enemy.AllEnemies.Clear();
+            Enemy._enemies.Clear();
+
+            SpawnEnemy(new BossEnemy());
+        }
+
         private static void SpawnEnemy(Enemy enemyComponent, bool debug = false)
         {
             GameObject enemyObject = new GameObject();
@@ -389,8 +399,20 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             enemyObject.AddComponent(enemySprite);
             enemyObject.AddComponent(enemyHealth);
 
+            // Register enemy in global lists - this is making enemies stay after death
+            //Enemy.AllEnemies.Add(enemyObject);
+            //Enemy._enemies.Add(enemyComponent);
+
             // load sprite
             enemySprite.LoadSprite(enemyComponent.config.SpriteName);
+            if (enemySprite.Texture == null)
+            {
+                Debug.WriteLine($"EnemySpawner: FAILED to load sprite for {enemyComponent.Type}!");
+            }
+            else
+            {
+                Debug.WriteLine($"EnemySpawner: Successfully loaded sprite for {enemyComponent.Type}!");
+            }
 
             // get a valid tile
             Vector2 randomTile = Globals.Instance._mapSystem.GetRandomEmptyTile();
@@ -401,9 +423,17 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
 
             enemyObject.Position = randomTile;
+            Debug.WriteLine($"EnemySpawner: {enemyComponent.Type} spawned at {randomTile}");
 
             // track and add to scene
             Globals.Instance._scene.AddGameObject(enemyObject);
+
+            // Register with TurnManager
+            if (TurnManager.Instance != null)
+            {
+                TurnManager.Instance.RegisterTurnTaker(enemyComponent);
+                if (debug) Debug.WriteLine($"EnemySpawner: Added {enemyComponent.Type} to TurnManager");
+            }
         }
     }
 }

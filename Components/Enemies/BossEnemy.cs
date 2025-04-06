@@ -14,6 +14,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 {
     internal class BossEnemy : Enemy, ITurnTaker
     {
+        // ---------- VARIABLES ---------- //
         Texture2D atkIndicatorNothing, atkIndicatorMove, atkIndicatorCharge, atkIndicatorShoot;
         private List<Texture2D> predictedActions = new List<Texture2D>();
         private Texture2D predictedAction = null;
@@ -23,11 +24,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         public BossEnemy() : base(EnemyType.Boss) // Set boss type
         {
             config.SpriteName = "boss";
-            config.MaxHealth = 100;
+            config.MaxHealth = 150;
             config.Damage = 20;
             config.MovementSpeed = 1;
         }
 
+        // ---------- METHODS ---------- //
         public override void Start()
         {
             base.Start();
@@ -289,7 +291,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             // Action 1: Doing nothing
             if (distance > 3 && !HasLineOfSightToPlayer(player, out shootDirection))
             {
-                predictedAction = atkIndicatorMove; // should check random number?
+                predictedAction = atkIndicatorMove; // should check random number, nothing happens a lot but just as often as moving??
             }
             // Action 2: Moving towards the player
             else if (distance > 3 && !HasLineOfSightToPlayer(player, out shootDirection))
@@ -306,11 +308,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             {
                 predictedAction = atkIndicatorShoot;
             }
-        }
-
-        public void OnKill()
-        {
-            // send a message to GameHUD to display win screen
         }
     }
 }

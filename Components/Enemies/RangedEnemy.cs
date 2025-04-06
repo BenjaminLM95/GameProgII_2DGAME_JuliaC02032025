@@ -20,10 +20,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         {
             config.SpriteName = "archer"; // Use archer sprite
             config.MaxHealth = 40;
-            config.Damage = 15;
+            config.Damage = 10;
             config.MovementSpeed = 1; // Archers move if no line of sight
         }
 
+        // ---------- METHODS ---------- //
         public override void StartTurn(TurnManager manager)
         {
             if (IsDead())
@@ -37,7 +38,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             if (player == null || player.GameObject == null)
             {
-                Debug.WriteLine("RangedEnemy: No valid player reference.");
+                //Debug.WriteLine("RangedEnemy: No valid player reference.");
                 manager.EndTurn();
                 return;
             }
@@ -46,13 +47,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Vector2 shootDirection;
             if (HasLineOfSightToPlayer(player, out shootDirection))
             {
-                Debug.WriteLine("RangedEnemy: Attacking player from distance!");
+                //Debug.WriteLine("RangedEnemy: Attacking player from distance!");
                 ShootProjectile(shootDirection, player);
                 hasShot = true;
             }
             else
             {
-                Debug.WriteLine("RangedEnemy: No line of sight, moving toward player...");
+                //Debug.WriteLine("RangedEnemy: No line of sight, moving toward player...");
                 MoveTowardsPlayer(player, debug: true);
             }
 
@@ -64,7 +65,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Player player = GameObject.FindObjectOfType<Player>();
             if (player == null)
             {
-                Debug.WriteLine("RangedEnemy: Player not found.");
+                //Debug.WriteLine("RangedEnemy: Player not found.");
                 return;
             }
         }
@@ -74,15 +75,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Vector2 shootDirection;
             if (HasLineOfSightToPlayer(player, out shootDirection))
             {
-                Debug.WriteLine("RangedEnemy: Line of sight to player found. Shooting.");
+                //Debug.WriteLine("RangedEnemy: Line of sight to player found. Shooting.");
                 ShootProjectile(shootDirection, player);
-                //player.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-config.Damage); // projectile damage
                 hasShot = true;
                 return;
             }
         }
-
-        private bool HasLineOfSightToPlayer(Player player, out Vector2 direction)
+        // ---------- Shooting Logic ---------- //
+        private bool HasLineOfSightToPlayer(Player player, out Vector2 direction, bool debug = false)
         {
             Vector2[] directions = new Vector2[] // can choose UP, DOWN, LEFT, RIGHT each turn for shoot direction
             {
@@ -107,26 +107,24 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                     if (Vector2.DistanceSquared(checkPos, playerPos) < 1f)
                     {
                         direction = dir;
-                        Debug.WriteLine($"RangedEnemy: Line of sight confirmed in direction {direction}");
+                        if (debug) Debug.WriteLine($"RangedEnemy: Line of sight confirmed in direction {direction}");
                         return true;
                     }
 
                     // if the tile is not walkable, break (block vision)
                     if (!IsTileSeeThrough(tileToCheck))
                     {
-                        Debug.WriteLine($"RangedEnemy: Line of sight blocked in direction {dir} at {tileToCheck}");
+                        if (debug) Debug.WriteLine($"RangedEnemy: Line of sight blocked in direction {dir} at {tileToCheck}");
                         break;
                     }
-
                     checkPos += dir; // move to next tile in direction
                 }
             }
-
             direction = Vector2.Zero;
-            Debug.WriteLine("RangedEnemy: No line of sight in any direction.");
+            if (debug) Debug.WriteLine("RangedEnemy: No line of sight in any direction.");
             return false;
         }
-
+        
         private void ShootProjectile(Vector2 direction, Player player)
         {
             if (direction == Vector2.Zero) {
@@ -154,7 +152,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Globals.Instance._scene.AddGameObject(projectileObject);
             Debug.WriteLine($"RangedEnemy: Fired a projectile at the playerin direction {direction}");
         }
-
+        // ---------- Movement ---------- //
         public override void MoveTowardsPlayer(Player player, bool debug = false)
         {
             Vector2 enemyPos = GameObject.Position;
@@ -164,19 +162,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             int tilesY = Math.Abs((int)(playerPos.Y / 32) - (int)(enemyPos.Y / 32));
             int tileDistance = tilesX + tilesY;
 
-
-            if (debug)
-            {
-                Debug.WriteLine($"RangedEnemy: Distance to player is {tileDistance} tiles");
-            }
+            if (debug) Debug.WriteLine($"RangedEnemy: Distance to player is {tileDistance} tiles");
 
             // if already too close, move away from player
             if (tileDistance < MIN_DISTANCE)
             {
-                if (debug)
-                {
-                    Debug.WriteLine("RangedEnemy: Too close to player, moving away");
-                }
+                if (debug) Debug.WriteLine("RangedEnemy: Too close to player, moving away");
 
                 Vector2 awayDirection = enemyPos - playerPos;
 
@@ -185,8 +176,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 {
                     awayDirection.Normalize();
                 }
-                else
-                {
+                else {
                     // default direction if at the same position
                     awayDirection = new Vector2(1, 0);
                 }
@@ -197,10 +187,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             // but stop if too close to the player
             else
             {
-                if (debug)
-                {
-                    Debug.WriteLine($"RangedEnemy: At good distance ({tileDistance} tiles), using regular movement");
-                }
+                if (debug) Debug.WriteLine($"RangedEnemy: At good distance ({tileDistance} tiles), using regular movement");
 
                 // before moving, check if the movement would bring us too close
                 Vector2 dirToPlayer = playerPos - enemyPos;
@@ -222,10 +209,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 {
                     base.MoveTowardsPlayer(player, debug);
                 }
-                else if (debug)
-                {
-                    Debug.WriteLine("RangedEnemy: Movement would bring too close to player, staying put");
-                }
+                if (debug) Debug.WriteLine("RangedEnemy: Movement would bring too close to player, staying put");
             }
         }
 
@@ -246,8 +230,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 if (TryMove(new Vector2(0, moveDirection.Y), debug)) // try Y
                     return;
             }
-            else
-            {
+            else {
                 if (TryMove(moveDirection, debug)) // for cardinal directions
                     return;
             }
@@ -259,11 +242,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
             else if (moveDirection.Y != 0) // horizontally
             {
-                
                 if (TryMove(new Vector2(1, 0), debug) || TryMove(new Vector2(-1, 0), debug))
                     return;
             }
-
             if (debug)
                 Debug.WriteLine("RangedEnemy: Unable to move in any direction");
         }

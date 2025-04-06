@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Net.WebRequestMethods;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
@@ -54,22 +55,37 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // check if the player has reached the exit tile
             Player player = GameObject.FindObjectOfType<Player>();
         }
-
+       
         // Loads the next level by clearing the current tilemap,
         // resetting the player position, and generating a new map.
         public void LoadNextLevel()
         {
+            levelNumber++; // next level
             LevelChanged = true; // indicate that a new level is loading
 
-            Tilemap.ClearTiles();
+            foreach (GameObject enemy in Enemy.AllEnemies.ToList())
+            {
+                globals._scene.RemoveGameObject(enemy);
+            }
 
             // clearing lists of enemies
             Enemy._enemies.Clear();
             Enemy.AllEnemies.Clear();
-            LevelManager.Instance.GoToNextLevel();
+
+            Tilemap.ClearTiles();
+
+            // If the level is 1, respawn regular enemies
+            if (levelNumber == 1)
+            {
+                EnemySpawner.RespawnEnemies(levelNumber);
+            }
+            // If the level is 2, spawn the boss
+            else if (levelNumber == 2)
+            {
+                EnemySpawner.SpawnBoss();
+            }
 
             GenerateMap();
-            levelNumber++; // next level
             Debug.WriteLine($"MapSystem: level number: {levelNumber}");
 
             Vector2 startTile = GetRandomEmptyTile(); // reset the player position to a random empty tile
@@ -80,14 +96,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Items itemsComponent = GameObject.FindObjectOfType<Items>();
             if (itemsComponent != null)
             {
-                itemsComponent.SpawnItems(4);
+                itemsComponent.SpawnItems(8);
             }
-            else
-            {
-                Debug.WriteLine("MapSystem: Items component not found! Items will not respawn.");
-            }           
         }
-
+        public int GetLevelNumber()
+        {
+            return levelNumber;
+        }
         // Generates a new random map, setting tile types for floors, obstacles, 
         // and designating random positions for start and exit tiles.
         public void GenerateMap(bool debug = false)
@@ -270,6 +285,45 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public void ResetLevelFlag()
         {
             LevelChanged = false; // Reset flag after items have been re-spawned
+        }
+
+        public void LoadLevel() // called when any Play/Reset button is pressed
+        {
+            LevelChanged = true; // signal that the level has changed
+
+            foreach (GameObject enemy in Enemy.AllEnemies.ToList())
+            {
+                globals._scene.RemoveGameObject(enemy);
+            }
+
+            // Clear enemy lists
+            Enemy._enemies.Clear();
+            Enemy.AllEnemies.Clear();
+
+            Tilemap.ClearTiles();
+
+            if (levelNumber == 1)
+            {
+                EnemySpawner.RespawnEnemies(levelNumber);
+            }
+            else if (levelNumber == 2)
+            {
+                EnemySpawner.SpawnBoss();  // Boss spawn logic
+            }
+            
+            GenerateMap();
+            Debug.WriteLine($"MapSystem: Reloading level number: {levelNumber}");
+
+            // Move player to a fresh start tile
+            globals._player.MoveToStartTile();
+
+            // Re-spawn items
+            Items itemsComponent = GameObject.FindObjectOfType<Items>();
+            if (itemsComponent != null)
+            {
+                itemsComponent.SpawnItems(8);
+            }
+            TurnManager.Instance?.ResetTurns();
         }
     }
 }

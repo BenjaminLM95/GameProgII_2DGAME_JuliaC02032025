@@ -32,6 +32,20 @@ internal class GameObject
             _components.Remove(component); 
     }
 
+    public void Destroy()
+    {
+        IsDestroyed = true;
+
+        // Call OnDestroy on all components
+        foreach (var component in _components)
+        {
+            component.OnDestroy();
+        }
+
+        // clear components
+        _components.Clear();
+    }
+
     // Returns the first component of the given type, or null if not found.
     public T GetComponent<T>() where T : Component
     {

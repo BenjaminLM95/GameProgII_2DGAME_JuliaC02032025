@@ -118,7 +118,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Ensure _tileSprites has enough elements before accessing
             if (index < 0 || index >= _tileSprites.Count)
             {
-                Debug.WriteLine($"TileMap: Error GetTileAt({x}, {y}) is out of bounds!");
+                Debug.WriteLine($"TileMap: Error GetTileAt({x}, {y}) is out of bounds! StackTrace: {Environment.StackTrace}"); // getting called a bunch when lext level
                 return null;
             }
             return _tileSprites[index];

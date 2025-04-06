@@ -39,8 +39,9 @@ internal class Scene
         foreach (var gameObject in gameObjectsToUpdate)
         {
             gameObject.Update(deltaTime);
-            //Debug.WriteLine($"Enemy Count: {Enemy._enemies.Count}");
         }
+        // Remove destroyed objects after update
+        _gameObjects.RemoveAll(go => go.IsDestroyed);
     }
 
     // Call Draw on all GameObjects

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using System.Numerics;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
@@ -13,6 +15,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
     {
         Globals globals;
         GameHUD hud;
+        SpriteFont myFont; // FONT
 
         // ---------- VARIABLES ---------- //
         public int CurrentHealth { get; private set; }
@@ -37,6 +40,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Type = type;
         }
 
+        private List<FloatingDamageText> floatingTexts = new List<FloatingDamageText>();
+
         // --------------------------//
         public Vector2 tilePosition;
         public int Damage { get; private set; } // property Damage       
@@ -54,12 +59,25 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
 
             hud = GameObject.GetComponent<GameHUD>();
+            myFont = Globals.content.Load<SpriteFont>("Minecraft"); // loading font
 
             CurrentHealth = MaxHealth; // Initialize health to full
             IsAlive = true;
         }
         public override void Update(float deltaTime)
         {
+            if (hud == null)
+                hud = GameObject.FindObjectOfType<GameHUD>();
+
+            for (int i = floatingTexts.Count - 1; i >= 0; i--)
+            {
+                floatingTexts[i].Timer -= deltaTime;
+                floatingTexts[i].Position.Y -= 30f * deltaTime; // float up
+
+                if (floatingTexts[i].Timer <= 0)
+                    floatingTexts.RemoveAt(i);
+            }
+
             base.Update(deltaTime);
         }
         public void TakeDamage(int damage)
@@ -75,11 +93,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 CurrentHealth = 0;
                 IsAlive = false;
-                // Destroy the GameObject if it's an enemy
-                if (Type == EntityType.Enemy && GameObject != null)
-                {
-                    EnemyDeath();
-                }
                 Die();
             }
         }
@@ -99,47 +112,23 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             else if (amount < 0)
             {
                 TakeDamage(-amount);
+                Vector2 screenPosition = GameObject.Position;
+                floatingTexts.Add(new FloatingDamageText(-amount, screenPosition));
             }
         }
         private void Die()
         {
             Debug.WriteLine($"[HealthSystem] {Type}'s health is 0. {Type} died!");
 
-            if (Type == EntityType.Enemy)
+            if (Type == EntityType.Player)
             {
-                // Try to find the Enemy component from the GameObject
-                Enemy enemyComponent = GameObject.GetComponent<Enemy>();
-                if (enemyComponent != null)
-                {
-                    // Remove from the _enemies list
-                    bool removed = Enemy._enemies.Remove(enemyComponent);
-                    if (removed)
-                    {
-                        Debug.WriteLine($"HealthSystem: Enemy removed from _enemies list at position {GameObject.Position}");
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"HealthSystem: Enemy could not be removed from _enemies (not found?)");
-                    }
-
-                    // Remove the GameObject from the scene
-                    Globals.Instance._scene.RemoveGameObject(GameObject);
-                }
-                else
-                {
-                    Debug.WriteLine("HealthSystem: Enemy component not found on GameObject.");
-                }
+                HandlePlayerDeath();
             }
-
-            switch (Type)
+            else if (Type == EntityType.Enemy)
             {
-                case EntityType.Player:
-                    HandlePlayerDeath();
-                    break;
-                case EntityType.Enemy:
-                    EnemyDeath();
-                    break;
+                HandleEnemyDeath();
             }
+            
 
             // Invoke custom death callback if set
             OnDeath?.Invoke();
@@ -149,66 +138,82 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Debug.WriteLine("HealthSystem: player died, Game Over! :(");
             IsAlive = false;
             // game over screen, reset level
-            hud.DrawGameOver(); // crashing bc no hud reference, when player dies
+            hud.isGameOverMenu = true;
         }
 
-        private void EnemyDeath()
-        {
-            if (Enemy.AllEnemies.Contains(GameObject))
-            {
-                Enemy.AllEnemies.Remove(GameObject);
-                Globals.Instance._scene?.RemoveGameObject(GameObject);
-
-                Debug.WriteLine($"HealthSystem: Enemy removed from the game at position {GameObject.Position}");
-            }
-            else
-            {
-                Debug.WriteLine("HealthSystem: Enemy not found in enemy list.");
-            }
-        }
         private void HandleEnemyDeath()
         {
             Debug.WriteLine("HealthSystem: Enemy defeated!");
             IsAlive = false;
-            // enemy-specific death logic
-            Enemy enemyObj = GameObject.FindObjectOfType<Enemy>();
 
-            if (enemyObj != null)
+            Enemy enemyComponent = GameObject.GetComponent<Enemy>();
+            if (enemyComponent != null)
             {
-                // Get the list of enemies
-                List<Enemy> enemies = enemyObj.GetEnemies();
-
-                // Find the specific enemy with this HealthSystem component
-                Enemy enemyToRemove = enemies.FirstOrDefault(e => e.GameObject == this.GameObject);
-
-                if (enemyToRemove != null)
+                // Boss Check
+                if (enemyComponent.Type == EnemyType.Boss)
                 {
-                    enemies.Remove(enemyToRemove); // Remove the enemy from the list
-
-                    // Remove the enemy GameObject from the scene
-                    Globals.Instance._scene?.RemoveGameObject(enemyToRemove.GameObject);
-
-                    Debug.WriteLine($"HealthSystem: Enemy removed from the game at position {enemyToRemove.GameObject.Position}");
+                    Debug.WriteLine("HealthSystem: Boss defeated! Show win screen.");
+                    if (hud != null)
+                    {
+                        hud.isWinMenu = true; // win screen
+                    }
                 }
-                else {
-                    Debug.WriteLine("HealthSystem: Could not find enemy to remove");
+
+                if (Enemy._enemies.Remove(enemyComponent))
+                {
+                    Debug.WriteLine("HealthSystem: Removed from Enemy._enemies.");
+                }
+
+                if (Enemy.AllEnemies.Remove(GameObject))
+                {
+                    Debug.WriteLine("HealthSystem: Removed from Enemy.AllEnemies.");
                 }
             }
-            else {
-                Debug.WriteLine("HealthSystem: Enemy manager not found");
+
+            // Remove from TurnManager turn takers
+            var turnManager = Globals.Instance._turnManager;
+            if (turnManager != null && turnManager.turnTakers.Contains(enemyComponent))
+            {
+                turnManager.turnTakers.Remove(enemyComponent);
+                Debug.WriteLine("HealthSystem: Removed from TurnManager.TurnTakers.");
             }
-        }
 
-        private void ShowDamageEffect(int damage)
-        {
-            // show floating text
-            Debug.WriteLine($"{Type} took {damage} damage");
+            // Remove from scene
+            Globals.Instance._scene?.RemoveGameObject(GameObject);
+            Debug.WriteLine($"HealthSystem: GameObject destroyed at {GameObject.Position}");
         }
-
-        public void Revive() // revive/reset to full health
+        public void ResetHealth()
         {
-            CurrentHealth = MaxHealth;
+            CurrentHealth = 100;
             IsAlive = true;
+            Debug.WriteLine("HealthSystem: Reset to max health.");
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            foreach (var text in floatingTexts)
+            {
+                string dmgStr = text.DamageAmount.ToString();
+                Vector2 pos = text.Position;
+                Color color = Type == EntityType.Player ? Color.Red : Color.OrangeRed;
+                spriteBatch.DrawString(myFont, dmgStr, pos, color);
+            }
+            base.Draw(spriteBatch);
+        }
+    }
+
+    // For Damage number indicator
+    internal class FloatingDamageText
+    {
+        public int DamageAmount;
+        public Vector2 Position;
+        public float Timer;
+
+        public FloatingDamageText(int amount, Vector2 startPosition)
+        {
+            DamageAmount = amount;
+            Position = startPosition;
+            Timer = 1.0f; // Show for 1 second
         }
     }
 }

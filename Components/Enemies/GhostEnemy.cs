@@ -16,11 +16,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         public GhostEnemy() : base(EnemyType.Ghost)
         {
             config.SpriteName = "ghost";
-            config.MaxHealth = 30;
-            config.Damage = 10;
+            config.MaxHealth = 20;
+            config.Damage = 8;
             config.MovementSpeed = 10f;
         }
 
+        // ---------- METHODS ---------- //
         public override void Update(float deltaTime)
         {
             Player player = GameObject.FindObjectOfType<Player>();

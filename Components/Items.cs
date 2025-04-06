@@ -159,7 +159,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public List<Item> spawnedItems = new List<Item>();
 
         private bool initialized = false;
-        private int itemsToSpawn = 6;
+        private int itemsToSpawn = 10;
 
         private ItemType currentItemType;
 
@@ -312,17 +312,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 }
             }
         }
-        public void ClearItems()
-        {
-            foreach (var item in spawnedItems)
-            {
-                globals._scene?.RemoveGameObject(item);
-            }
-
-            spawnedItems.Clear();
-            Debug.WriteLine("Items: All items cleared from the scene.");
-        }
-
+      
         public List<Item> GetItems()
         {
             // Remove any items with null GameObjects

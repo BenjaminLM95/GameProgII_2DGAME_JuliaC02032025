@@ -40,34 +40,30 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 return;
             }
             currentLevel = mapSystem.levelNumber;
+            Debug.WriteLine($"LevelManager: tracking current starting level as: {currentLevel}");
 
-            //InitializeLevel();
             LoadNextLevel();
         }
 
-        public void InitializeLevel()
-        {
-            // generate random map
-            // spawn enemies
-            // track if it's a boss enemy
-        }
         public void LoadNextLevel()
         {
-            // handle respawning
-            //bool isBossFloor = currentLevel % 3 == 0;
-            //bool isBossFloor = true;
-            //if (isBossFloor)
-            //{
-            //    EnemySpawner.RespawnBoss();
-            //    Debug.WriteLine($"LevelManager: spawning boss on level: {currentLevel}");
-            //}
-            EnemySpawner.RespawnEnemies(currentLevel);
-            Debug.WriteLine($"LevelManager: tracking current level as: {currentLevel}");
-        }
-        public void GoToNextLevel()
-        {
-            currentLevel++;
-            LoadNextLevel();
+            currentLevel = mapSystem.GetLevelNumber();
+
+            // Log current level
+            Debug.WriteLine($"LevelManager: Current Level: {currentLevel}");
+
+            if (currentLevel == 1)
+            {
+                EnemySpawner.RespawnEnemies(currentLevel);  // regular enemies
+            }
+            else
+            {
+                EnemySpawner.SpawnBoss();  // spawn boss only on level 2
+                Debug.WriteLine($"LevelManager: SPAWNING BOSS LEVEL!!!!!!");
+            }
+            TurnManager.Instance?.ResetTurns();
+
+            Debug.WriteLine($"LevelManager: Tracking current level as: {currentLevel}");
         }
     }
 }

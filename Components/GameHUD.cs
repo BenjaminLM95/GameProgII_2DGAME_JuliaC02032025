@@ -35,6 +35,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private int slotSize = 40; // Size of each inv slot
         private int spacing = 1;  // Space between inv slots
         public bool isMenuActive = true; // start showing the menu
+        public bool isGameOverMenu = false;
+        public bool isWinMenu = false;
 
         // button pos and activation state
         private Rectangle playButtonBounds;
@@ -42,6 +44,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private bool playButtonActive = true;
         private bool quitButtonActive = true;
         private bool buttonWasReleased = true;
+        private bool retryButtonActive = true;
+
 
         // ---------- METHODS ---------- //
         public override void Start()
@@ -119,7 +123,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             UpdateInventoryHUD();
 
-            if (isMenuActive)
+            if (isMenuActive || isWinMenu || Globals.Instance._turnManager.isGameOver)
             {
                 Globals.TimeScale = 0f;
                 HandleButtonInteractions();
@@ -216,6 +220,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             int health = healthSystem.CurrentHealth;
             DrawFont("Player Health: " + health, position);
         }
+        public void DrawDamage(int damage, Vector2 position)
+        {
+            DrawFont("Damage: " + damage, position);
+        }
 
         private void DrawButton(Vector2 position, string text)
         {
@@ -232,7 +240,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             DrawFont(text, textPos);
 
         }
-
+        // ---------- Main Menu ---------- //
         public void DrawScreen()
         {
             // only draw buttons if they're active
@@ -275,49 +283,52 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 }
             }
         }
-
+        // ---------- Game Over ---------- //
         public void DrawGameOver()
         {
-            // only draw buttons if they're active
-            if (isMenuActive)
+            if (isGameOverMenu) // activate game over menu
             {
-                Globals.spriteBatch.Draw(menuBackground, Vector2.Zero, Color.Red); // changed bg to RED
+                Globals.spriteBatch.Draw(menuBackground, Vector2.Zero, Color.Red); // RED background
 
                 Vector2 playButtonPos = new Vector2(playButtonBounds.X, playButtonBounds.Y);
                 Vector2 quitButtonPos = new Vector2(quitButtonBounds.X, quitButtonBounds.Y);
 
-                // only draw buttons if they're active
-                if (playButtonActive)
-                {
-                    MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
-                    Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
+                MouseState mouseState = Mouse.GetState();
+                Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
 
-                    if (playButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
-                    {
-                        // draw pressed texture for Play
-                        Globals.spriteBatch.Draw(pressedButton, playButtonPos, Color.White);
-                    }
-                    else
-                    {
-                        DrawButton(playButtonPos, "RETRY"); // draw Play
-                    }
-                }
+                if (playButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    Globals.spriteBatch.Draw(pressedButton, playButtonPos, Color.White);
+                else
+                    DrawButton(playButtonPos, "RETRY");
 
-                if (quitButtonActive)
-                {
-                    MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
-                    Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
+                if (quitButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    Globals.spriteBatch.Draw(pressedButton, quitButtonPos, Color.White);
+                else
+                    DrawButton(quitButtonPos, "QUIT");
+            }
+        }
+        // ---------- Win Game ---------- //
+        public void DrawWinScreen()
+        {
+            if (isWinMenu) // activate win when killing boss
+            {
+                Globals.spriteBatch.Draw(menuBackground, Vector2.Zero, Color.BlueViolet); // blue background
 
-                    if (quitButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
-                    {
-                        // draw pressed texture for Quit
-                        Globals.spriteBatch.Draw(pressedButton, quitButtonPos, Color.White);
-                    }
-                    else
-                    {
-                        DrawButton(quitButtonPos, "QUIT"); // draw Quit
-                    }
-                }
+                Vector2 playButtonPos = new Vector2(playButtonBounds.X, playButtonBounds.Y);
+                Vector2 quitButtonPos = new Vector2(quitButtonBounds.X, quitButtonBounds.Y);
+
+                MouseState mouseState = Mouse.GetState();
+                Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
+
+                if (playButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    Globals.spriteBatch.Draw(pressedButton, playButtonPos, Color.White);
+                else
+                    DrawButton(playButtonPos, "MENU");
+
+                if (quitButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    Globals.spriteBatch.Draw(pressedButton, quitButtonPos, Color.White);
+                else
+                    DrawButton(quitButtonPos, "QUIT");
             }
         }
 
@@ -328,7 +339,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             quitButtonActive = false;
             isMenuActive = false;
         }
-
+        // ---------- On Button Press ---------- //
         private void HandleButtonInteractions()
         {
             MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
@@ -336,6 +347,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             bool isLeftButtonPressed = mouseState.LeftButton == ButtonState.Pressed;
             bool isLeftButtonReleased = mouseState.LeftButton == ButtonState.Released;
 
+            if (isLeftButtonPressed)
+            {
+                Debug.WriteLine($"Mouse clicked at: {mousePos}, isGameOverMenu: {isGameOverMenu}, buttonWasReleased: {buttonWasReleased}");
+                Debug.WriteLine($"PlayButton bounds: {playButtonBounds}, Contains mouse: {playButtonBounds.Contains(mousePos)}");
+            }
             // Reset button released state when mouse button is released
             if (isLeftButtonReleased)
             {
@@ -343,31 +359,81 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
 
             // Check Play button
-            if (playButtonActive && playButtonBounds.Contains(mousePos))
+            if (isMenuActive && !isGameOverMenu && !isWinMenu && playButtonActive && playButtonBounds.Contains(mousePos))
             {
                 if (isLeftButtonPressed && buttonWasReleased)
                 {
-                    // Play button pressed
-                    isMenuActive = false;
-                    playButtonActive = false;
                     buttonWasReleased = false;
-                    Debug.WriteLine("GameHUD: Play button pressed!");
-                    
-                    Globals.TimeScale = 1f; // unpauses the game
+
+                    if (playButtonActive)
+                    {
+                        Debug.WriteLine("GameHUD: Play button clicked!");
+                        isMenuActive = false;
+                        playButtonActive = false;
+                        Globals.TimeScale = 1f;
+                    }
                 }
             }
+            if ((isGameOverMenu || isWinMenu) && playButtonBounds.Contains(mousePos))
+            {
+                string buttonName = isGameOverMenu ? "RETRY" : "MENU";
+                Debug.WriteLine("Mouse is over retry button in game over state");
 
+                // Check for click
+                if (isLeftButtonPressed && buttonWasReleased)
+                {
+                    Debug.WriteLine("GameHUD: RETRY button clicked!");
+                    buttonWasReleased = false;
+
+                    // Reset health
+                    if (healthSystem != null)
+                    {
+                        healthSystem.ResetHealth();
+                        Debug.WriteLine("Health reset");
+                    }
+
+                    // Reset to level 1
+                    Globals.Instance._mapSystem.LoadLevel();
+                    Debug.WriteLine("Level loaded");
+
+                    // reset game state
+                    Globals.TimeScale = 1f;
+                    isGameOverMenu = false;
+                    isWinMenu = false;
+                    Globals.Instance._turnManager.isGameOver = false;
+
+                    // return to main menu
+                    isMenuActive = true;
+                    playButtonActive = true;
+                    quitButtonActive = true;
+                    Debug.WriteLine($"Game state reset: TimeScale={Globals.TimeScale}, isGameOver={Globals.Instance._turnManager.isGameOver}");
+                }
+            }
+            
             // Check Quit button
             if (quitButtonActive && quitButtonBounds.Contains(mousePos))
             {
                 if (isLeftButtonPressed && buttonWasReleased)
                 {
-                    // Quit button pressed
-                    quitButtonActive = false;
                     buttonWasReleased = false;
-                    Debug.WriteLine("GameHUD: Quit button pressed!");
 
-                    Globals.GameInstance.Exit(); // exit the game
+                    if (isGameOverMenu || isWinMenu)
+                    {
+                        Debug.WriteLine($"GameHUD: Quit ({(isGameOverMenu ? "Game Over" : "Win")}) button clicked!");
+                        // Reset states
+                        isGameOverMenu = false;
+                        isWinMenu = false;
+
+                        // Return to main menu
+                        isMenuActive = true;
+                        playButtonActive = true;
+                        quitButtonActive = true;
+                    }
+                    else if (quitButtonActive)
+                    {
+                        Debug.WriteLine("GameHUD: Quit button clicked!");
+                        Globals.GameInstance.Exit();
+                    }
                 }
             }
         }

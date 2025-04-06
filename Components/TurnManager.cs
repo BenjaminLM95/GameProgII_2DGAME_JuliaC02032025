@@ -7,15 +7,16 @@ using System.Diagnostics;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
-    internal interface ITurnTaker 
+    internal interface ITurnTaker // any components that are turn takers 'inherit' this & need StartTurn()
     {
         void StartTurn(TurnManager manager);
     }
     internal class TurnManager : Component
     {
+        // ---------- VARIABLES ---------- //
         public static TurnManager Instance { get; private set; }
 
-        private List<ITurnTaker> turnTakers = new List<ITurnTaker>();
+        public List<ITurnTaker> turnTakers = new List<ITurnTaker>();
         private int currentTurnIndex = 0;
         private ITurnTaker currentTurnTaker;
 
@@ -31,11 +32,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         // References
         private Player player;
-        private Enemy enemy;
+        //private Enemy enemy;
         private Globals globals;
+        private HealthSystem healthSystem;
 
         // Game state tracking
-        private bool isGameOver = false;
+        public bool isGameOver = false;
 
         // Event for UI updates (can use turnindicator)
         public event Action<string, int> OnTurnChanged;
@@ -45,6 +47,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private Texture2D turnIndicatorTexture;
         private const int TILE_SIZE = 32;
 
+        // ---------- METHODS ---------- //
         public override void Start()
         {
             globals = Globals.Instance;
@@ -53,11 +56,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Debug.WriteLine("TurnManager: Globals is NULL!");
                 return;
             }
+            healthSystem = Globals.Instance._healthSystem;
+
             LoadTurnIndicatorTexture();
             Initialize();
         }
 
-        private void LoadTurnIndicatorTexture()
+        private void LoadTurnIndicatorTexture() // Load Textures
         {
             try
             {
@@ -70,7 +75,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
 
-        private void Initialize()
+        private void Initialize() // first pass to get all turn tkers
         {
             Debug.WriteLine("TurnManager: Initializing turn order...");
             isGameOver = false;
@@ -85,19 +90,15 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             RegisterTurnTaker(player);
 
-            List<Enemy> enemies = GameObject.FindObjectOfType<Enemy>().GetEnemies();
+            Enemy enemyComponent = GameObject.FindObjectOfType<Enemy>();
+            if (enemyComponent != null)
+            {
+                List<Enemy> enemies = enemyComponent.GetEnemies();
 
-            if (enemies.Count == 0)
-            {
-                Debug.WriteLine("TurnManager: No enemies found!");
-            }
-            else
-            {
-                Debug.WriteLine($"TurnManager: Found {enemies.Count} enemies");
+                // Add all enemies as turn takers
                 foreach (Enemy enemy in enemies)
                 {
-                    Debug.WriteLine($"TurnManager Enemy: {enemy.Type}");
-                    if (enemy != null && enemy is ITurnTaker)
+                    if (enemy != null)
                     {
                         RegisterTurnTaker(enemy);
                     }
@@ -116,9 +117,19 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 return;
             }
 
-            // Check for player death - send off to healthsystem to handle death logic
-            HealthSystem healthSystem = player.GameObject.GetComponent<HealthSystem>();
-            if (player != null && healthSystem.CurrentHealth <= 0)
+            if (player == null)
+            {
+                Debug.WriteLine("TurnManager: Player is null during update");
+                return;
+            }
+            var healthSystem = player.GameObject?.GetComponent<HealthSystem>();
+            if (healthSystem == null)
+            {
+                Debug.WriteLine("TurnManager: Player has no HealthSystem!");
+                return;
+            }
+
+            if (healthSystem.CurrentHealth <= 0)
             {
                 isGameOver = true;
                 healthSystem.HandlePlayerDeath();
@@ -149,16 +160,39 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         private void RecheckEnemies() // for newly spawned enemies 
         {
-            List<Enemy> enemies = enemy.GetEnemies(); // crashing when payer dies
             bool newEnemiesFound = false;
 
-            foreach (Enemy enemy in enemies)
+            // Use the static lists directly instead of finding the first enemy
+            if (Enemy.AllEnemies != null && Enemy.AllEnemies.Count > 0)
             {
-                if (enemy != null && enemy is ITurnTaker && !turnTakers.Contains(enemy))
+                foreach (GameObject enemyObj in Enemy.AllEnemies)
                 {
-                    RegisterTurnTaker(enemy);
-                    newEnemiesFound = true;
+                    if (enemyObj != null)
+                    {
+                        Enemy enemy = enemyObj.GetComponent<Enemy>();
+                        if (enemy != null && enemy is ITurnTaker && !turnTakers.Contains(enemy))
+                        {
+                            RegisterTurnTaker(enemy);
+                            newEnemiesFound = true;
+                        }
+                    }
                 }
+            }
+            else if (Enemy._enemies != null && Enemy._enemies.Count > 0)
+            {
+                // Backup check using the _enemies list
+                foreach (Enemy enemy in Enemy._enemies)
+                {
+                    if (enemy != null && enemy is ITurnTaker && !turnTakers.Contains(enemy))
+                    {
+                        RegisterTurnTaker(enemy);
+                        newEnemiesFound = true;
+                    }
+                }
+            }
+            else
+            {
+                Debug.WriteLine("TurnManager: No enemies found to register (this is expected if none have spawned yet)");
             }
 
             if (newEnemiesFound)
@@ -189,6 +223,47 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 currentTurnIndex = 0;
             }
         }
+
+        private void CleanupTurnTakers() // remove any null turn takers or dead enemies
+        {
+            bool removedAny = false;
+
+            for (int i = turnTakers.Count - 1; i >= 0; i--)
+            {
+                bool shouldRemove = false;
+
+                // check for null
+                if (turnTakers[i] == null)
+                {
+                    shouldRemove = true;
+                    Debug.WriteLine($"TurnManager: Removing null turn taker at index {i}");
+                }
+                // check for dead enemies
+                else if (turnTakers[i] is Enemy enemy && enemy.IsDead())
+                {
+                    shouldRemove = true;
+                    Debug.WriteLine($"TurnManager: Removing dead enemy turn taker ({enemy.Type}) at index {i}");
+                }
+
+                if (shouldRemove)
+                {
+                    turnTakers.RemoveAt(i);
+                    removedAny = true;
+
+                    // adjust current index if needed
+                    if (i <= currentTurnIndex && currentTurnIndex > 0)
+                    {
+                        currentTurnIndex--;
+                    }
+                }
+            }
+            if (removedAny && turnTakers.Count > 0 && currentTurnIndex < turnTakers.Count)
+            {
+                currentTurnTaker = turnTakers[currentTurnIndex];
+            }
+        }
+
+        // ______________________________________________________ Turn Handling Below, Turn Takers above
 
         // Called by turn takers when they complete their turn
         public void EndTurn()
@@ -256,45 +331,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             PrepareNextTurn();
         }
 
-        private void CleanupTurnTakers()
-        {
-            bool removedAny = false;
-            // remove any null turn takers or dead enemies
-            for (int i = turnTakers.Count - 1; i >= 0; i--)
-            {
-                bool shouldRemove = false;
-
-                // check for null
-                if (turnTakers[i] == null)
-                {
-                    shouldRemove = true;
-                    Debug.WriteLine($"TurnManager: Removing null turn taker at index {i}");
-                }
-                // check for dead enemies
-                else if (turnTakers[i] is Enemy enemy && enemy.IsDead())
-                {
-                    shouldRemove = true;
-                    Debug.WriteLine($"TurnManager: Removing dead enemy turn taker ({enemy.Type}) at index {i}");
-                }
-
-                if (shouldRemove)
-                {
-                    turnTakers.RemoveAt(i);
-                    removedAny = true;
-
-                    // adjust current index if needed
-                    if (i <= currentTurnIndex && currentTurnIndex > 0)
-                    {
-                        currentTurnIndex--;
-                    }
-                }
-            }
-            if (removedAny && turnTakers.Count > 0 && currentTurnIndex < turnTakers.Count)
-            {
-                currentTurnTaker = turnTakers[currentTurnIndex];
-            }
-        }
-
         // Reset the turn system
         public void ResetTurns()
         {
@@ -328,6 +364,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             return "Unknown";
         }
 
+        // ---------- Turn indicator ---------- //
         public void DrawTurnIndicator(bool debug = false)
         {
             if (turnIndicatorTexture == null)

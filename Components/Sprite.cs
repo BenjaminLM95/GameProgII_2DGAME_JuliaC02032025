@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
+
 //using static System.Formats.Asn1.AsnWriter;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -60,6 +62,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 0f                    // Layer depth
                 );
             }
+            //Debug.WriteLine($"Sprite.Draw: Drawing {Texture.Name} at {GameObject.Position}");
         }
     }
 }

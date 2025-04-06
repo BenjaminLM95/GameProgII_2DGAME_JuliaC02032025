@@ -31,6 +31,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 MoveTowardsPlayer(player, debug: true);
             }
         }
+        public override void Attack(Player player)
+        {
+            player.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-config.Damage);
+        }
         public override void MoveTowardsPlayer(Player player, bool debug = false)
         {
             base.MoveTowardsPlayer((Player)player, debug);

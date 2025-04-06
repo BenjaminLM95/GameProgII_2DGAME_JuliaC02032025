@@ -20,6 +20,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
     internal class Projectile : Component
     {
+        // ---------- REFERENCES ---------- //
         private Sprite projSprite;
         private Vector2 direction;
         private float speed;
@@ -27,10 +28,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private TileMap tileMap;
         private float lifetime = 3.0f; // Max lifetime in seconds
         private float elapsedTime = 0;
-        private int damage = 25; // Projectile damage amount
-        private int enemyDamage = 15; // Enemy Projectile damage amount
+        private int damage = 30; // Projectile damage amount
+        private int enemyDamage = 10; // Enemy Projectile damage amount
         private ProjectileSource source; // projectile is coming from an enemy or a player
 
+        // ---------- CONSTRUCTOR ---------- //
         public Projectile( // constructor used when creating Projectile instance on gameobject
             Sprite texture, 
             Vector2 direction, 
@@ -47,6 +49,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             this.source = source;
         }
 
+        // ---------- METHODS ---------- //
         public override void Update(float deltaTime)
         {
             // move the projectile
@@ -80,7 +83,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
 
-        // for player projectiles to check if it's hitting an enemy
+        // ---------- Player Projectiles ---------- //
         private void CheckEnemyCollision()
         {
             // get all enemies
@@ -110,7 +113,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
 
-        // for enemy projectiles to check if it's hitting a player
+        // ---------- Enemy Projectiles ---------- //
         private void CheckPlayerCollision()
         {
             // Check collision with player
@@ -123,7 +126,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     HealthSystem playerHealth = player.GameObject.GetComponent<HealthSystem>();
                     if (playerHealth != null)
                     {
-                        playerHealth.ModifyHealth(-enemyDamage);
+                        playerHealth.ModifyHealth(-enemyDamage); // damage enemy projectile does to player
                     }
                     // destroy the projectile after hitting the player
                     Globals.Instance._scene.RemoveGameObject(GameObject);

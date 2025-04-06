@@ -62,10 +62,7 @@ namespace GameProgII_2DGame_Julia_C02032025
             AddItems();
 
             AddPlayer();
-            // add logic here to track mapSystem's levelNumver int variable, every time it goes up respawn
-            //EnemySpawner.RespawnEnemies(Globals.Instance._mapSystem.levelNumber);
 
-            AddLevelManager();
             // ***** TURN MANAGER ***** //
             GameObject turnManagerObj = new GameObject();
             TurnManager turnManager = new TurnManager();
@@ -74,6 +71,8 @@ namespace GameProgII_2DGame_Julia_C02032025
             turnManagerObj.AddComponent(turnManager);
 
             Globals.Instance._scene.AddGameObject(turnManagerObj);
+
+            AddLevelManager();
 
             // ***** HUD ***** //
             GameObject hudObj = new GameObject();
@@ -86,6 +85,8 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             Globals.Instance._gameHUD = hud;
             Globals.Instance._scene.AddGameObject(hudObj);
+
+            TurnManager.Instance?.ResetTurns();
         }
 
         protected override void Update(GameTime gameTime)
@@ -112,14 +113,23 @@ namespace GameProgII_2DGame_Julia_C02032025
             // Draw all scene objects (including all GameObjects & thier Components)
             Globals.Instance._scene.Draw(Globals.spriteBatch);
             
-            //Globals.Instance._combat.DrawTurnIndicator(); // draw turn indicator
             Globals.Instance._gameHUD.DrawInventoryHUD(); // draw inventory slots HUD
             Vector2 levelPos = new Vector2(640, 10);
-            Globals.Instance._gameHUD.DrawLevelFont(levelPos);
+            Globals.Instance._gameHUD.DrawLevelFont(levelPos); // level number
             Vector2 healthPos = new Vector2(640, 700);
-            Globals.Instance._gameHUD.DrawHealth(healthPos);
+            Globals.Instance._gameHUD.DrawHealth(healthPos); // player health
 
+            // Drawing Menus
             Globals.Instance._gameHUD.DrawScreen();
+            
+            if (Globals.Instance._gameHUD.isWinMenu == true)
+            {
+                Globals.Instance._gameHUD.DrawWinScreen();
+            }
+            if (Globals.Instance._turnManager.isGameOver == true)
+            {
+                Globals.Instance._gameHUD.DrawGameOver();
+            }
 
             Globals.spriteBatch.End();
             base.Draw(gameTime);
@@ -144,8 +154,6 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             Globals.Instance._player = player;
             Globals.Instance._scene.AddGameObject(playerObject);
-
-            //Globals.Instance._turnManager.AddTurnTaker(player); // Add player to the turn queue
         }
 
         // ***** MAP ***** //
@@ -184,18 +192,6 @@ namespace GameProgII_2DGame_Julia_C02032025
             Globals.Instance._scene.AddGameObject(itemsObject);
             // Items component handles spawning items after it starts
             Debug.WriteLine("Game1: Items manager created and added to scene");
-        }
-
-        private string GetSpriteNameForItemType(ItemType itemType)
-        {
-            return itemType switch
-            {
-                ItemType.HealthPotion => "healthPotion",
-                ItemType.FireScroll => "fireScroll",
-                ItemType.LightningScroll => "lightningScroll",
-                ItemType.WarpScroll => "warpScroll",
-                _ => throw new ArgumentException("Unknown item type")
-            };
         }
         #endregion
     }

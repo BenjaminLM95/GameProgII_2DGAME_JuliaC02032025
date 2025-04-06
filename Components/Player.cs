@@ -16,6 +16,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
     /// </summary>
     internal class Player : Component, ITurnTaker
     {
+        // ---------- REFERENCES ---------- //
         Globals globals;
         private TileMap tileMap;
         private HealthSystem healthSystem;
