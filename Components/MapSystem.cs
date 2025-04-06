@@ -18,6 +18,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
     {
         private Globals globals;
         public TileMap Tilemap { get; private set; }
+        private LevelManager levelManager;
 
         // ---------- VARIABLES ---------- //
 
@@ -65,9 +66,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // clearing lists of enemies
             Enemy._enemies.Clear();
             Enemy.AllEnemies.Clear();
-            EnemySpawner.RespawnEnemies(5); // respawning TEST
-            // implement boss levels, no other enemies spawn
-
+            LevelManager.Instance.GoToNextLevel();
 
             GenerateMap();
             levelNumber++; // next level

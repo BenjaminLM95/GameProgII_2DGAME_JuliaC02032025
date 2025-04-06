@@ -14,6 +14,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
     internal class RangedEnemy : Enemy
     {
         private bool hasShot = false;
+        const int MIN_DISTANCE = 3; // minimum tiles to keep away from player
 
         public RangedEnemy() : base(EnemyType.Archer) // Set default type
         {
@@ -21,6 +22,41 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             config.MaxHealth = 40;
             config.Damage = 15;
             config.MovementSpeed = 1; // Archers move if no line of sight
+        }
+
+        public override void StartTurn(TurnManager manager)
+        {
+            if (IsDead())
+            {
+                manager.EndTurn();
+                return;
+            }
+
+            hasMoved = false;
+            hasTakenTurn = false;
+
+            if (player == null || player.GameObject == null)
+            {
+                Debug.WriteLine("RangedEnemy: No valid player reference.");
+                manager.EndTurn();
+                return;
+            }
+
+
+            Vector2 shootDirection;
+            if (HasLineOfSightToPlayer(player, out shootDirection))
+            {
+                Debug.WriteLine("RangedEnemy: Attacking player from distance!");
+                ShootProjectile(shootDirection, player);
+                hasShot = true;
+            }
+            else
+            {
+                Debug.WriteLine("RangedEnemy: No line of sight, moving toward player...");
+                MoveTowardsPlayer(player, debug: true);
+            }
+
+            manager.EndTurn();
         }
 
         public override void Update(float deltaTime)
@@ -31,30 +67,19 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                 Debug.WriteLine("RangedEnemy: Player not found.");
                 return;
             }
+        }
 
-            Debug.WriteLine($"RangedEnemy: Checking line of sight to player at {player.GameObject.Position}");
-
-            Vector2 shootDirection = Vector2.Zero;
-
-            bool canShoot = !hasShot && HasLineOfSightToPlayer(player, out shootDirection);
-            bool choseToShoot = false;
-
-            if (canShoot)
+        public override void Attack(Player player)
+        {
+            Vector2 shootDirection;
+            if (HasLineOfSightToPlayer(player, out shootDirection))
             {
-                Random random = new Random();
-                choseToShoot = random.Next(2) == 0; // 50% chance to shoot or move with LOS
-
-                if (choseToShoot)
-                {
-                    Debug.WriteLine("RangedEnemy: Line of sight to player found. Chose to shoot.");
-                    ShootProjectile(shootDirection, player);
-                    hasShot = true; // shoot once per turn
-                    return;
-                }
-                
+                Debug.WriteLine("RangedEnemy: Line of sight to player found. Shooting.");
+                ShootProjectile(shootDirection, player);
+                //player.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-config.Damage); // projectile damage
+                hasShot = true;
+                return;
             }
-            Debug.WriteLine("RangedEnemy: Attempting to move towards/away from player.");
-            MoveTowardsPlayer(player, debug: true);
         }
 
         private bool HasLineOfSightToPlayer(Player player, out Vector2 direction)
@@ -74,23 +99,26 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             {
                 Vector2 checkPos = enemyPos + dir;
 
-                while (Vector2.DistanceSquared(checkPos, playerPos) >= 1f)
+                while (true)
                 {
                     Point tileToCheck = new Point((int)(checkPos.X / 32), (int)(checkPos.Y / 32));
-                    if (!IsTileWalkable(tileToCheck))
+
+                    // if we reached the player's tile
+                    if (Vector2.DistanceSquared(checkPos, playerPos) < 1f)
+                    {
+                        direction = dir;
+                        Debug.WriteLine($"RangedEnemy: Line of sight confirmed in direction {direction}");
+                        return true;
+                    }
+
+                    // if the tile is not walkable, break (block vision)
+                    if (!IsTileSeeThrough(tileToCheck))
                     {
                         Debug.WriteLine($"RangedEnemy: Line of sight blocked in direction {dir} at {tileToCheck}");
                         break;
                     }
-                    checkPos += dir;
-                }
 
-                // ff checkPos reached the player
-                if (Vector2.DistanceSquared(checkPos, playerPos) < 1f)
-                {
-                    direction = dir;
-                    Debug.WriteLine($"RangedEnemy: Line of sight confirmed in direction {direction}");
-                    return true;
+                    checkPos += dir; // move to next tile in direction
                 }
             }
 
@@ -136,7 +164,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             int tilesY = Math.Abs((int)(playerPos.Y / 32) - (int)(enemyPos.Y / 32));
             int tileDistance = tilesX + tilesY;
 
-            const int MIN_DISTANCE = 5; // minimum tiles to keep away from player
 
             if (debug)
             {

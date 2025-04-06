@@ -63,9 +63,9 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             AddPlayer();
             // add logic here to track mapSystem's levelNumver int variable, every time it goes up respawn
-            EnemySpawner.RespawnEnemies(Globals.Instance._mapSystem.levelNumber);
+            //EnemySpawner.RespawnEnemies(Globals.Instance._mapSystem.levelNumber);
 
-            //AddCombat();
+            AddLevelManager();
             // ***** TURN MANAGER ***** //
             GameObject turnManagerObj = new GameObject();
             TurnManager turnManager = new TurnManager();
@@ -159,7 +159,15 @@ namespace GameProgII_2DGame_Julia_C02032025
             // Add created GameObject to the scene
             Globals.Instance._scene.AddGameObject(mapObject);
         }
+        void AddLevelManager()
+        {
+            GameObject lvlManagerobj = new GameObject();
+            LevelManager levelManager = new LevelManager();
 
+            lvlManagerobj.AddComponent(levelManager);
+
+            Globals.Instance._scene.AddGameObject(lvlManagerobj);
+        }
         // ***** ITEMS ***** //
         void AddItems()
         {

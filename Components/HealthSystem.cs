@@ -4,14 +4,15 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
 using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
     internal class HealthSystem : Component
     {
         Globals globals;
+        GameHUD hud;
 
         // ---------- VARIABLES ---------- //
         public int CurrentHealth { get; private set; }
@@ -51,7 +52,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 Debug.WriteLine($"HealthSystem: Globals was NULL.");
             }
-            
+
+            hud = GameObject.GetComponent<GameHUD>();
+
             CurrentHealth = MaxHealth; // Initialize health to full
             IsAlive = true;
         }
@@ -141,12 +144,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Invoke custom death callback if set
             OnDeath?.Invoke();
         }
-        private void HandlePlayerDeath()
+        public void HandlePlayerDeath()
         {
             Debug.WriteLine("HealthSystem: player died, Game Over! :(");
             IsAlive = false;
-            // player-specific death logic
             // game over screen, reset level
+            hud.DrawGameOver(); // crashing bc no hud reference, when player dies
         }
 
         private void EnemyDeath()

@@ -34,8 +34,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private Enemy enemy;
         private Globals globals;
 
+        // Game state tracking
+        private bool isGameOver = false;
+
         // Event for UI updates (can use turnindicator)
         public event Action<string, int> OnTurnChanged;
+        public event Action OnGameOver;
 
         // Turn indicator
         private Texture2D turnIndicatorTexture;
@@ -69,6 +73,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private void Initialize()
         {
             Debug.WriteLine("TurnManager: Initializing turn order...");
+            isGameOver = false;
 
             // Find player
             player = GameObject.FindObjectOfType<Player>();
@@ -105,6 +110,21 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         public override void Update(float deltaTime)
         {
+            // If game is over, don't process turns
+            if (isGameOver)
+            {
+                return;
+            }
+
+            // Check for player death - send off to healthsystem to handle death logic
+            HealthSystem healthSystem = player.GameObject.GetComponent<HealthSystem>();
+            if (player != null && healthSystem.CurrentHealth <= 0)
+            {
+                isGameOver = true;
+                healthSystem.HandlePlayerDeath();
+                return;
+            }
+
             CleanupTurnTakers();
             if (isWaitingForNextTurn)
             {
@@ -129,7 +149,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         private void RecheckEnemies() // for newly spawned enemies 
         {
-            List<Enemy> enemies = enemy.GetEnemies();
+            List<Enemy> enemies = enemy.GetEnemies(); // crashing when payer dies
             bool newEnemiesFound = false;
 
             foreach (Enemy enemy in enemies)

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -132,17 +133,30 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
 
             player = GameObject.FindObjectOfType<Player>();
         }
-        public void StartTurn(TurnManager manager)
+        public virtual void StartTurn(TurnManager manager)
         {
-            if (!IsDead())
+            if (IsDead())
             {
-                hasMoved = false;
-                hasTakenTurn = false;
-                
-                MoveTowardsPlayer(player);
                 manager.EndTurn();
+                return;
             }
-                
+
+            hasMoved = false;
+            hasTakenTurn = false;
+
+            if (IsNextToPlayer(player))
+            {
+                Debug.WriteLine("Enemy: Enemy is next to player, attacking!");
+                Attack(player);
+            }
+            else
+            {
+                Debug.WriteLine("Enemy: Enemy is not next to player, moving...");
+                MoveTowardsPlayer(player);
+            }
+
+            manager.EndTurn();
+
         }
         public bool IsDead()
         {
@@ -263,6 +277,24 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
             return true;
         }
+        public bool IsTileSeeThrough(Point tile) // for enemy projectile to recognize travel-able tiles
+        {
+            var t = tileMap?.GetTileAt(tile.X, tile.Y);
+
+            if (t == null)
+            {
+                Debug.WriteLine($"Tile {tile} is null");
+                return false;
+            }
+
+            // if the tile is a wall or obstacle, block vision
+            if (t.Texture == tileMap.obstacleTexture || t.Texture == tileMap.wallTexture)
+            {
+                Debug.WriteLine($"Tile {tile} is blocking LOS (wall or obstacle)");
+                return false;
+            }
+            return true;
+        }
 
         public virtual void InitializeEnemy()
         {
@@ -298,55 +330,47 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
     public static class EnemySpawner
     {
         public static void RespawnEnemies(int level)
-        {           
-            bool isBossFloor = false;
-            int levelNumber = Globals.Instance._mapSystem.levelNumber;
-            if (levelNumber == 3) 
-            {
-                isBossFloor = true; // bpss floor every 3 levels
-            }
-
+        {
             // Clean up old enemies
-            foreach (GameObject enemy in Enemy.AllEnemies)
+            foreach (GameObject enemy in Enemy.AllEnemies.ToList())
             {
                 Globals.Instance._scene.RemoveGameObject(enemy);
             }
             Enemy.AllEnemies.Clear();
             Enemy._enemies.Clear();
 
-            if (isBossFloor)
+            // Clamp enemy count and spawn
+            int enemyCount = Math.Clamp(level, 2, 10);
+
+            // Mix of enemy types based on level
+            int slimeCount = Math.Max(2, enemyCount / 2);
+            int ghostCount = Math.Max(1, enemyCount / 2);
+            int archerCount = Math.Max(2, enemyCount - slimeCount - ghostCount);
+
+            int bossCount = Math.Max(1, enemyCount / 2);
+            // spawn boss
+            for (int i = 0; i < slimeCount; i++)
             {
                 SpawnEnemy(new BossEnemy());
             }
-            else
+
+            // Spawn slimes
+            for (int i = 0; i < slimeCount; i++)
             {
-                // Clamp enemy count and spawn
-                int enemyCount = Math.Clamp(level, 2, 10);
-
-                // Mix of enemy types based on level
-                int slimeCount = Math.Max(2, enemyCount / 2);
-                int ghostCount = Math.Max(1, enemyCount / 2);
-                int archerCount = Math.Max(2, enemyCount - slimeCount - ghostCount);
-
-                // Spawn slimes
-                for (int i = 0; i < slimeCount; i++)
-                {
-                    SpawnEnemy(new BasicEnemy());
-                }
-
-                // Spawn ghosts 
-                for (int i = 0; i < ghostCount; i++)
-                {
-                    SpawnEnemy(new GhostEnemy());
-                }
-
-                // Spawn archers
-                for (int i = 0; i < archerCount; i++)
-                {
-                    SpawnEnemy(new RangedEnemy());
-                }
+                SpawnEnemy(new BasicEnemy());
             }
-            
+
+            // Spawn ghosts 
+            for (int i = 0; i < ghostCount; i++)
+            {
+                SpawnEnemy(new GhostEnemy());
+            }
+
+            // Spawn archers
+            for (int i = 0; i < archerCount; i++)
+            {
+                SpawnEnemy(new RangedEnemy());
+            }
         }
 
         private static void SpawnEnemy(Enemy enemyComponent, bool debug = false)

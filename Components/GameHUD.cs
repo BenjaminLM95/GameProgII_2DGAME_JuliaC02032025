@@ -112,7 +112,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             quitButtonBounds = new Rectangle(375, 150, 200, 50);
         }
         public override void Update(float deltaTime) 
-        {                       
+        {
+            if (healthSystem == null)
+                healthSystem = GameObject.FindObjectOfType<HealthSystem>();
+            if (healthSystem == null) return;
+
             UpdateInventoryHUD();
 
             if (isMenuActive)
@@ -207,12 +211,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             int level = Globals.Instance._mapSystem.levelNumber;
             DrawFont("Level: "+level, position);
         }
-        public void DrawHealth(Vector2 position) // (add playerObject?)
+        public void DrawHealth(Vector2 position) 
         {
-            //health 
-            //player.GameObject.GetComponent<HealthSystem>()?.ModifyHealth(-10);
-            //int health = healthSystem.CurrentHealth;
-            int health = 100;
+            int health = healthSystem.CurrentHealth;
             DrawFont("Player Health: " + health, position);
         }
 
@@ -274,6 +275,52 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 }
             }
         }
+
+        public void DrawGameOver()
+        {
+            // only draw buttons if they're active
+            if (isMenuActive)
+            {
+                Globals.spriteBatch.Draw(menuBackground, Vector2.Zero, Color.Red); // changed bg to RED
+
+                Vector2 playButtonPos = new Vector2(playButtonBounds.X, playButtonBounds.Y);
+                Vector2 quitButtonPos = new Vector2(quitButtonBounds.X, quitButtonBounds.Y);
+
+                // only draw buttons if they're active
+                if (playButtonActive)
+                {
+                    MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
+                    Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
+
+                    if (playButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        // draw pressed texture for Play
+                        Globals.spriteBatch.Draw(pressedButton, playButtonPos, Color.White);
+                    }
+                    else
+                    {
+                        DrawButton(playButtonPos, "RETRY"); // draw Play
+                    }
+                }
+
+                if (quitButtonActive)
+                {
+                    MouseState mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
+                    Vector2 mousePos = new Vector2(mouseState.X, mouseState.Y);
+
+                    if (quitButtonBounds.Contains(mousePos) && mouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        // draw pressed texture for Quit
+                        Globals.spriteBatch.Draw(pressedButton, quitButtonPos, Color.White);
+                    }
+                    else
+                    {
+                        DrawButton(quitButtonPos, "QUIT"); // draw Quit
+                    }
+                }
+            }
+        }
+
         private void ClearScreen()
         {
             // Deactivate all the buttons and the menu screen background
