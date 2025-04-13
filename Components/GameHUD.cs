@@ -178,12 +178,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 }
 
                 // draw slot number above the slot
-                string slotNumber = (i + 1).ToString(); // number from 1 to 5
-                Vector2 numberPosition = new Vector2(position.X + slotSize / 2, position.Y - 20); // adjust position
+                //string slotNumber = (i + 1).ToString(); // number from 1 to 5
+                //Vector2 numberPosition = new Vector2(position.X + slotSize / 2, position.Y - 20); // adjust position
                 
-                if (debug) { // log the number being drawn
-                    Debug.WriteLine($"Drawing slot number {slotNumber} at position: {numberPosition}");
-                }
+                //if (debug) { // log the number being drawn
+                //    Debug.WriteLine($"Drawing slot number {slotNumber} at position: {numberPosition}");
+                //}
                 position.X += slotSize + spacing; // move to the next slot
             }
         }

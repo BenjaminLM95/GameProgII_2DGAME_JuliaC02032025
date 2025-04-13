@@ -165,7 +165,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Player player = GameObject.FindObjectOfType<Player>();
             if (player != null)
             {
-                if(debug) Debug.WriteLine($"MapSystem: Player position set to {player.GameObject.Position.X}, {player.GameObject.Position.Y}.");
+                if(debug) Debug.WriteLine($"MapSystem: Player position set to " +
+                    $"{player.GameObject.Position.X}, {player.GameObject.Position.Y}.");
                 player.GameObject.Position = new Vector2(startTile.X, startTile.Y);
             }
             else if (player == null) {
