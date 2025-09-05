@@ -60,3 +60,8 @@ How To Play: **
 - 3 UI screens for Main Menu, End Screen, & Win Screen
 - Updated Skeleton & Ghost sprites, added all boss sprites
 - Fixed bug with multiple turns/items used, was player input missing previousState check/lock
+
+- Issues
+	* enemies are invisible after the first floor *
+	* Enemies do not respawn when dead *
+	* boss does not have a dedicated floor *

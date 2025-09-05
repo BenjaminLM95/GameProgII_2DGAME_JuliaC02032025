@@ -44,7 +44,6 @@ internal class Globals
     public GhostEnemy _ghostEnemy;
     public TurnManager _turnManager;
     public GameHUD _gameHUD;
-    public Pathfinding _pathfinding;
     public Inventory _inventory;
     public Items _items;
 

@@ -241,7 +241,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         }
         // ---------- Main Menu ---------- //
-        public void DrawScreen()
+        public void DrawScreen() // grey
         {
             // only draw buttons if they're active
             if (isMenuActive)
@@ -284,7 +284,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
         // ---------- Game Over ---------- //
-        public void DrawGameOver()
+        public void DrawGameOver() // red
         {
             if (isGameOverMenu) // activate game over menu
             {
@@ -308,7 +308,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
         }
         // ---------- Win Game ---------- //
-        public void DrawWinScreen()
+        public void DrawWinScreen() // purple
         {
             if (isWinMenu) // activate win when killing boss
             {

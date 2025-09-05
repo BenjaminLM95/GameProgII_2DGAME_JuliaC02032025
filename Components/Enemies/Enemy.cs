@@ -73,11 +73,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         // ---------- REFERENCES ---------- //
         protected Globals globals;
         public HealthSystem healthSystem;
-        public Pathfinding pathfinding;
         protected TileMap tileMap;
         protected Sprite enemySprite;
         protected Player player;
-        private TurnManager turnManager;
 
         // ---------- VARIABLES ---------- //
         protected bool hasMoved = false;
@@ -156,7 +154,6 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             }
 
             manager.EndTurn();
-
         }
         public bool IsDead()
         {
@@ -399,7 +396,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             enemyObject.AddComponent(enemySprite);
             enemyObject.AddComponent(enemyHealth);
 
-            // Register enemy in global lists - this is making enemies stay after death
+            // Register enemy in global lists - !!! issue !!! this is making enemies stay after death
             //Enemy.AllEnemies.Add(enemyObject);
             //Enemy._enemies.Add(enemyComponent);
 
@@ -437,4 +434,3 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         }
     }
 }
-// keep spawn the same, change turnmanager & map/levelmanager

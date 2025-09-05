@@ -267,7 +267,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     continue;
                 }
 
-                // More robust null-safe projSprite check
+                // floor sprite check & placement
                 if (tile.Texture != null && tile.Texture.Name == "floor")
                 {
                     if (convertToPixelPosition)
@@ -292,9 +292,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             LevelChanged = true; // signal that the level has changed
 
+            // !!! enemy respawn logic could be causing issue with enemies being invisible when loading next floor
             foreach (GameObject enemy in Enemy.AllEnemies.ToList())
             {
-                globals._scene.RemoveGameObject(enemy);
+                globals._scene.RemoveGameObject(enemy); 
             }
 
             // Clear enemy lists
