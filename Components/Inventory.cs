@@ -38,7 +38,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         }
         public override void Update(float deltaTime)
         {
-            if (gameHUD == null) // since gamehud is created later, iterate until it is dound
+            if (gameHUD == null) // since gamehud is created later, iterate until it is found
             {
                 gameHUD = globals._gameHUD;
                 if (gameHUD == null) return;

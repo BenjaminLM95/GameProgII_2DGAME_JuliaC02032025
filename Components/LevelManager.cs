@@ -52,15 +52,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Log current level
             Debug.WriteLine($"LevelManager: Current Level: {currentLevel}");
 
-            if (currentLevel == 1)
-            {
                 EnemySpawner.RespawnEnemies(currentLevel);  // regular enemies
-            }
-            else
-            {
-                EnemySpawner.SpawnBoss();  // spawn boss only on level 2
-                Debug.WriteLine($"LevelManager: SPAWNING BOSS LEVEL!!!!!!");
-            }
+            
             TurnManager.Instance?.ResetTurns();
 
             Debug.WriteLine($"LevelManager: Tracking current level as: {currentLevel}");
