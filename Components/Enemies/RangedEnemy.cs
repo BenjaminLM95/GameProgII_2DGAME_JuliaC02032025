@@ -22,6 +22,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             config.MaxHealth = 40;
             config.Damage = 10;
             config.MovementSpeed = 1; // Archers move if no line of sight
+           
         }
 
         // ---------- METHODS ---------- //

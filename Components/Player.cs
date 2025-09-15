@@ -29,6 +29,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private float speed = 300f;
         private int tileSize = 32;
         private int spriteScale = 1;
+        public int currency = 0; 
 
         // Turn based combat
         private bool canMove = false;

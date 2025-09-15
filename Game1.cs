@@ -63,6 +63,8 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             AddPlayer();
 
+            AddQuests(); 
+
             // ***** TURN MANAGER ***** //
             GameObject turnManagerObj = new GameObject();
             TurnManager turnManager = new TurnManager();
@@ -118,6 +120,10 @@ namespace GameProgII_2DGame_Julia_C02032025
             Globals.Instance._gameHUD.DrawLevelFont(levelPos); // level number
             Vector2 healthPos = new Vector2(640, 700);
             Globals.Instance._gameHUD.DrawHealth(healthPos); // player health
+            Vector2 moneyPos = new Vector2(640, 600);
+            Globals.Instance._gameHUD.DrawCurrency(moneyPos); // Player curreny
+            Vector2 questsPos = new Vector2(900, 100);
+            Globals.Instance._gameHUD.DrawMission(questsPos);
 
             // Drawing Menus
             Globals.Instance._gameHUD.DrawScreen();
@@ -153,6 +159,8 @@ namespace GameProgII_2DGame_Julia_C02032025
             playerSprite.LoadSprite("player");
 
             Globals.Instance._player = player;
+
+            player.currency = 10; 
             Globals.Instance._scene.AddGameObject(playerObject);
         }
 
@@ -194,6 +202,20 @@ namespace GameProgII_2DGame_Julia_C02032025
             Debug.WriteLine("Game1: Items manager created and added to scene");
         }
         #endregion
+
+        void AddQuests() 
+        {
+            GameObject questList = new GameObject();
+            QuestManager questManager = new QuestManager();
+
+            //Add the component to the game object
+            questList.AddComponent(questManager);
+            Globals.Instance._questManager = questManager;
+
+            //Add the quest manager to the scene
+            Globals.Instance._scene.AddGameObject(questList);                        
+            
+        }
     }
 }
 

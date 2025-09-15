@@ -25,6 +25,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         public int Damage { get; set; }
         public float MovementSpeed { get; set; }
 
+        public int moneyReward { get; set; }
+
+
+
         // Default configurations for enemy types
         public static EnemyConfig GetConfig(EnemyType type)
         {
@@ -35,31 +39,40 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
                     SpriteName = "enemy",
                     MaxHealth = 30,
                     Damage = 5,
-                    MovementSpeed = 1f
+                    MovementSpeed = 1f,
+                    moneyReward = 15
+
                 },
                 EnemyType.Ghost => new EnemyConfig
                 {
                     SpriteName = "ghost",
                     MaxHealth = 20,
                     Damage = 8,
-                    MovementSpeed = 1.5f
+                    MovementSpeed = 1.5f,
+                    moneyReward = 10
+
                 },
                 EnemyType.Archer => new EnemyConfig
                 {
                     SpriteName = "archer",
                     MaxHealth = 40,
                     Damage = 10,
-                    MovementSpeed = 1f
+                    MovementSpeed = 1f,
+                    moneyReward = 20
+
                 },
                 EnemyType.Boss => new EnemyConfig
                 {
                     SpriteName = "boss",
                     MaxHealth = 100,
                     Damage = 20,
-                    MovementSpeed = 1f
+                    MovementSpeed = 1f,
+                    moneyReward = 50
+
+
                 },
                 _ => throw new ArgumentException("Unknown enemy type")
-            };
+            }; 
         }
     }
 
@@ -82,6 +95,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         protected bool isStunned = false;
         public bool enemyMovedOntoPlayerTile { get; protected set; }
         public bool hasTakenTurn { get; set; } = false;
+       
 
         public static List<GameObject> AllEnemies = new(); // tracks gameobjects
         public static List<Enemy> _enemies = new List<Enemy>(); // tracks this component
@@ -310,7 +324,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         public override void OnDestroy() // remove an enemy when it's destroyed
         { 
             Debug.WriteLine("Enemy: OnDestroy called");
-          
+
+            player.currency += config.moneyReward; 
             AllEnemies.Remove(GameObject);
             _enemies.Remove(this);
 

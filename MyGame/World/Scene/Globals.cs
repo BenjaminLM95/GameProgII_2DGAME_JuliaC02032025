@@ -46,6 +46,7 @@ internal class Globals
     public GameHUD _gameHUD;
     public Inventory _inventory;
     public Items _items;
+    public QuestManager _questManager;
 
     public Scene _scene;
     public Globals()

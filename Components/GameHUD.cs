@@ -19,6 +19,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         TileMap tileMap;
         HealthSystem healthSystem;
         Player player;
+        QuestManager questManager; 
 
         // ---------- VARIABLES ---------- //
         // INVENTORY
@@ -111,6 +112,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 itemSlotSprites.Add(new Sprite { Texture = emptyInvTexture });
             }
 
+            // Get the QuestManager
+            questManager = GameObject.FindObjectOfType<QuestManager>();
+           
+
             // Initialize button bounds
             playButtonBounds = new Rectangle(375, 100, 200, 50);
             quitButtonBounds = new Rectangle(375, 150, 200, 50);
@@ -120,6 +125,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (healthSystem == null)
                 healthSystem = GameObject.FindObjectOfType<HealthSystem>();
             if (healthSystem == null) return;
+
+            if(player == null)
+                player = GameObject.FindObjectOfType<Player>();
+
+            if (questManager == null)
+                questManager = GameObject.FindObjectOfType<QuestManager>(); 
 
             UpdateInventoryHUD();
 
@@ -223,6 +234,33 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public void DrawDamage(int damage, Vector2 position)
         {
             DrawFont("Damage: " + damage, position);
+        }
+
+        public void DrawCurrency(Vector2 position) 
+        {
+            int playerCurrency = player.currency;          
+                       
+            DrawFont("Money: " + playerCurrency, position);
+        }
+
+        public void DrawMission(Vector2 position) 
+        {
+            DrawFont("Quests", position);
+            DrawFont("___________", new Vector2(position.X, position.Y + 5));
+
+            for (int i = 0; i < questManager.Quests.Count; i++) 
+            {
+                string statusTxt = "[   ]";
+
+                if (questManager.Quests[i].completed)
+                    statusTxt = "[ X ]"; 
+
+                DrawFont($"{questManager.Quests[i].instructions } { statusTxt }", new Vector2(position.X, position.Y + 25 * (i+1))); 
+                //DrawFont($"Quest: {i } { statusTxt}", new Vector2(position.X, position.Y + 25 * (i+1)));
+                               
+
+            }
+            
         }
 
         private void DrawButton(Vector2 position, string text)
