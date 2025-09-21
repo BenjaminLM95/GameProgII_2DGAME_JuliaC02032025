@@ -325,7 +325,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
         { 
             Debug.WriteLine("Enemy: OnDestroy called");
 
-            player.currency += config.moneyReward; 
+            player.currency += config.moneyReward;  // The player gets the money reward by killing the enemy
+            player.numKills++; // The player kill count increases by one
+
+            if(Type.ToString() == "Boss") 
+            {
+                player.killBoss = true; 
+            }
+
             AllEnemies.Remove(GameObject);
             _enemies.Remove(this);
 

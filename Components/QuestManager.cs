@@ -11,13 +11,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
     {
         // ---------- REFERENCES ---------- //
         Globals globals;
+        Player player; 
 
         // ----------VARIABLES-------------//
 
         public List<Quest> Quests = new List<Quest>();
 
         private int numberQuests = 3; //Set how many quest there are
-        public int enemyKills;
+        public int enemyKills; // This tells how many enemies the player has kill. Player should have a variable for this.
         public bool winTheGame; 
 
         public void setAllTheQuest()
@@ -30,7 +31,40 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // null checks & component assignment
             globals = Globals.Instance; // globals
 
+            // Gets the player
+            player = GameObject.GetComponent<Player>();
+
+            // Obtain the number of kills from the player
+            enemyKills = globals._player.numKills; 
             createQuests();
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if(enemyKills != globals._player.numKills) 
+            {
+                enemyKills = globals._player.numKills;
+                if (enemyKills >= 3 && !Quests[0].completed) 
+                {
+                    Quests[0].completed = true;
+                }
+            }
+
+            if (!Quests[1].completed) 
+            {
+                if (globals._player.firstPurchase) 
+                {
+                    Quests[1].completed = true;
+                }
+            }
+
+            if (!Quests[2].completed) 
+            {
+                if(globals._player.killBoss)
+                    Quests[2].completed = true;
+            }
+
+
         }
 
         public void createQuests() 

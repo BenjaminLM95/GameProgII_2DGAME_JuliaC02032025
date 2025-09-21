@@ -63,7 +63,9 @@ namespace GameProgII_2DGame_Julia_C02032025
 
             AddPlayer();
 
-            AddQuests(); 
+            AddQuests();
+
+            AddShops();
 
             // ***** TURN MANAGER ***** //
             GameObject turnManagerObj = new GameObject();
@@ -103,6 +105,8 @@ namespace GameProgII_2DGame_Julia_C02032025
             }
             Globals.Instance._scene.Update(gameTime);
 
+            Globals.Instance._questManager.Update(time);
+
             base.Update(gameTime);
         }
 
@@ -123,7 +127,9 @@ namespace GameProgII_2DGame_Julia_C02032025
             Vector2 moneyPos = new Vector2(640, 600);
             Globals.Instance._gameHUD.DrawCurrency(moneyPos); // Player curreny
             Vector2 questsPos = new Vector2(900, 100);
-            Globals.Instance._gameHUD.DrawMission(questsPos);
+            Globals.Instance._gameHUD.DrawMission(questsPos); // Game Quests
+            Vector2 shopInfoLoc = new Vector2(900, 400); 
+            Globals.Instance._gameHUD.DrawInStoreSale(shopInfoLoc);
 
             // Drawing Menus
             Globals.Instance._gameHUD.DrawScreen();
@@ -213,8 +219,25 @@ namespace GameProgII_2DGame_Julia_C02032025
             Globals.Instance._questManager = questManager;
 
             //Add the quest manager to the scene
-            Globals.Instance._scene.AddGameObject(questList);                        
+            Globals.Instance._scene.AddGameObject(questList); 
             
+            
+        }
+
+        void AddShops() 
+        {
+            GameObject shopsObject = new GameObject();
+            ShopManager shopManager = new ShopManager();
+
+            // Add the component to the game object
+            shopsObject.AddComponent(shopManager);
+            Globals.Instance._shopManager = shopManager;
+
+            //Add the quest manager to the scene
+            Globals.Instance._scene.AddGameObject(shopsObject);
+
+            shopManager.openShop(shopManager.shops, 0); 
+
         }
     }
 }

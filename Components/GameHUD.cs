@@ -19,7 +19,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         TileMap tileMap;
         HealthSystem healthSystem;
         Player player;
-        QuestManager questManager; 
+        QuestManager questManager;
+        ShopManager shopManager; 
 
         // ---------- VARIABLES ---------- //
         // INVENTORY
@@ -115,6 +116,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             // Get the QuestManager
             questManager = GameObject.FindObjectOfType<QuestManager>();
            
+            // Get the shopManager
+            shopManager = GameObject.FindObjectOfType<ShopManager>();
 
             // Initialize button bounds
             playButtonBounds = new Rectangle(375, 100, 200, 50);
@@ -130,7 +133,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 player = GameObject.FindObjectOfType<Player>();
 
             if (questManager == null)
-                questManager = GameObject.FindObjectOfType<QuestManager>(); 
+                questManager = GameObject.FindObjectOfType<QuestManager>();
+
+            if (shopManager == null)
+                shopManager = GameObject.FindObjectOfType<ShopManager>();
 
             UpdateInventoryHUD();
 
@@ -262,6 +268,24 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             }
             
         }
+
+        public void DrawInStoreSale(Vector2 position) 
+        {
+            if(shopManager.currentShop != null) 
+            {
+                DrawFont("Shop: ", position);
+                DrawFont("Item                Price ", new Vector2(position.X, position.Y + 20));
+                DrawFont("--------------------------", new Vector2(position.X, position.Y + 30));
+
+                for (int i = 0; i < shopManager.currentShop.itemInStock.Count; i++)
+                {
+                    DrawFont(shopManager.currentShop.itemInStock[i].ToString() + "  "
+                        + shopManager.currentShop.getBuyPrice(shopManager.currentShop.itemInStock[i]),
+                        new Vector2(position.X, position.Y + 50 + (20 * i))); 
+                }
+            }
+        }
+
 
         private void DrawButton(Vector2 position, string text)
         {
