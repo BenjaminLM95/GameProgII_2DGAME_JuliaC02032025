@@ -23,7 +23,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         // ---------- REFERENCES ---------- //       
         private Globals globals;
         private Enemy enemy;
-        private MapSystem mapSystem;
+        private MapSystem mapSystem;        
 
 
         // ---------- VARIABLES ---------- //
@@ -54,6 +54,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
                 EnemySpawner.RespawnEnemies(currentLevel);  // regular enemies
             
+
+
             TurnManager.Instance?.ResetTurns();
 
             Debug.WriteLine($"LevelManager: Tracking current level as: {currentLevel}");

@@ -116,7 +116,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 {
                     if (enemy != null && enemy.GameObject != null) // check if enemy is still valid in the scene
                     {
-                        Globals.Instance._player.Attack(enemy, 50);
+                        Globals.Instance._player.Attack(enemy, 25);
                         Debug.WriteLine($"Items: LIGHTNINGSCROLL - Damaged enemy at position {enemy.GameObject.Position}");
                     }
                 }

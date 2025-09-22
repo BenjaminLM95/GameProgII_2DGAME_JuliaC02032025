@@ -155,7 +155,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     Debug.WriteLine("HealthSystem: Boss defeated! Show win screen.");
                     if (hud != null)
                     {
-                        hud.isWinMenu = true; // win screen
+                        //hud.isWinMenu = true; // win screen
                     }
                 }
 

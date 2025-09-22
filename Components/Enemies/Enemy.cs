@@ -182,6 +182,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components.Enemies
             Debug.WriteLine($"Enemy at {GameObject.Position} processing turn");
         }
 
+        public EnemyType getEnemyType() 
+        {
+            return Type; 
+        }
+
         public bool IsNextToPlayer(Player player, bool debug = false)
         {
             if (player == null || player.GameObject == null)

@@ -24,6 +24,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private Inventory inventory;
         private TurnManager turnManager;
         private ShopManager shopManager;
+        private GameHUD hud; 
+        
 
         // ---------- VARIABLES ---------- //
 
@@ -32,10 +34,11 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private int spriteScale = 1;
         public int currency = 0;
         public int numKills = 0;  // This is to count how many enemies the player kills, and this is for the first quest
-        public bool firstPurchase = false;  // this variable is for the second quest
+        public int numPurchases = 0;  // this variable is for the second quest
         public bool killBoss = false;   // This variable is for the third quest
         public int nShop = 0;
-        public bool ableToShop = false; 
+        public bool ableToShop = false;
+        public bool completeAllQuests = false;
 
         // Turn based combat
         private bool canMove = false;
@@ -91,6 +94,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             Debug.WriteLine("Player: Waiting for map initialization and start position...");
             MoveToStartTile();
             StartTurn(turnManager);
+
+            hud = GameObject.GetComponent<GameHUD>();
         }
         public void StartTurn(TurnManager manager)
         {
@@ -137,6 +142,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             {
                 shopManager = globals._shopManager; 
             }
+
+            if (hud == null)
+                hud = GameObject.FindObjectOfType<GameHUD>();
 
             ReadInput(); // WASD and 1,2,3,4,5, check tiles = Obstacle/Enemy/Item
             previousKeyboardState = Keyboard.GetState();
@@ -185,8 +193,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 if (shopManager.currentShop.itemInStock.Count > 0)
                 {
                     shopManager.currentShop.buyItem(shopManager.currentShop.itemInStock[0]);
-                    if (!firstPurchase)
-                        firstPurchase = true;
+                    numPurchases++; 
                 }
             }
 
@@ -195,8 +202,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 if (shopManager.currentShop.itemInStock.Count > 1)
                 {
                     shopManager.currentShop.buyItem(shopManager.currentShop.itemInStock[1]);
-                    if (!firstPurchase)
-                        firstPurchase = true;
+                    numPurchases++;
                 }
             }
 
@@ -205,8 +211,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 if (shopManager.currentShop.itemInStock.Count > 2)
                 {
                     shopManager.currentShop.buyItem(shopManager.currentShop.itemInStock[2]);
-                    if (!firstPurchase)
-                        firstPurchase = true;
+                    numPurchases++;
                 }
             }
 
@@ -221,6 +226,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     inventory.UseInventoryItem(i);
                 }
             }
+
+            if (IsShop(GameObject.Position))
+            {
+                shopManager.openShop(shopManager.shops, nShop - 1);
+                ableToShop = true;
+            }
+            else
+                ableToShop = false;
 
             if (moved) 
             {
@@ -254,6 +267,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 {
                     GameObject.Position = targetPos;
                     hasMovedThisTurn = true;
+
+                    if (completeAllQuests) 
+                    {
+                        // If the player completes all the quest, win the game
+                        hud.isWinMenu = true;
+                    }
                     
                     globals._mapSystem.LoadNextLevel(); // gen rand next level
                     
@@ -275,13 +294,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     return;
                 }
 
-                if (IsShop(GameObject.Position))
-                {
-                    shopManager.openShop(shopManager.shops, nShop - 1);
-                    ableToShop = true;
-                }
-                else
-                    ableToShop = false; 
+                
 
                     // Normal move
                     GameObject.Position = targetPos;

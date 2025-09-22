@@ -19,7 +19,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         private int numberQuests = 3; //Set how many quest there are
         public int enemyKills; // This tells how many enemies the player has kill. Player should have a variable for this.
-        public bool winTheGame; 
+        //public bool completeAllQuests; // This will be true if you complete all the quests
+        
 
         public void setAllTheQuest()
         {
@@ -32,7 +33,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             globals = Globals.Instance; // globals
 
             // Gets the player
-            player = GameObject.GetComponent<Player>();
+            player = GameObject.FindObjectOfType<Player>();
 
             // Obtain the number of kills from the player
             enemyKills = globals._player.numKills; 
@@ -41,7 +42,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
         public override void Update(float deltaTime)
         {
-            if(enemyKills != globals._player.numKills) 
+            if(player == null)
+                player = GameObject.GetComponent<Player>();
+
+            if (enemyKills != globals._player.numKills) 
             {
                 enemyKills = globals._player.numKills;
                 if (enemyKills >= 3 && !Quests[0].completed) 
@@ -52,7 +56,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
 
             if (!Quests[1].completed) 
             {
-                if (globals._player.firstPurchase) 
+                if (globals._player.numPurchases > 1) 
                 {
                     Quests[1].completed = true;
                 }
@@ -64,6 +68,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     Quests[2].completed = true;
             }
 
+            if (!player.completeAllQuests) 
+            {
+                if (Quests[0].completed && Quests[1].completed && Quests[2].completed) 
+                {
+                    player.completeAllQuests = true;
+                }
+            }
 
         }
 
@@ -77,8 +88,16 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if(Quests.Count >= 3) 
             {
                 Quests[0].SetInstruction("Kill 3 enemies");
-                Quests[1].SetInstruction("Buy 1 item");
+                Quests[1].SetInstruction("Buy 2 items");
                 Quests[2].SetInstruction("Defeat the boss"); 
+            }
+        }
+
+        public void resetQuests() 
+        {
+            for (int i = 0; i < Quests.Count; i++) 
+            {
+                Quests[i].completed = false; 
             }
         }
     }

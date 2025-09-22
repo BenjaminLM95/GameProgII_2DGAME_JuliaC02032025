@@ -262,9 +262,13 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     statusTxt = "[ X ]"; 
 
                 DrawFont($"{questManager.Quests[i].instructions } { statusTxt }", new Vector2(position.X, position.Y + 25 * (i+1))); 
-                //DrawFont($"Quest: {i } { statusTxt}", new Vector2(position.X, position.Y + 25 * (i+1)));
-                               
+                                           
 
+            }
+
+            if (player.completeAllQuests) 
+            {
+                DrawFont("Now go to the ship to escape!!", new Vector2(position.X, position.Y + 100));
             }
             
         }

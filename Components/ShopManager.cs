@@ -110,6 +110,14 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             setShopPosition(shops, 2, new Vector2(64, 96));
         }
 
+        public void resetShops() 
+        {
+            for (int i = 0; i < shops.Count; i++) 
+            {
+                shops[i].itemInStock.Clear();
+                AddAllShops();
+            }
+        }
 
     }
 
