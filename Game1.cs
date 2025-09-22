@@ -234,9 +234,7 @@ namespace GameProgII_2DGame_Julia_C02032025
             Globals.Instance._shopManager = shopManager;
 
             //Add the quest manager to the scene
-            Globals.Instance._scene.AddGameObject(shopsObject);
-
-            shopManager.openShop(shopManager.shops, 0); 
+            Globals.Instance._scene.AddGameObject(shopsObject);            
 
         }
     }

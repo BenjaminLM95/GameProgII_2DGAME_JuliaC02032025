@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace GameProgII_2DGame_Julia_C02032025.Components
 {
@@ -19,8 +23,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             // null checks & component assignment
             globals = Globals.Instance; // globals
-
             AddAllShops();
+
+            setShopsInTilemap();
         }
 
         public void AddAllShops() 
@@ -74,6 +79,37 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (listShop[index] != null)
             currentShop = listShop[index];
         }
+
+        public void setShopPosition(List<Shop> _listShops, int index, Vector2 pos) 
+        {
+            _listShops[index].shopPosition = pos;
+        }
+
+        public override void Draw(SpriteBatch spriteBatch) 
+        {
+            try
+            {
+                for(int i = 0; i < shops.Count; i++) 
+                {
+                    spriteBatch.Draw(shops[i].shopTexture, new Rectangle((int)shops[i].shopPosition.X, (int)shops[i].shopPosition.Y, 32, 32), 
+                        Color.White);                  
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Items: Error drawing item: {ex.Message}");
+            }
+        }
+
+        public void setShopsInTilemap() 
+        {
+            // put the shop in certain position
+            setShopPosition(shops, 0, new Vector2(608, 224));
+            setShopPosition(shops, 1, new Vector2(160, 320));
+            setShopPosition(shops, 2, new Vector2(64, 96));
+        }
+
 
     }
 

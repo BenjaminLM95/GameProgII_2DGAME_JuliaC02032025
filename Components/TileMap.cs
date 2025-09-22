@@ -40,6 +40,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public Texture2D bossTexture { get; private set; }
         public Texture2D bossProj { get; private set; }
 
+        public Texture2D shopTexture { get; private set; }
+
         public TileMap() { }
         public TileMap(SpriteBatch spriteBatch)
         {
@@ -94,6 +96,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 archerProj = content.Load<Texture2D>("archer_proj");
                 bossTexture = content.Load<Texture2D>("boss");
                 bossProj = content.Load<Texture2D>("boss_proj");
+                shopTexture = content.Load<Texture2D>("ShopImg"); 
 
                 Debug.WriteLine("TileMap: Textures loaded successfully.");
             }

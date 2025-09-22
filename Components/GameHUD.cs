@@ -273,15 +273,22 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         {
             if(shopManager.currentShop != null) 
             {
-                DrawFont("Shop: ", position);
+                string buttonBuy = "";
+
+                DrawFont("Shop: " + player.nShop, position);
                 DrawFont("Item                Price ", new Vector2(position.X, position.Y + 20));
                 DrawFont("--------------------------", new Vector2(position.X, position.Y + 30));
 
                 for (int i = 0; i < shopManager.currentShop.itemInStock.Count; i++)
                 {
-                    DrawFont(shopManager.currentShop.itemInStock[i].ToString() + "  "
-                        + shopManager.currentShop.getBuyPrice(shopManager.currentShop.itemInStock[i]),
-                        new Vector2(position.X, position.Y + 50 + (20 * i))); 
+                    if (i == 0) buttonBuy = "[I]";
+                    else if (i == 1) buttonBuy = "[O]";
+                    else if (i == 2) buttonBuy = "[P]"; 
+
+
+                        DrawFont(buttonBuy + "    " + shopManager.currentShop.itemInStock[i].ToString() + "  "
+                            + shopManager.currentShop.getBuyPrice(shopManager.currentShop.itemInStock[i]),
+                            new Vector2(position.X, position.Y + 50 + (20 * i))); 
                 }
             }
         }

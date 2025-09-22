@@ -13,7 +13,9 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         HealthPotion,
         FireScroll,
         LightningScroll,
-        WarpScroll
+        WarpScroll,
+        Sold,
+        None
     }
 
     internal class Item : GameObject
@@ -42,6 +44,10 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     break;
                 case ItemType.WarpScroll:
                     WarpPlayer(player, tileMap);
+                    break;
+                case ItemType.Sold:
+                    break;
+                case ItemType.None:
                     break;
             }
         }

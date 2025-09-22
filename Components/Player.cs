@@ -22,7 +22,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         private HealthSystem healthSystem;
         private Sprite playerSprite;
         private Inventory inventory;
-        private TurnManager turnManager; 
+        private TurnManager turnManager;
+        private ShopManager shopManager;
 
         // ---------- VARIABLES ---------- //
 
@@ -33,7 +34,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         public int numKills = 0;  // This is to count how many enemies the player kills, and this is for the first quest
         public bool firstPurchase = false;  // this variable is for the second quest
         public bool killBoss = false;   // This variable is for the third quest
-        
+        public int nShop = 0;
+        public bool ableToShop = false; 
 
         // Turn based combat
         private bool canMove = false;
@@ -84,6 +86,8 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 Debug.WriteLine("Player: Inventory component was missing, added dynamically.");
             }
 
+            shopManager = GameObject.GetComponent<ShopManager>(); 
+
             Debug.WriteLine("Player: Waiting for map initialization and start position...");
             MoveToStartTile();
             StartTurn(turnManager);
@@ -106,6 +110,7 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
             if (turnManager != null)
             {
                 turnManager.EndTurn();
+                Debug.WriteLine(GameObject.Position.X + " , " + GameObject.Position.Y); 
                 Debug.WriteLine("Player: Turn ended.");
             }
         }
@@ -127,6 +132,12 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 healthSystem = GameObject.GetComponent<HealthSystem>();
                 Debug.WriteLine("Player: Still trying to find HealthSystem component...");
             }
+
+            if(shopManager == null) 
+            {
+                shopManager = globals._shopManager; 
+            }
+
             ReadInput(); // WASD and 1,2,3,4,5, check tiles = Obstacle/Enemy/Item
             previousKeyboardState = Keyboard.GetState();
         }
@@ -168,7 +179,38 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                 moved = true;
                 movementDirection = Vector2.UnitX;
             }
-            
+
+            if(IsNewKeyPress(currentKeyboardState, previousKeyboardState, Keys.I) && ableToShop) 
+            {
+                if (shopManager.currentShop.itemInStock.Count > 0)
+                {
+                    shopManager.currentShop.buyItem(shopManager.currentShop.itemInStock[0]);
+                    if (!firstPurchase)
+                        firstPurchase = true;
+                }
+            }
+
+            if (IsNewKeyPress(currentKeyboardState, previousKeyboardState, Keys.O) && ableToShop)
+            {
+                if (shopManager.currentShop.itemInStock.Count > 1)
+                {
+                    shopManager.currentShop.buyItem(shopManager.currentShop.itemInStock[1]);
+                    if (!firstPurchase)
+                        firstPurchase = true;
+                }
+            }
+
+            if (IsNewKeyPress(currentKeyboardState, previousKeyboardState, Keys.P) && ableToShop)
+            {
+                if (shopManager.currentShop.itemInStock.Count > 2)
+                {
+                    shopManager.currentShop.buyItem(shopManager.currentShop.itemInStock[2]);
+                    if (!firstPurchase)
+                        firstPurchase = true;
+                }
+            }
+
+
             for (int i = 0; i < 5; i++) // Check if a number key (1-5) is pressed to use an item
             {
                 Keys key = (Keys)((int)Keys.D1 + i); // Maps 1-5 keys
@@ -233,8 +275,16 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
                     return;
                 }
 
-                // Normal move
-                GameObject.Position = targetPos;
+                if (IsShop(GameObject.Position))
+                {
+                    shopManager.openShop(shopManager.shops, nShop - 1);
+                    ableToShop = true;
+                }
+                else
+                    ableToShop = false; 
+
+                    // Normal move
+                    GameObject.Position = targetPos;
                 if (debug) Debug.WriteLine($"Player: moved to position - {targetPos}");
                 hasMovedThisTurn = true;
                 EndPlayerTurn();
@@ -345,6 +395,38 @@ namespace GameProgII_2DGame_Julia_C02032025.Components
         }
 
         // Finds the "start" tile and moves the player to it
+
+        public bool IsShop(Vector2 playerPosition) 
+        {
+            bool _isShop = false; 
+            if (tileMap == null) return false;
+                        
+            for (int i = 0; i < shopManager.shops.Count; i++) 
+            {
+                if (!_isShop)
+                {
+                    if (playerPosition.X >= shopManager.shops[i].shopPosition.X - 32 && playerPosition.X <= shopManager.shops[i].shopPosition.X + 32
+                        && playerPosition.Y >= shopManager.shops[i].shopPosition.Y - 32 && playerPosition.Y <= shopManager.shops[i].shopPosition.Y + 32)
+                    {
+                        nShop = i + 1;
+                        _isShop = true;
+                        Debug.WriteLine("I am in shop");
+                        
+                    }
+                }
+            }
+
+            if (!_isShop) 
+            {
+                shopManager.closeShop(); 
+                nShop = 0;
+            }           
+                
+
+            return _isShop;
+           
+        }
+
         public void MoveToStartTile()
         {
             if (tileMap == null) return;
